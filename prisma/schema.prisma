@@ -14,20 +14,27 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
+  id           Int      @id @default(autoincrement()) 
   email        String   @unique
   name         String
   passwordHash String
   createdAt    DateTime @default(now())
-subjetcs Subject[] @relation("UserSubject")
+  subject UserOnSubject[]
+
 }
 model Subject {
   id           Int      @id @default(autoincrement())
   name       String   @unique
-
-  users User[] @relation("UserSubject")
- 
+  use UserOnSubject[]
 }
 
+model UserOnSubject{
+  user User @relation(fields:[idUser], references:[id])
+  idUser Int
+  subject Subject @relation(fields:[idSubject], references:[id])
+  idSubject Int
+
+  @@id([idUser, idSubject])
+}
 
 

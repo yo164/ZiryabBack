@@ -1,6 +1,10 @@
 import app from './app.js';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
+//import { PrismaClient } from '@prisma/client';
+
+
+//export const clientePrisma = new PrismaClient();
 
 const server = app.listen(env.PORT, () => {
   logger.info(`API escuchando en http://localhost:${env.PORT}`);

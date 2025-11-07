@@ -1,4 +1,5 @@
 import express from 'express';
+import pg from 'pg';
 import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
@@ -11,6 +12,10 @@ import authRoutes from './modules/auth/auth.routes.js';
 import usersRoutes from './modules/users/users.routes.js';
 
 const app = express();
+
+const postgre = pg;
+
+
 
 app.use(helmet({
   contentSecurityPolicy: false,

@@ -1,0 +1,1 @@
+//rutas , son los get y demás

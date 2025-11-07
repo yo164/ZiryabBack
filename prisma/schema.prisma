@@ -19,4 +19,15 @@ model User {
   name         String
   passwordHash String
   createdAt    DateTime @default(now())
+subjetcs Subject[] @relation("UserSubject")
 }
+model Subject {
+  id           Int      @id @default(autoincrement())
+  name       String   @unique
+
+  users User[] @relation("UserSubject")
+ 
+}
+
+
+

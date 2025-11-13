@@ -10,6 +10,8 @@ import { env } from './config/env.js';
 import { swaggerSpec } from './config/swagger.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import usersRoutes from './modules/users/users.routes.js';
+import taskRoutes from './modules/task/task.routes.js'
+
 
 const app = express();
 
@@ -23,6 +25,7 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
+app.use('/api/tasks', taskRoutes);
 
 if (env.NODE_ENV !== 'test') {
   app.use(generalLimiter);

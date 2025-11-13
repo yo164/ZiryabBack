@@ -19,7 +19,8 @@ model User {
   name         String
   passwordHash String
   createdAt    DateTime @default(now())
-  subject UserOnSubject[]
+  subject      UserOnSubject[]
+  task         Task[]
 
 }
 model Subject {
@@ -35,6 +36,16 @@ model UserOnSubject{
   idSubject Int
 
   @@id([idUser, idSubject])
+}
+
+model Task {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 

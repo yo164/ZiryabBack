@@ -136,6 +136,30 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        Task: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', example: 1, description: 'ID de la tarea' },
+            userId: { type: 'integer', example: 10, description: 'ID del usuario propietario' },
+            title: { type: 'string', example: 'Estudiar para examen', description: 'Título de la tarea' },
+            done: { type: 'boolean', example: false, description: '¿Está completada?' },
+            createdAt: { type: 'string', format: 'date-time', example: '2025-11-13T18:39:33.952Z', description: 'Fecha de creación' }
+          }
+        },
+        CreateTask: {
+          type: 'object',
+          required: ['title'],
+          properties: {
+            title: { type: 'string', example: 'Preparar presentación' }
+          }
+        },
+        UpdateTask: {
+          type: 'object',
+          properties: {
+            title: { type: 'string', example: 'Preparar demo' },
+            done: { type: 'boolean', example: true }
+          }
+        },
       },
     },
     tags: [
@@ -147,7 +171,13 @@ const options: swaggerJsdoc.Options = {
         name: 'Users',
         description: 'Gestión de usuarios',
       },
+      {
+        name: 'Tasks',
+        description: 'Gestión de tareas personales del usuario'
+      },
+
     ],
+
   },
   apis: [join(__dirname, '../modules/**/*.routes.js')],
 };

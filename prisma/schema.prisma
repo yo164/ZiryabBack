@@ -13,39 +13,98 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Student {
   id           Int      @id @default(autoincrement()) 
   email        String   @unique
   name         String
+  surname      String
+  ndSurname    String?
+  fechaNacimiento DateTime 
+  dni          String   @unique
+  createdAt    DateTime @default(now())
+
+  enrollments  StudentOnSubjectonGroup[] 
+}
+
+model Teacher {
+  id           Int      @id @default(autoincrement()) 
+  email        String   @unique
+  name         String
+  surname      String
+  ndSurname    String?
+  fechaNacimiento DateTime 
+  dni          String   @unique
+  createdAt    DateTime @default(now())
+
+  subject TeacherOnSubject[] 
+}
+
+model Admin{
+  id           Int      @id @default(autoincrement()) 
+  email        String   @unique
+  name         String
+  surname      String
+  ndSurname    String?
+  fechaNacimiento DateTime 
+  dni          String   @unique
   passwordHash String
   createdAt    DateTime @default(now())
-  subject      UserOnSubject[]
-  task         Task[]
-
 }
+
+model Ciclo {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  subjects    Subject[]
+  groups      Group[]
+}
+
 model Subject {
-  id           Int      @id @default(autoincrement())
-  name       String   @unique
-  use UserOnSubject[]
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  idCiclo     Int
+  ciclo       Ciclo    @relation(fields: [idCiclo], references: [id])
+
+  enrollments StudentOnSubjectonGroup[]
+  teacher     TeacherOnSubject[]
 }
 
-model UserOnSubject{
-  user User @relation(fields:[idUser], references:[id])
-  idUser Int
-  subject Subject @relation(fields:[idSubject], references:[id])
-  idSubject Int
 
-  @@id([idUser, idSubject])
-}
-
-model Task {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  title     String
-  done      Boolean  @default(false)
+model Group {
+  id    Int   @id @default(autoincrement())
+  name  String
+  idCiclo Int
+  ciclo Ciclo @relation(fields:[idCiclo], references:[id])
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id])
+  enrollments StudentOnSubjectonGroup[] 
+
+  @@unique([name, idCiclo]) 
 }
 
+model TeacherOnSubject{
+  idSubject Int
+  subject Subject @relation(fields:[idSubject], references:[id])
 
+  idTeacher Int
+  teacher Teacher @relation(fields:[idTeacher], references:[id])
+
+  @@id([idSubject, idTeacher])
+}
+
+model StudentOnSubjectonGroup{
+  idStudent    Int
+  student      Student  @relation(fields: [idStudent], references: [id])
+
+  idGroup      Int
+  group        Group    @relation(fields: [idGroup], references: [id])
+
+  idSubject    Int
+  subject      Subject  @relation(fields: [idSubject], references: [id])
+
+  cursoEscolar String
+  createdAt    DateTime @default(now())
+
+  @@unique([idStudent, idGroup, idSubject, cursoEscolar])
+  @@id([idStudent, idGroup, idSubject])
+}

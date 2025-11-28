@@ -23,7 +23,7 @@ model Student {
   dni          String   @unique
   createdAt    DateTime @default(now())
 
-  enrollments  StudentOnSubjectonGroup[] 
+  subject  StudentOnSubjectonGroup[] 
 }
 
 model Teacher {
@@ -65,7 +65,7 @@ model Subject {
   idCiclo     Int
   ciclo       Ciclo    @relation(fields: [idCiclo], references: [id])
 
-  enrollments StudentOnSubjectonGroup[]
+  student     StudentOnSubjectonGroup[]
   teacher     TeacherOnSubject[]
 }
 
@@ -77,7 +77,7 @@ model Group {
   ciclo Ciclo @relation(fields:[idCiclo], references:[id])
   createdAt DateTime @default(now())
 
-  enrollments StudentOnSubjectonGroup[] 
+  student StudentOnSubjectonGroup[] 
 
   @@unique([name, idCiclo]) 
 }

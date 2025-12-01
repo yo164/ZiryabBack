@@ -74,7 +74,6 @@ model Group {
   id    Int   @id @default(autoincrement())
   name  String
   idCiclo Int
-  ciclo Ciclo @relation(fields:[idCiclo], references:[id])
   createdAt DateTime @default(now())
 
   student StudentOnSubjectonGroup[] 

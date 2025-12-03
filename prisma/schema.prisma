@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,96 +8,96 @@ datasource db {
 }
 
 model Student {
-  id           Int      @id @default(autoincrement()) 
-  email        String   @unique
-  name         String
-  surname      String
-  ndSurname    String?
-  fechaNacimiento DateTime 
-  dni          String   @unique
-  createdAt    DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String
+  surname    String
+  ndSurname  String?
+  birthDate  DateTime
+  dni        String   @unique
+  role       String   @default("STUDENT")
+  createdAt  DateTime @default(now())
 
-  subject  StudentOnSubjectonGroup[] 
+  subject    StudentOnSubjectonGroup[]
 }
 
 model Teacher {
-  id           Int      @id @default(autoincrement()) 
-  email        String   @unique
-  name         String
-  surname      String
-  ndSurname    String?
-  fechaNacimiento DateTime 
-  dni          String   @unique
-  createdAt    DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String
+  surname    String
+  ndSurname  String?
+  birthDate  DateTime
+  dni        String   @unique
+  role       String   @default("TEACHER")
+  createdAt  DateTime @default(now())
 
-  subject TeacherOnSubject[] 
+  subject    TeacherOnSubject[]
 }
 
-model Admin{
-  id           Int      @id @default(autoincrement()) 
-  email        String   @unique
-  name         String
-  surname      String
-  ndSurname    String?
-  fechaNacimiento DateTime 
-  dni          String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+model Admin {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String
+  surname    String
+  ndSurname  String?
+  birthDate  DateTime
+  dni        String   @unique
+  role       String   @default("ADMIN")
+  createdAt  DateTime @default(now())
 }
 
-model Ciclo {
-  id   Int    @id @default(autoincrement())
-  name String
+model Course {
+  id       Int      @id @default(autoincrement())
+  name     String
 
-  subjects    Subject[]
-  groups      Group[]
+  subjects Subject[]
 }
 
 model Subject {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  idCiclo     Int
-  ciclo       Ciclo    @relation(fields: [idCiclo], references: [id])
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  idCourse Int
+  course   Course   @relation(fields: [idCourse], references: [id])
 
-  student     StudentOnSubjectonGroup[]
-  teacher     TeacherOnSubject[]
+  student  StudentOnSubjectonGroup[]
+  teacher  TeacherOnSubject[]
 }
-
 
 model Group {
-  id    Int   @id @default(autoincrement())
-  name  String
-  idCiclo Int
+  id        Int      @id @default(autoincrement())
+  name      String
+  idCourse  Int
   createdAt DateTime @default(now())
 
-  student StudentOnSubjectonGroup[] 
+  student   StudentOnSubjectonGroup[]
 
-  @@unique([name, idCiclo]) 
+  @@unique([name, idCourse])
 }
 
-model TeacherOnSubject{
+model TeacherOnSubject {
   idSubject Int
-  subject Subject @relation(fields:[idSubject], references:[id])
+  subject   Subject @relation(fields: [idSubject], references: [id])
 
   idTeacher Int
-  teacher Teacher @relation(fields:[idTeacher], references:[id])
+  teacher   Teacher @relation(fields: [idTeacher], references: [id])
 
   @@id([idSubject, idTeacher])
 }
 
-model StudentOnSubjectonGroup{
-  idStudent    Int
-  student      Student  @relation(fields: [idStudent], references: [id])
+model StudentOnSubjectonGroup {
+  idStudent  Int
+  student    Student @relation(fields: [idStudent], references: [id])
 
-  idGroup      Int
-  group        Group    @relation(fields: [idGroup], references: [id])
+  idGroup    Int
+  group      Group   @relation(fields: [idGroup], references: [id])
 
-  idSubject    Int
-  subject      Subject  @relation(fields: [idSubject], references: [id])
+  idSubject  Int
+  subject    Subject @relation(fields: [idSubject], references: [id])
 
-  cursoEscolar String
-  createdAt    DateTime @default(now())
+  schoolYear String
+  createdAt  DateTime @default(now())
 
-  @@unique([idStudent, idGroup, idSubject, cursoEscolar])
+  @@unique([idStudent, idGroup, idSubject, schoolYear])
   @@id([idStudent, idGroup, idSubject])
 }

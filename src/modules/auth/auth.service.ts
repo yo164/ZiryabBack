@@ -1,42 +1,75 @@
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.js';
-import { createUser, findUserByEmail } from '../users/users.service.js';
+import prisma from '../../config/prisma.js';
+import { firebaseAuth } from '../../config/firebase.js';
 
-export async function register(email: string, name: string, password: string) {
-  const existing = await findUserByEmail(email);
+/**
+ * Verifica el token de Firebase
+ */
+export async function verifyFirebaseToken(firebaseToken: string) {
+  try {
+    const decodedToken = await firebaseAuth.verifyIdToken(firebaseToken);
+    return {
+      uid: decodedToken.uid,
+      email: decodedToken.email!,
+    };
+  } catch (error) {
+    throw new Error('Token de Firebase inválido');
+  }
+}
+
+/**
+ * Registra un usuario después de que Firebase lo haya autenticado
+ */
+export async function register(email: string, name: string, firebaseUid: string) {
+  const existing = await prisma.admin.findUnique({ where: { email } });
   if (existing) {
     throw new Error('Email ya registrado');
   }
   
-  const hash = await bcrypt.hash(password, env.BCRYPT_SALT_ROUNDS);
-  const user = await createUser(email, name, hash);
-  const token = jwt.sign({ sub: user.id, email: user.email }, env.JWT_SECRET, { expiresIn: '7d' });
+  const user = await prisma.admin.create({
+    data: {
+      email,
+      name,
+      surname: 'Por definir',
+      dni: `FIREBASE-${firebaseUid}`,
+      birthDate: new Date('2000-01-01'),
+    },
+  });
+  
+  const token = jwt.sign(
+    { sub: user.id, email: user.email, role: user.role },
+    env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
   
   return { user, token };
 }
 
-export async function login(email: string, password: string) {
-  const user = await findUserByEmail(email);
+/**
+ * Login: Firebase ya validó las credenciales
+ */
+export async function login(email: string, firebaseUid: string) {
+  const user = await prisma.admin.findUnique({ where: { email } });
+  
   if (!user) {
-    throw new Error('Credenciales inválidas');
+    throw new Error('Usuario no encontrado. Debes registrarte primero.');
   }
   
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) {
-    throw new Error('Credenciales inválidas');
-  }
-  
-  const token = jwt.sign({ sub: user.id, email: user.email }, env.JWT_SECRET, { expiresIn: '7d' });
+  const token = jwt.sign(
+    { sub: user.id, email: user.email, role: user.role },
+    env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
   
   return { 
     user: { 
       id: user.id, 
       email: user.email, 
       name: user.name,
+      role: user.role,
       createdAt: user.createdAt
     }, 
     token 
   };
 }
-

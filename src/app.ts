@@ -1,23 +1,18 @@
 import express from 'express';
-import pg from 'pg';
 import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
 import { errorHandler } from './middleware/error.js';
-import { generalLimiter, authLimiter } from './middleware/rateLimiter.js';
+import { generalLimiter } from './middleware/rateLimiter.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { env } from './config/env.js';
 import { swaggerSpec } from './config/swagger.js';
-import authRoutes from './modules/auth/auth.routes.js';
-import usersRoutes from './modules/users/users.routes.js';
-import taskRoutes from './modules/task/task.routes.js'
-
+// import authRoutes from './modules/auth/auth.routes.js'; // Comentado para pruebas
+import taskRoutes from './modules/task/task.routes.js';
+import studentsRoutes from './modules/students/students.routes.js';
+import subjectsRoutes from './modules/subjects/subjects.routes.js';
 
 const app = express();
-
-const postgre = pg;
-
-
 
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -25,25 +20,40 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
-app.use('/api/tasks', taskRoutes);
 
 if (env.NODE_ENV !== 'test') {
   app.use(generalLimiter);
 }
 
+// Ruta de health check
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
+// Ruta principal con info de endpoints
+app.get('/', (_req, res) => {
+  res.json({
+    message: '🎓 API Escolar - Bienvenido',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      docs: '/api-docs',
+      students: '/api/students',
+      subjects: '/api/subjects',
+      tasks: '/api/tasks',
+    },
+  });
+});
+
+// Documentación Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-if (env.NODE_ENV !== 'test') {
-  app.use('/api/auth', authLimiter, authRoutes);
-} else {
-  app.use('/api/auth', authRoutes);
-}
+// Rutas de la API
+app.use('/api/tasks', taskRoutes);
+app.use('/api/students', studentsRoutes);
+app.use('/api/subjects', subjectsRoutes);
 
-app.use('/api/users', usersRoutes);
+// Rutas de auth comentadas para pruebas
+// app.use('/api/auth', authRoutes);
 
 app.use(errorHandler);
 
 export default app;
-

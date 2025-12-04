@@ -1,183 +1,9 @@
 import type { Request, Response } from 'express';
-import * as subjectsService from './subjects.service.js';
+import * as studentsService from './students.service.js';
 
-export const getAllSubjects = async (req: Request, res: Response) => {
+export const getAllStudents = async (req: Request, res: Response) => {
     try {
-        const subjects = await subjectsService.findAll();
-        res.json({
-            success: true,
-            data: subjects,
-            count: subjects.length,
-        });
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener asignaturas',
-            error: error.message,
-        });
-    }
-};
-
-export const getSubjectById = async (req: Request, res: Response) => {
-    try {
-        const id = parseInt(req.params.id || '0');
-
-        if (isNaN(id) || id === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'ID inválido',
-            });
-        }
-
-        const subject = await subjectsService.findById(id);
-
-        if (!subject) {
-            return res.status(404).json({
-                success: false,
-                message: 'Asignatura no encontrada',
-            });
-        }
-
-        res.json({
-            success: true,
-            data: subject,
-        });
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener asignatura',
-            error: error.message,
-        });
-    }
-};
-
-export const createSubject = async (req: Request, res: Response) => {
-    try {
-        const subjectData = req.body;
-        const newSubject = await subjectsService.create(subjectData);
-
-        res.status(201).json({
-            success: true,
-            message: 'Asignatura creada exitosamente',
-            data: newSubject,
-        });
-    } catch (error: any) {
-        res.status(400).json({
-            success: false,
-            message: 'Error al crear asignatura',
-            error: error.message,
-        });
-    }
-};
-
-export const updateSubject = async (req: Request, res: Response) => {
-    try {
-        const id = parseInt(req.params.id || '0');
-
-        if (isNaN(id) || id === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'ID inválido',
-            });
-        }
-
-        const subjectData = req.body;
-        const updatedSubject = await subjectsService.update(id, subjectData);
-
-        res.json({
-            success: true,
-            message: 'Asignatura actualizada exitosamente',
-            data: updatedSubject,
-        });
-    } catch (error: any) {
-        if (error.message === 'Asignatura no encontrada') {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        res.status(400).json({
-            success: false,
-            message: 'Error al actualizar asignatura',
-            error: error.message,
-        });
-    }
-};
-
-export const deleteSubject = async (req: Request, res: Response) => {
-    try {
-        const id = parseInt(req.params.id || '0');
-
-        if (isNaN(id) || id === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'ID inválido',
-            });
-        }
-
-        await subjectsService.remove(id);
-
-        res.json({
-            success: true,
-            message: 'Asignatura eliminada exitosamente',
-        });
-    } catch (error: any) {
-        if (error.message === 'Asignatura no encontrada') {
-            return res.status(404).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            message: 'Error al eliminar asignatura',
-            error: error.message,
-        });
-    }
-};
-
-export const getSubjectTeachers = async (req: Request, res: Response) => {
-    try {
-        const id = parseInt(req.params.id || '0');
-
-        if (isNaN(id) || id === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'ID inválido',
-            });
-        }
-
-        const teachers = await subjectsService.findTeachersBySubjectId(id);
-
-        res.json({
-            success: true,
-            data: teachers,
-            count: teachers.length,
-        });
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener profesores de la asignatura',
-            error: error.message,
-        });
-    }
-};
-
-export const getSubjectStudents = async (req: Request, res: Response) => {
-    try {
-        const id = parseInt(req.params.id || '0');
-
-        if (isNaN(id) || id === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'ID inválido',
-            });
-        }
-
-        const students = await subjectsService.findStudentsBySubjectId(id);
-
+        const students = await studentsService.findAll();
         res.json({
             success: true,
             data: students,
@@ -186,7 +12,154 @@ export const getSubjectStudents = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({
             success: false,
-            message: 'Error al obtener estudiantes de la asignatura',
+            message: 'Error al obtener estudiantes',
+            error: error.message,
+        });
+    }
+};
+
+export const getStudentById = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido',
+            });
+        }
+
+        const student = await studentsService.findById(id);
+
+        if (!student) {
+            return res.status(404).json({
+                success: false,
+                message: 'Estudiante no encontrado',
+            });
+        }
+
+        res.json({
+            success: true,
+            data: student,
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener estudiante',
+            error: error.message,
+        });
+    }
+};
+
+export const createStudent = async (req: Request, res: Response) => {
+    try {
+        const studentData = req.body;
+        const newStudent = await studentsService.create(studentData);
+
+        res.status(201).json({
+            success: true,
+            message: 'Estudiante creado exitosamente',
+            data: newStudent,
+        });
+    } catch (error: any) {
+        res.status(400).json({
+            success: false,
+            message: 'Error al crear estudiante',
+            error: error.message,
+        });
+    }
+};
+
+export const updateStudent = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido',
+            });
+        }
+
+        const studentData = req.body;
+        const updatedStudent = await studentsService.update(id, studentData);
+
+        res.json({
+            success: true,
+            message: 'Estudiante actualizado exitosamente',
+            data: updatedStudent,
+        });
+    } catch (error: any) {
+        if (error.message === 'Estudiante no encontrado') {
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
+        res.status(400).json({
+            success: false,
+            message: 'Error al actualizar estudiante',
+            error: error.message,
+        });
+    }
+};
+
+export const deleteStudent = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido',
+            });
+        }
+
+        await studentsService.remove(id);
+
+        res.json({
+            success: true,
+            message: 'Estudiante eliminado exitosamente',
+        });
+    } catch (error: any) {
+        if (error.message === 'Estudiante no encontrado') {
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: 'Error al eliminar estudiante',
+            error: error.message,
+        });
+    }
+};
+
+export const getStudentSubjects = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido',
+            });
+        }
+
+        const subjects = await studentsService.findSubjectsByStudentId(id);
+
+        res.json({
+            success: true,
+            data: subjects,
+            count: subjects.length,
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener asignaturas del estudiante',
             error: error.message,
         });
     }

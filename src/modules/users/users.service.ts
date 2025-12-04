@@ -1,4 +1,4 @@
-import { prisma } from '../../config/db.js';
+/*import { prisma } from '../../config/db.js';
 import bcrypt from 'bcrypt';
 import { env } from '../../config/env.js';
 
@@ -69,3 +69,4 @@ export async function changePassword(userId: number, currentPassword: string, ne
   
   return { message: 'Contraseña actualizada correctamente' };
 }
+*/

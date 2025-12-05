@@ -65,6 +65,27 @@ export const update = async (
     });
 };
 
+export const patchStudent = async (id: number, data: Partial<{
+    name: string;
+    surname: string;
+    ndSurname: string | null;
+    email: string;
+    birthDate: string | Date;
+    dni: string;
+}>) => {
+    const updateData: any = { ...data };
+    
+    if (data.birthDate) {
+        updateData.birthDate = new Date(data.birthDate);
+    }
+
+    return await prisma.student.update({
+        where: { id },
+        data: updateData
+    });
+};
+
+
 export const remove = async (id: number) => {
     const exists = await prisma.student.findUnique({ where: { id } });
     if (!exists) {

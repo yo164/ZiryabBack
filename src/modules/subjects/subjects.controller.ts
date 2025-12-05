@@ -105,6 +105,41 @@ export const updateSubject = async (req: Request, res: Response) => {
     }
 };
 
+export const patchSubject = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido',
+            });
+        }
+
+        const updatedSubject = await subjectsService.patch(id, req.body);
+
+        res.json({
+            success: true,
+            message: 'Asignatura actualizada parcialmente',
+            data: updatedSubject,
+        });
+    } catch (error: any) {
+        if (error.message === 'Asignatura no encontrada') {
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
+        res.status(400).json({
+            success: false,
+            message: 'Error al actualizar asignatura',
+            error: error.message,
+        });
+    }
+};
+
+
 export const deleteSubject = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id || '0');

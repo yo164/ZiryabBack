@@ -105,6 +105,17 @@ export const updateStudent = async (req: Request, res: Response) => {
     }
 };
 
+export const patchStudent = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const student = await studentsService.patchStudent(Number(id), req.body);
+        res.json({ success: true, data: student });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: 'Error al actualizar estudiante', error: error.message });
+    }
+};
+
+
 export const deleteStudent = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id || '0');

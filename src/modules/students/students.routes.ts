@@ -32,6 +32,13 @@ router.post('/', studentsController.createStudent);
 router.put('/:id', studentsController.updateStudent);
 
 /**
+ * @route   PATCH /api/students/:id
+ * @desc    Actualizar parcialmente un estudiante
+ * @access  Public
+ */
+router.patch('/:id', studentsController.patchStudent);
+
+/**
  * @route   DELETE /api/students/:id
  * @desc    Eliminar un estudiante
  * @access  Public

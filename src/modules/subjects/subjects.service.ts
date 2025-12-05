@@ -61,6 +61,28 @@ export const update = async (
   });
 };
 
+export const patch = async (
+  id: number,
+  data: Partial<{
+    name: string;
+    idCourse: number;
+  }>
+) => {
+  const exists = await prisma.subject.findUnique({ where: { id } });
+  if (!exists) {
+    throw new Error('Asignatura no encontrada');
+  }
+
+  return await prisma.subject.update({
+    where: { id },
+    data,
+    include: {
+      course: true,
+    },
+  });
+};
+
+
 export const remove = async (id: number) => {
   const exists = await prisma.subject.findUnique({ where: { id } });
   if (!exists) {

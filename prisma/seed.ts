@@ -209,6 +209,8 @@ async function main() {
     prisma.group.create({ data: { name: 'A', idCourse: courses[1].id } }),
     prisma.group.create({ data: { name: 'B', idCourse: courses[1].id } }),
     prisma.group.create({ data: { name: 'A', idCourse: courses[2].id } }),
+    prisma.group.create({ data: {name: 'A'}
+})
   ]);
 
   // Crear relaciones Profesor-Asignatura

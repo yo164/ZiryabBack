@@ -1,33 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Task` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `UserOnSubject` table. If the table is not empty, all the data it contains will be lost.
-  - Added the required column `idCourse` to the `Subject` table without a default value. This is not possible if the table is not empty.
-
-*/
--- DropForeignKey
-ALTER TABLE "Task" DROP CONSTRAINT "Task_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "UserOnSubject" DROP CONSTRAINT "UserOnSubject_idSubject_fkey";
-
--- DropForeignKey
-ALTER TABLE "UserOnSubject" DROP CONSTRAINT "UserOnSubject_idUser_fkey";
-
--- AlterTable
-ALTER TABLE "Subject" ADD COLUMN     "idCourse" INTEGER NOT NULL;
-
--- DropTable
-DROP TABLE "Task";
-
--- DropTable
-DROP TABLE "User";
-
--- DropTable
-DROP TABLE "UserOnSubject";
-
 -- CreateTable
 CREATE TABLE "Student" (
     "id" SERIAL NOT NULL,
@@ -82,6 +52,15 @@ CREATE TABLE "Course" (
 );
 
 -- CreateTable
+CREATE TABLE "Subject" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "idCourse" INTEGER NOT NULL,
+
+    CONSTRAINT "Subject_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Group" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -101,13 +80,14 @@ CREATE TABLE "TeacherOnSubject" (
 
 -- CreateTable
 CREATE TABLE "StudentOnSubjectonGroup" (
+    "id" SERIAL NOT NULL,
     "idStudent" INTEGER NOT NULL,
     "idGroup" INTEGER NOT NULL,
     "idSubject" INTEGER NOT NULL,
     "schoolYear" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "StudentOnSubjectonGroup_pkey" PRIMARY KEY ("idStudent","idGroup","idSubject")
+    CONSTRAINT "StudentOnSubjectonGroup_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -127,6 +107,9 @@ CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Admin_dni_key" ON "Admin"("dni");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Subject_name_key" ON "Subject"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Group_name_idCourse_key" ON "Group"("name", "idCourse");

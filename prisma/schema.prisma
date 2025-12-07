@@ -67,12 +67,12 @@ model Subject {
 model Group {
   id        Int      @id @default(autoincrement())
   name      String
-  idCourse  Int
+
   createdAt DateTime @default(now())
 
   student   StudentOnSubjectonGroup[]
 
-  @@unique([name, idCourse])
+  
 }
 
 model TeacherOnSubject {
@@ -86,6 +86,8 @@ model TeacherOnSubject {
 }
 
 model StudentOnSubjectonGroup {
+  id       Int      @id @default(autoincrement())
+
   idStudent  Int
   student    Student @relation(fields: [idStudent], references: [id])
 
@@ -99,5 +101,5 @@ model StudentOnSubjectonGroup {
   createdAt  DateTime @default(now())
 
   @@unique([idStudent, idGroup, idSubject, schoolYear])
-  @@id([idStudent, idGroup, idSubject])
+ 
 }

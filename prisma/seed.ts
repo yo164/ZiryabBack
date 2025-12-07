@@ -174,43 +174,48 @@ async function main() {
     }),
   ]);
 
-  // Crear Cursos
+  // Crear Ciclos no cursos tanto ingles tanta poya luego mira que pasa
   const courses = await Promise.all([
-    prisma.course.create({ data: { name: '1º ESO' } }),
-    prisma.course.create({ data: { name: '2º ESO' } }),
-    prisma.course.create({ data: { name: '3º ESO' } }),
-    prisma.course.create({ data: { name: '1º Bachillerato' } }),
-    prisma.course.create({ data: { name: '2º Bachillerato' } }),
+    prisma.course.create({ data: { name: 'DAM' } }),
+    prisma.course.create({ data: { name: 'DAW' } }),
+    prisma.course.create({ data: { name: 'ASIR' } }),
+    prisma.course.create({ data: { name: 'SMR' } }),
+    prisma.course.create({ data: { name: 'IT' } }),
   ]);
 
   // Crear Asignaturas
   const subjects = await Promise.all([
     prisma.subject.create({
-      data: { name: 'Matemáticas', idCourse: courses[0].id },
+      data: { name: 'Programación', idCourse: courses[0].id },
     }),
     prisma.subject.create({
-      data: { name: 'Lengua Castellana', idCourse: courses[0].id },
+      data: { name: 'Programación', idCourse: courses[1].id },
     }),
     prisma.subject.create({
-      data: { name: 'Inglés', idCourse: courses[0].id },
+      data: { name: 'IPE', idCourse: courses[2].id },
     }),
     prisma.subject.create({
-      data: { name: 'Física y Química', idCourse: courses[1].id },
+      data: { name: 'Redes', idCourse: courses[2].id },
     }),
     prisma.subject.create({
-      data: { name: 'Historia', idCourse: courses[1].id },
+      data: { name: 'Montaje', idCourse: courses[3].id },
     }),
+     prisma.subject.create({
+      data: { name: 'Transistores', idCourse: courses[4].id },
+    }),
+    
+    
   ]);
 
   // Crear Grupos
   const groups = await Promise.all([
-    prisma.group.create({ data: { name: 'A', idCourse: courses[0].id } }),
-    prisma.group.create({ data: { name: 'B', idCourse: courses[0].id } }),
-    prisma.group.create({ data: { name: 'A', idCourse: courses[1].id } }),
-    prisma.group.create({ data: { name: 'B', idCourse: courses[1].id } }),
-    prisma.group.create({ data: { name: 'A', idCourse: courses[2].id } }),
-    prisma.group.create({ data: {name: 'A'}
-})
+    prisma.group.create({ data: { name: '1º Dam Mañana' } }),
+    prisma.group.create({ data: { name: '1º Daw Tarde' } }),
+    prisma.group.create({ data: { name: '1º Dam Tarde' } }),
+    prisma.group.create({ data: { name: '1º Daw Mañana' } }),
+    prisma.group.create({ data: { name: '1º Asir' } }),
+    prisma.group.create({ data: { name: '1º SMR'} }),
+    prisma.group.create({ data: { name: '1º IT'} })
   ]);
 
   // Crear relaciones Profesor-Asignatura

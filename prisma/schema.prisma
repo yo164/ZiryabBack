@@ -56,7 +56,7 @@ model Course {
 
 model Subject {
   id       Int      @id @default(autoincrement())
-  name     String   @unique
+  name     String   
   idCourse Int
   course   Course   @relation(fields: [idCourse], references: [id])
 

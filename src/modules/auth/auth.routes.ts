@@ -1,76 +1,15 @@
 import { Router } from 'express';
-import { validate } from '../../middleware/validate.js';
-import { registerSchema, loginSchema } from './auth.schema.js';
-import { registerCtrl, loginCtrl } from './auth.controller.js';
+import { AuthController } from './auth.controller.js';
+import { auth } from '../../middleware/auth.js';
 
 const router = Router();
 
-/**
- * @swagger
- * /api/auth/register:
- *   post:
- *     summary: Registra un nuevo usuario
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/RegisterInput'
- *     responses:
- *       201:
- *         description: Usuario registrado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthResponse'
- *       400:
- *         description: Datos de entrada inválidos
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       409:
- *         description: Email ya registrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.post('/register', validate(registerSchema), registerCtrl);
+// Rutas públicas (sin autenticación)
+router.post('/register', AuthController.register);
+router.post('/login', AuthController.login);
+router.post('/verify-firebase-token', AuthController.verifyFirebaseToken);
 
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     summary: Inicia sesión y obtiene un token JWT
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/LoginInput'
- *     responses:
- *       200:
- *         description: Login exitoso
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthResponse'
- *       400:
- *         description: Datos de entrada inválidos
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       401:
- *         description: Credenciales inválidas
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.post('/login', validate(loginSchema), loginCtrl);
+// Rutas protegidas (requieren JWT)
+router.get('/me', auth, AuthController.getMe);
 
 export default router;

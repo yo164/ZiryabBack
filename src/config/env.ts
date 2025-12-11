@@ -1,15 +1,16 @@
-import 'dotenv/config';
+import { z } from 'zod';
 
-const required = (v: string | undefined, k: string) => {
-  if (!v) throw new Error(`Falta variable de entorno: ${k}`);
-  return v;
-};
+const envSchema = z.object({
+  DATABASE_URL: z.string(),
+  JWT_SECRET: z.string(),
+  JWT_EXPIRY: z.string().default('7d'),
+  NODE_ENV: z.enum(['development', 'production']).default('development'),
+  PORT: z.coerce.number().default(3000),
+  
+  // Firebase
+  FIREBASE_PROJECT_ID: z.string(),
+  FIREBASE_PRIVATE_KEY: z.string(),
+  FIREBASE_CLIENT_EMAIL: z.string(),
+});
 
-export const env = {
-  PORT: Number(process.env.PORT ?? 3000),
-  NODE_ENV: process.env.NODE_ENV ?? 'development',
-  JWT_SECRET: required(process.env.JWT_SECRET, 'JWT_SECRET'),
-  DATABASE_URL: required(process.env.DATABASE_URL, 'DATABASE_URL'),
-  BCRYPT_SALT_ROUNDS: Number(process.env.BCRYPT_SALT_ROUNDS ?? 10),
-};
-
+export const env = envSchema.parse(process.env);

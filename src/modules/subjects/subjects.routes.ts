@@ -59,4 +59,11 @@ router.get('/:id/teachers', subjectsController.getSubjectTeachers);
  */
 router.get('/:id/students', subjectsController.getSubjectStudents);
 
+/**
+ * @route GET /api/subjects/:id/course
+ * @desc  Obtener asignaturas en un Ciclo
+ * @access Public
+ */
+router.get('/:id/course', subjectsController.getSubjectCourse);
+
 export default router;

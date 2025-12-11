@@ -226,3 +226,19 @@ export const getSubjectStudents = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const getSubjectCourse = async (req: Request, res: Response) => {
+    try{
+        const id = parseInt(req.params.id || '0');
+        if (isNaN(id) || id == 0) {
+            return res.status(400).json({
+                succes: false,
+                message: 'Id invalido'
+            });
+        }
+
+        const course = await subjectsService.findCourseById(id);
+
+        res.json
+    }
+}

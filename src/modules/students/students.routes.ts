@@ -1,7 +1,13 @@
 import { Router } from 'express';
+import { auth } from '../../middleware/auth.js';
+import { authorize } from '../../middleware/authorize.js';
 import * as studentsController from './students.controller.js';
 
 const router = Router();
+
+// ============================================
+// RUTAS PÚBLICAS (GET - sin autenticación)
+// ============================================
 
 /**
  * @route   GET /api/students
@@ -18,38 +24,42 @@ router.get('/', studentsController.getAllStudents);
 router.get('/:id', studentsController.getStudentById);
 
 /**
- * @route   POST /api/students
- * @desc    Crear un nuevo estudiante
- * @access  Public
- */
-router.post('/', studentsController.createStudent);
-
-/**
- * @route   PUT /api/students/:id
- * @desc    Actualizar un estudiante
- * @access  Public
- */
-router.put('/:id', studentsController.updateStudent);
-
-/**
- * @route   PATCH /api/students/:id
- * @desc    Actualizar parcialmente un estudiante
- * @access  Public
- */
-router.patch('/:id', studentsController.patchStudent);
-
-/**
- * @route   DELETE /api/students/:id
- * @desc    Eliminar un estudiante
- * @access  Public
- */
-router.delete('/:id', studentsController.deleteStudent);
-
-/**
  * @route   GET /api/students/:id/subjects
  * @desc    Obtener asignaturas de un estudiante
  * @access  Public
  */
 router.get('/:id/subjects', studentsController.getStudentSubjects);
+
+// ============================================
+// RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)
+// ============================================
+
+/**
+ * @route   POST /api/students
+ * @desc    Crear un nuevo estudiante
+ * @access  Admin only
+ */
+router.post('/', auth, authorize(['ADMIN']), studentsController.createStudent);
+
+/**
+ * @route   PUT /api/students/:id
+ * @desc    Actualizar un estudiante completamente
+ * @access  Admin only
+ */
+router.put('/:id', auth, authorize(['ADMIN']), studentsController.updateStudent);
+
+/**
+ * @route   PATCH /api/students/:id
+ * @desc    Actualizar parcialmente un estudiante
+ * @access  Admin only
+ */
+router.patch('/:id', auth, authorize(['ADMIN']), studentsController.patchStudent);
+
+/**
+ * @route   DELETE /api/students/:id
+ * @desc    Eliminar un estudiante
+ * @access  Admin only
+ */
+router.delete('/:id', auth, authorize(['ADMIN']), studentsController.deleteStudent);
 
 export default router;

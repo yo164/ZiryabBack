@@ -1,7 +1,13 @@
 import { Router } from 'express';
+import { auth } from '../../middleware/auth.js';
+import { authorize } from '../../middleware/authorize.js';
 import * as groupController from './group.controller.js';
 
 const router = Router();
+
+// ============================================
+// RUTAS PÚBLICAS (GET - sin autenticación)
+// ============================================
 
 /**
  * @route   GET /api/groups
@@ -17,32 +23,36 @@ router.get('/', groupController.getAllGroups);
  */
 router.get('/:id', groupController.getGroupById);
 
+// ============================================
+// RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)
+// ============================================
+
 /**
  * @route   POST /api/groups
  * @desc    Crear un nuevo grupo
- * @access  Public
+ * @access  Admin only
  */
-router.post('/', groupController.createGroup);
+router.post('/', auth, authorize(['ADMIN']), groupController.createGroup);
 
 /**
  * @route   PUT /api/groups/:id
- * @desc    Actualizar un grupo
- * @access  Public
+ * @desc    Actualizar un grupo completamente
+ * @access  Admin only
  */
-router.put('/:id', groupController.updateGroup);
+router.put('/:id', auth, authorize(['ADMIN']), groupController.updateGroup);
 
 /**
  * @route   PATCH /api/groups/:id
  * @desc    Actualizar parcialmente un grupo
- * @access  Public
+ * @access  Admin only
  */
-router.patch('/:id', groupController.patchGroup);
+router.patch('/:id', auth, authorize(['ADMIN']), groupController.patchGroup);
 
 /**
  * @route   DELETE /api/groups/:id
  * @desc    Eliminar un grupo
- * @access  Public
+ * @access  Admin only
  */
-router.delete('/:id', groupController.deleteGroup);
+router.delete('/:id', auth, authorize(['ADMIN']), groupController.deleteGroup);
 
 export default router;

@@ -7,7 +7,7 @@ import { generalLimiter } from './middleware/rateLimiter.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { env } from './config/env.js';
 import { swaggerSpec } from './config/swagger.js';
-// import authRoutes from './modules/auth/auth.routes.js'; // Comentado para pruebas
+import authRoutes from './modules/auth/auth.routes.js';
 import studentsRoutes from './modules/students/students.routes.js';
 import subjectsRoutes from './modules/subjects/subjects.routes.js';
 import courseRouter from './modules/course/course.routes.js';
@@ -52,6 +52,7 @@ app.use('/api/students', studentsRoutes);
 app.use('/api/subjects', subjectsRoutes);
 app.use('/api/courses', courseRouter);
 app.use('/api/groups', groupRouter);
+app.use('/api/auth', authRoutes);
 
 // Rutas de auth comentadas para pruebas
 // app.use('/api/auth', authRoutes);

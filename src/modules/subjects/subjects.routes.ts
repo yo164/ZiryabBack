@@ -1,7 +1,13 @@
 import { Router } from 'express';
+import { auth } from '../../middleware/auth.js';
+import { authorize } from '../../middleware/authorize.js';
 import * as subjectsController from './subjects.controller.js';
 
 const router = Router();
+
+// ============================================
+// RUTAS PÚBLICAS (GET - sin autenticación)
+// ============================================
 
 /**
  * @route   GET /api/subjects
@@ -18,34 +24,6 @@ router.get('/', subjectsController.getAllSubjects);
 router.get('/:id', subjectsController.getSubjectById);
 
 /**
- * @route   POST /api/subjects
- * @desc    Crear una nueva asignatura
- * @access  Public
- */
-router.post('/', subjectsController.createSubject);
-
-/**
- * @route   PUT /api/subjects/:id
- * @desc    Actualizar una asignatura completa
- * @access  Public
- */
-router.put('/:id', subjectsController.updateSubject);
-
-/**
- * @route   PATCH /api/subjects/:id
- * @desc    Actualizar parcialmente una asignatura
- * @access  Public
- */
-router.patch('/:id', subjectsController.patchSubject);
-
-/**
- * @route   DELETE /api/subjects/:id
- * @desc    Eliminar una asignatura
- * @access  Public
- */
-router.delete('/:id', subjectsController.deleteSubject);
-
-/**
  * @route   GET /api/subjects/:id/teachers
  * @desc    Obtener profesores de una asignatura
  * @access  Public
@@ -58,5 +36,37 @@ router.get('/:id/teachers', subjectsController.getSubjectTeachers);
  * @access  Public
  */
 router.get('/:id/students', subjectsController.getSubjectStudents);
+
+// ============================================
+// RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)
+// ============================================
+
+/**
+ * @route   POST /api/subjects
+ * @desc    Crear una nueva asignatura
+ * @access  Admin only
+ */
+router.post('/', auth, authorize(['ADMIN']), subjectsController.createSubject);
+
+/**
+ * @route   PUT /api/subjects/:id
+ * @desc    Actualizar una asignatura completamente
+ * @access  Admin only
+ */
+router.put('/:id', auth, authorize(['ADMIN']), subjectsController.updateSubject);
+
+/**
+ * @route   PATCH /api/subjects/:id
+ * @desc    Actualizar parcialmente una asignatura
+ * @access  Admin only
+ */
+router.patch('/:id', auth, authorize(['ADMIN']), subjectsController.patchSubject);
+
+/**
+ * @route   DELETE /api/subjects/:id
+ * @desc    Eliminar una asignatura
+ * @access  Admin only
+ */
+router.delete('/:id', auth, authorize(['ADMIN']), subjectsController.deleteSubject);
 
 export default router;

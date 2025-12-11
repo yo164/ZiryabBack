@@ -1,3 +1,15 @@
+// ✅ PRIMERO - Cargar variables de entorno
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const envPath = path.join(__dirname, '../.env');
+
+dotenv.config({ path: envPath });
+console.log('🔍 Cargando .env desde:', envPath);
+
+// Después los demás imports
 import app from './app.js';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';

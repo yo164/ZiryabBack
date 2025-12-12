@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express';
 import * as subjectsService from './subjects.service.js';
+import { success } from 'zod';
+import { count } from 'console';
 
 export const getAllSubjects = async (req: Request, res: Response) => {
     try {
@@ -237,8 +239,18 @@ export const getSubjectCourse = async (req: Request, res: Response) => {
             });
         }
 
-        const course = await subjectsService.findCourseById(id);
+        const course = await subjectsService.findSubjectByCourseId(id);
 
-        res.json
+        res.json({
+            success: true,
+            data: course,
+            count: course.length,
+        });
+    }catch (error: any){
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener asignaturas por curso(getSubjectCourse() subjects.controller.ts)',
+            error: error.message,
+        });
     }
-}
+};

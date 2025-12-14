@@ -11,6 +11,8 @@ import { swaggerSpec } from './config/swagger.js';
 import studentsRoutes from './modules/students/students.routes.js';
 import subjectsRoutes from './modules/subjects/subjects.routes.js';
 import courseRouter from './modules/course/course.routes.js';
+import groupRouter from './modules/group/group.routes.js';
+import teachersRouter from './modules/teacher/teachers.routes.js';
 
 const app = express();
 
@@ -50,6 +52,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/students', studentsRoutes);
 app.use('/api/subjects', subjectsRoutes);
 app.use('/api/courses', courseRouter);
+app.use('/api/groups', groupRouter);
+app.use('/api/teachers', teachersRouter);
 
 // Rutas de auth comentadas para pruebas
 // app.use('/api/auth', authRoutes);

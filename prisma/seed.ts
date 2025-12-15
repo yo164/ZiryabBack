@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+/*import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -16,34 +16,17 @@ async function main() {
   await prisma.admin.deleteMany();
 
   // Crear Estudiantes
-  const students = await Promise.all([
+  // Crear Estudiantes
+const students = await Promise.all([
     prisma.student.create({
       data: {
-        email: 'juan.garcia@estudiante.com',
-        name: 'Juan',
-        surname: 'García',
-        ndSurname: 'López',
-        birthDate: new Date('2005-03-15'),
-        dni: '12345678A',
-      },
-    }),
-    prisma.student.create({
-      data: {
-        email: 'maria.martinez@estudiante.com',
-        name: 'María',
-        surname: 'Martínez',
-        ndSurname: 'Fernández',
-        birthDate: new Date('2006-07-22'),
-        dni: '23456789B',
-      },
-    }),
-    prisma.student.create({
-      data: {
-        email: 'pedro.sanchez@estudiante.com',
-        name: 'Pedro',
-        surname: 'Sánchez',
-        birthDate: new Date('2005-11-08'),
-        dni: '34567890C',
+        email: 'carlos.lopez@estudiante.com',
+        name: 'Carlos',
+        surname: 'López',
+        ndSurname: 'Gómez',
+        birthDate: new Date('2005-09-12'),
+        dni: '56789012E',
+        firebaseUID: 'fb-uid-5',
       },
     }),
     prisma.student.create({
@@ -54,6 +37,7 @@ async function main() {
         ndSurname: 'Pérez',
         birthDate: new Date('2006-01-30'),
         dni: '45678901D',
+        firebaseUID: 'fb-uid-6',
       },
     }),
     prisma.student.create({
@@ -64,6 +48,7 @@ async function main() {
         ndSurname: 'Gómez',
         birthDate: new Date('2005-09-12'),
         dni: '56789012E',
+        firebaseUID: 'fb-uid-7',
       },
     }),
   ]);
@@ -78,6 +63,8 @@ async function main() {
         ndSurname: 'Ruiz',
         birthDate: new Date('1980-05-20'),
         dni: '11111111A',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-8',
       },
     }),
     prisma.teacher.create({
@@ -88,6 +75,8 @@ async function main() {
         ndSurname: 'Torres',
         birthDate: new Date('1975-08-14'),
         dni: '22222222B',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-9',
       },
     }),
     prisma.teacher.create({
@@ -97,6 +86,8 @@ async function main() {
         surname: 'Díaz',
         birthDate: new Date('1985-12-03'),
         dni: '33333333C',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-10',
       },
     }),
     prisma.teacher.create({
@@ -107,6 +98,8 @@ async function main() {
         ndSurname: 'Martín',
         birthDate: new Date('1978-04-25'),
         dni: '44444444D',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-11',
       },
     }),
     prisma.teacher.create({
@@ -117,12 +110,14 @@ async function main() {
         ndSurname: 'Jiménez',
         birthDate: new Date('1982-10-18'),
         dni: '55555555E',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-12',
       },
     }),
   ]);
 
   // Crear Administradores
-  await Promise.all([
+await Promise.all([
     prisma.admin.create({
       data: {
         email: 'admin1@colegio.com',
@@ -131,6 +126,8 @@ async function main() {
         ndSurname: 'Castro',
         birthDate: new Date('1970-02-14'),
         dni: '66666666A',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-13',
       },
     }),
     prisma.admin.create({
@@ -141,6 +138,8 @@ async function main() {
         ndSurname: 'Vega',
         birthDate: new Date('1975-06-28'),
         dni: '77777777B',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-14',
       },
     }),
     prisma.admin.create({
@@ -150,6 +149,8 @@ async function main() {
         surname: 'Navarro',
         birthDate: new Date('1968-11-05'),
         dni: '88888888C',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-15',
       },
     }),
     prisma.admin.create({
@@ -160,6 +161,8 @@ async function main() {
         ndSurname: 'Gil',
         birthDate: new Date('1972-09-17'),
         dni: '99999999D',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-16',
       },
     }),
     prisma.admin.create({
@@ -170,12 +173,21 @@ async function main() {
         ndSurname: 'Serrano',
         birthDate: new Date('1965-03-22'),
         dni: '00000000E',
+        // --- AÑADIDO ---
+        firebaseUID: 'fb-uid-17',
       },
     }),
   ]);
 
+
+  // Crear Ciclos no cursos tanto ingles tanta poya luego mira que pasa
   // Crear Ciclos no cursos tanto ingles tanta poya luego mira que pasa
   const courses = await Promise.all([
+    prisma.course.create({ data: { name: 'DAM' } }),
+    prisma.course.create({ data: { name: 'DAW' } }),
+    prisma.course.create({ data: { name: 'ASIR' } }),
+    prisma.course.create({ data: { name: 'SMR' } }),
+    prisma.course.create({ data: { name: 'IT' } }),
     prisma.course.create({ data: { name: 'DAM' } }),
     prisma.course.create({ data: { name: 'DAW' } }),
     prisma.course.create({ data: { name: 'ASIR' } }),
@@ -200,15 +212,24 @@ async function main() {
     prisma.subject.create({
       data: { name: 'Montaje', idCourse: courses[3].id },
     }),
-     prisma.subject.create({
+      prisma.subject.create({
       data: { name: 'Transistores', idCourse: courses[4].id },
     }),
+    
+    
     
     
   ]);
 
   // Crear Grupos
   const groups = await Promise.all([
+    prisma.group.create({ data: { name: '1º Dam Mañana' } }),
+    prisma.group.create({ data: { name: '1º Daw Tarde' } }),
+    prisma.group.create({ data: { name: '1º Dam Tarde' } }),
+    prisma.group.create({ data: { name: '1º Daw Mañana' } }),
+    prisma.group.create({ data: { name: '1º Asir' } }),
+    prisma.group.create({ data: { name: '1º SMR'} }),
+    prisma.group.create({ data: { name: '1º IT'} }),
     prisma.group.create({ data: { name: '1º Dam Mañana' } }),
     prisma.group.create({ data: { name: '1º Daw Tarde' } }),
     prisma.group.create({ data: { name: '1º Dam Tarde' } }),
@@ -245,85 +266,85 @@ async function main() {
     // Juan en grupo A de 1º ESO
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[0].id,
-        idGroup: groups[0].id,
-        idSubject: subjects[0].id,
+        idStudent: students[0]!.id, // <- ¡Añadido el '!'
+        idGroup: groups[0]!.id,     // <- ¡Añadido el '!'
+        idSubject: subjects[0]!.id, // <- ¡Añadido el '!'
         schoolYear: '2024-2025',
       },
     }),
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[0].id,
-        idGroup: groups[0].id,
-        idSubject: subjects[1].id,
+        idStudent: students[0]!.id,
+        idGroup: groups[0]!.id,
+        idSubject: subjects[1]!.id,
         schoolYear: '2024-2025',
       },
     }),
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[0].id,
-        idGroup: groups[0].id,
-        idSubject: subjects[2].id,
+        idStudent: students[0]!.id,
+        idGroup: groups[0]!.id,
+        idSubject: subjects[2]!.id,
         schoolYear: '2024-2025',
       },
     }),
     // María en grupo B de 1º ESO
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[1].id,
-        idGroup: groups[1].id,
-        idSubject: subjects[0].id,
+        idStudent: students[1]!.id,
+        idGroup: groups[1]!.id,
+        idSubject: subjects[0]!.id,
         schoolYear: '2024-2025',
       },
     }),
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[1].id,
-        idGroup: groups[1].id,
-        idSubject: subjects[1].id,
+        idStudent: students[1]!.id,
+        idGroup: groups[1]!.id,
+        idSubject: subjects[1]!.id,
         schoolYear: '2024-2025',
       },
     }),
     // Pedro en grupo A de 2º ESO
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[2].id,
-        idGroup: groups[2].id,
-        idSubject: subjects[3].id,
+        idStudent: students[2]!.id,
+        idGroup: groups[2]!.id,
+        idSubject: subjects[3]!.id,
         schoolYear: '2024-2025',
       },
     }),
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[2].id,
-        idGroup: groups[2].id,
-        idSubject: subjects[4].id,
+        idStudent: students[2]!.id,
+        idGroup: groups[2]!.id,
+        idSubject: subjects[4]!.id,
         schoolYear: '2024-2025',
       },
     }),
     // Laura en grupo B de 2º ESO
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[3].id,
-        idGroup: groups[3].id,
-        idSubject: subjects[3].id,
+        idStudent: students[3]!.id,
+        idGroup: groups[3]!.id,
+        idSubject: subjects[3]!.id,
         schoolYear: '2024-2025',
       },
     }),
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[3].id,
-        idGroup: groups[3].id,
-        idSubject: subjects[4].id,
+        idStudent: students[3]!.id,
+        idGroup: groups[3]!.id,
+        idSubject: subjects[4]!.id,
         schoolYear: '2024-2025',
       },
     }),
     // Carlos en grupo A de 3º ESO
     prisma.studentOnSubjectonGroup.create({
       data: {
-        idStudent: students[4].id,
-        idGroup: groups[4].id,
-        idSubject: subjects[0].id,
+        idStudent: students[4]!.id,
+        idGroup: groups[4]!.id,
+        idSubject: subjects[0]!.id,
         schoolYear: '2024-2025',
       },
     }),
@@ -344,4 +365,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-  });
+  });*/

@@ -71,10 +71,12 @@ model Group {
   id        Int      @id @default(autoincrement())
   name      String
 
+
   createdAt DateTime @default(now())
 
   student   StudentOnSubjectonGroup[]
 
+  
   
 }
 
@@ -89,6 +91,7 @@ model TeacherOnSubject {
 }
 
 model StudentOnSubjectonGroup {
+
   id       Int      @id @default(autoincrement())
 
   idStudent  Int

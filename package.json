@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@angular/fire": "^20.0.1",
     "@prisma/client": "^5.22.0",
     "@types/swagger-ui-express": "^4.1.8",
     "bcrypt": "^6.0.0",

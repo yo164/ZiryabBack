@@ -104,5 +104,5 @@ model StudentOnSubjectonGroup {
   createdAt  DateTime @default(now())
 
   @@unique([idStudent, idGroup, idSubject, schoolYear])
- 
+
 }

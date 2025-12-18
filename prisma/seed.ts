@@ -25,6 +25,7 @@ async function main() {
         ndSurname: 'López',
         birthDate: new Date('2005-03-15'),
         dni: '12345678A',
+        firebaseUID: 'firebase_UID_1',
       },
     }),
     prisma.student.create({
@@ -35,6 +36,7 @@ async function main() {
         ndSurname: 'Fernández',
         birthDate: new Date('2006-07-22'),
         dni: '23456789B',
+        firebaseUID:'',
       },
     }),
     prisma.student.create({
@@ -44,6 +46,7 @@ async function main() {
         surname: 'Sánchez',
         birthDate: new Date('2005-11-08'),
         dni: '34567890C',
+        firebaseUID: '',
       },
     }),
     prisma.student.create({
@@ -54,6 +57,7 @@ async function main() {
         ndSurname: 'Pérez',
         birthDate: new Date('2006-01-30'),
         dni: '45678901D',
+        firebaseUID:'',
       },
     }),
     prisma.student.create({
@@ -64,6 +68,7 @@ async function main() {
         ndSurname: 'Gómez',
         birthDate: new Date('2005-09-12'),
         dni: '56789012E',
+        firebaseUID:'',
       },
     }),
   ]);
@@ -78,6 +83,7 @@ async function main() {
         ndSurname: 'Ruiz',
         birthDate: new Date('1980-05-20'),
         dni: '11111111A',
+        firebaseUID: '',
       },
     }),
     prisma.teacher.create({
@@ -88,6 +94,7 @@ async function main() {
         ndSurname: 'Torres',
         birthDate: new Date('1975-08-14'),
         dni: '22222222B',
+        firebaseUID: '',
       },
     }),
     prisma.teacher.create({
@@ -97,6 +104,7 @@ async function main() {
         surname: 'Díaz',
         birthDate: new Date('1985-12-03'),
         dni: '33333333C',
+        firebaseUID: '',
       },
     }),
     prisma.teacher.create({
@@ -107,6 +115,7 @@ async function main() {
         ndSurname: 'Martín',
         birthDate: new Date('1978-04-25'),
         dni: '44444444D',
+        firebaseUID: '',
       },
     }),
     prisma.teacher.create({
@@ -117,6 +126,7 @@ async function main() {
         ndSurname: 'Jiménez',
         birthDate: new Date('1982-10-18'),
         dni: '55555555E',
+        firebaseUID: '',
       },
     }),
   ]);
@@ -131,6 +141,7 @@ async function main() {
         ndSurname: 'Castro',
         birthDate: new Date('1970-02-14'),
         dni: '66666666A',
+        firebaseUID:'',
       },
     }),
     prisma.admin.create({
@@ -140,7 +151,7 @@ async function main() {
         surname: 'Moreno',
         ndSurname: 'Vega',
         birthDate: new Date('1975-06-28'),
-        dni: '77777777B',
+        dni: '77777777B',firebaseUID:'',
       },
     }),
     prisma.admin.create({
@@ -150,6 +161,7 @@ async function main() {
         surname: 'Navarro',
         birthDate: new Date('1968-11-05'),
         dni: '88888888C',
+        firebaseUID:'',
       },
     }),
     prisma.admin.create({
@@ -160,6 +172,7 @@ async function main() {
         ndSurname: 'Gil',
         birthDate: new Date('1972-09-17'),
         dni: '99999999D',
+        firebaseUID: '',
       },
     }),
     prisma.admin.create({
@@ -170,6 +183,7 @@ async function main() {
         ndSurname: 'Serrano',
         birthDate: new Date('1965-03-22'),
         dni: '00000000E',
+        firebaseUID: '',
       },
     }),
   ]);

@@ -146,6 +146,35 @@ export const getAllTeachers = async (req: Request, res: Response) =>{
     }
 };
 
-export function getTeacherById() {
-    throw new Error('Function not implemented.');
-}
+export const getTeacherById = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido',
+            });
+        }
+
+        const subject = await teachersService.findById(id);
+
+        if (!subject) {
+            return res.status(404).json({
+                success: false,
+                message: 'Asignatura no encontrada',
+            });
+        }
+
+        res.json({
+            success: true,
+            data: subject,
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener asignatura',
+            error: error.message,
+        });
+    }
+};

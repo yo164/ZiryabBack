@@ -16,6 +16,7 @@ model Student {
   birthDate  DateTime
   dni        String   @unique
   role       String   @default("STUDENT")
+  firebaseUID String   @unique
   createdAt  DateTime @default(now())
 
   subject    StudentOnSubjectonGroup[]
@@ -30,6 +31,7 @@ model Teacher {
   birthDate  DateTime
   dni        String   @unique
   role       String   @default("TEACHER")
+  firebaseUID String   @unique
   createdAt  DateTime @default(now())
 
   subject    TeacherOnSubject[]
@@ -44,6 +46,7 @@ model Admin {
   birthDate  DateTime
   dni        String   @unique
   role       String   @default("ADMIN")
+  firebaseUID String   @unique
   createdAt  DateTime @default(now())
 }
 

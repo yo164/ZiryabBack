@@ -20,13 +20,34 @@ async function main() {
 const students = await Promise.all([
     prisma.student.create({
       data: {
-        email: 'carlos.lopez@estudiante.com',
-        name: 'Carlos',
-        surname: 'López',
-        ndSurname: 'Gómez',
-        birthDate: new Date('2005-09-12'),
-        dni: '56789012E',
-        firebaseUID: 'fb-uid-5',
+        email: 'juan.garcia@estudiante.com',
+        name: 'Juan',
+        surname: 'García',
+        ndSurname: 'López',
+        birthDate: new Date('2005-03-15'),
+        dni: '12345678A',
+        firebaseUID: 'firebase_UID_1',
+      },
+    }),
+    prisma.student.create({
+      data: {
+        email: 'maria.martinez@estudiante.com',
+        name: 'María',
+        surname: 'Martínez',
+        ndSurname: 'Fernández',
+        birthDate: new Date('2006-07-22'),
+        dni: '23456789B',
+        firebaseUID:'',
+      },
+    }),
+    prisma.student.create({
+      data: {
+        email: 'pedro.sanchez@estudiante.com',
+        name: 'Pedro',
+        surname: 'Sánchez',
+        birthDate: new Date('2005-11-08'),
+        dni: '34567890C',
+        firebaseUID: '',
       },
     }),
     prisma.student.create({
@@ -48,7 +69,7 @@ const students = await Promise.all([
         ndSurname: 'Gómez',
         birthDate: new Date('2005-09-12'),
         dni: '56789012E',
-        firebaseUID: 'fb-uid-7',
+        firebaseUID:'',
       },
     }),
   ]);

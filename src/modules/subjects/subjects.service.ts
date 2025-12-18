@@ -120,3 +120,21 @@ export const findStudentsBySubjectId = async (subjectId: number) => {
     schoolYear: item.schoolYear,
   }));
 };
+
+export const findSubjectByCourseId = async (id: number) => {
+    const result = await prisma.subject.findMany({
+      where: { idCourse: id},
+      include: {
+        course: true,
+        _count: true,
+      },
+    });
+
+    return result.map((item) => ({
+      ...item.course,
+      subjectId: item.id,    // datos importantes del subject
+      subjectName: item.name,
+      idCourse: item.idCourse,
+      count: item._count, 
+    }))
+}

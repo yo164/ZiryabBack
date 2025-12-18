@@ -68,5 +68,11 @@ router.patch('/:id', auth, authorize(['ADMIN']), subjectsController.patchSubject
  * @access  Admin only
  */
 router.delete('/:id', auth, authorize(['ADMIN']), subjectsController.deleteSubject);
+/**
+ * @route GET /api/subjects/:id/course
+ * @desc  Obtener asignaturas en un Ciclo
+ * @access Public
+ */
+router.get('/:id/course', subjectsController.getSubjectCourse);
 
 export default router;

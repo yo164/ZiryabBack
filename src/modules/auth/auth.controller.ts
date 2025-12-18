@@ -171,4 +171,24 @@ export class AuthController {
       });
     }
   }
+
+    /**
+   * POST /api/auth/logout
+   * Cierra sesión del usuario
+   */
+  static async logout(req: Request, res: Response) {
+    try {
+      // Aquí podrías invalidar tokens si usaras una lista negra
+      // Por ahora, solo confirmamos el logout
+      
+      return res.status(200).json({
+        message: 'Logout exitoso',
+      });
+    } catch (error) {
+      return res.status(400).json({
+        message: 'Error en el logout',
+        error: (error as Error).message,
+      });
+    }
+  }
 }

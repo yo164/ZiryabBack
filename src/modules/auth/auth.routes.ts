@@ -33,6 +33,12 @@ router.get('/me', auth, AuthController.me);
  */
 router.post('/verify-firebase', AuthController.verifyFirebaseToken);
 
+/**
+ * POST /api/auth/logout
+ * Cierra sesión del usuario
+ */
+router.post('/logout', auth, AuthController.logout);
+
 // ============================================
 // EXPORTAR ROUTER
 // ============================================

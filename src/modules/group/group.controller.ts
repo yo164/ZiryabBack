@@ -58,8 +58,11 @@ export const createGroup = async (req: Request, res: Response) => {
 
     res.status(201).json({
       success: true,
-      message: 'Grupo creado exitosamente',
-      data: newGroup,
+      data: {
+        id: newGroup.id,
+        name: newGroup.name,
+        createdAt: newGroup.createdAt.toISOString(), // string como en la interfaz
+      },
     });
   } catch (error: any) {
     res.status(400).json({

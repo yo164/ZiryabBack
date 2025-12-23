@@ -2,14 +2,11 @@ import prisma from '../../config/prisma.js';
 
 export const findAll = async () => {
   return prisma.group.findMany({
-    include: {
-      student: {
-        include: {
-          student: true,
-          subject: true,
-        },
-      },
-    },
+    select: {
+      id: true,
+      name: true,
+      createdAt: true
+    }
   });
 };
 
@@ -29,7 +26,6 @@ export const findById = async (id: number) => {
 
 export const create = async (data: {
   name: string;
-  idCourse: number;
 }) => {
   return prisma.group.create({
     data,

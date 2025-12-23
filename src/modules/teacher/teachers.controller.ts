@@ -178,3 +178,40 @@ export const getTeacherById = async (req: Request, res: Response) => {
         });
     }
 };
+
+
+export const deleteTeacher = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido',
+            });
+        }
+
+        const deletedTeacher = await teachersService.remove(id);
+
+        res.json({
+            success: true,
+            message: 'Profesor eliminado exitosamente',
+            data: deletedTeacher,
+        });
+    } catch (error: any) {
+        if (error.message === 'Profesor no encontrado') {
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+            });
+        }
+
+        // Aquí se controla si falló Firebase o cualquier otro error
+        res.status(500).json({
+            success: false,
+            message: 'Error al eliminar profesor',
+            error: error.message,
+        });
+    }
+};
+

@@ -33,6 +33,7 @@ export const create = async (data: {
     ndSurname?: string;
     birthDate: string | Date;
     dni: string;
+    firebaseUID: string;
 }) => {
     return await prisma.teacher.create({
         data: {
@@ -111,3 +112,4 @@ export const findSubjectsByTeacherId = async (teacherId: number) => {
         course: item.subject.course
     }));
 }; 
+

@@ -36,7 +36,7 @@ router.post('/', teachersController.createTeacher);
  * @desc    Actualizar parcialmente un profesor
  * @access  Public
  */
-//router.patch('/:id', teachersController.patchTeacher);
+router.patch('/:id', teachersController.patchTeacher);
 
 /**
  * @route   DELETE /api/teachers/:id

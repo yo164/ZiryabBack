@@ -10,13 +10,13 @@ export const createTeacher = async (req: Request, res: Response) => {
 
         res.status(201).json({
             success: true,
-            message: 'Asignatura creada exitosamente',
+            message: 'Profesor creada exitosamente',
             data: newTeacher,
         });
     } catch (error: any) {
         res.status(400).json({
             success: false,
-            message: 'Error al crear asignatura',
+            message: 'Error al crear Profesor',
             error: error.message,
         });
     }
@@ -210,6 +210,44 @@ export const deleteTeacher = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: 'Error al eliminar profesor',
+            error: error.message,
+        });
+    }
+};
+
+export const patchTeacher = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido',
+            });
+        }
+
+        const teacherData = req.body;
+
+        // Llama al servicio para actualizar el profesor
+        const updatedTeacher = await teachersService.update(id, teacherData);
+
+        if (!updatedTeacher) {
+            return res.status(404).json({
+                success: false,
+                message: 'Profesor no encontrado',
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Profesor actualizado exitosamente',
+            data: updatedTeacher,
+        });
+    } catch (error: any) {
+        // Si falla Firebase o cualquier otra cosa
+        res.status(500).json({
+            success: false,
+            message: 'Error al actualizar profesor',
             error: error.message,
         });
     }

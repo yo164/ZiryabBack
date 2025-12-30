@@ -54,7 +54,6 @@ export const patch = async (
   id: number,
   data: Partial<{
     name: string;
-    idCourse: number;
   }>
 ) => {
   const exists = await prisma.group.findUnique({ where: { id } });

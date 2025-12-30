@@ -112,6 +112,10 @@ export const patchGroup = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id || '0');
 
+    console.log('ID:', id);
+    console.log('Body completo:', req.body);
+    console.log('req.body.name:', req.body.name);
+
     if (isNaN(id) || id === 0) {
       return res.status(400).json({
         success: false,
@@ -141,6 +145,8 @@ export const patchGroup = async (req: Request, res: Response) => {
     });
   }
 };
+
+
 
 export const deleteGroup = async (req: Request, res: Response) => {
   try {

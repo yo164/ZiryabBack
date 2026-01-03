@@ -15,6 +15,7 @@ import adminsRoutes from './modules/admin/admins.routes.js';
 
 import courseRouter from './modules/course/course.routes.js';
 import groupRouter from './modules/group/group.routes.js';
+import studentregsitrationRouter from './modules/student-registration/student-registration.routes.js'
 
 const app = express();
 
@@ -65,6 +66,7 @@ app.use('/api/admins', adminsRoutes);
 app.use('/api/courses', courseRouter);
 app.use('/api/groups', groupRouter);
 app.use('/api/auth', authRoutes);
+app.use('/api/studentregistration', studentregsitrationRouter);
 
 // Rutas de auth comentadas para pruebas
 // app.use('/api/auth', authRoutes);

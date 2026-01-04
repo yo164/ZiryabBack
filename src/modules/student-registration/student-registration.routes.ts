@@ -6,7 +6,7 @@ import * as studentOnSubjectController from './student-registration.controller.j
 const router = Router();
 
 /**
- * @route   POST /api/student-on-subject-on-group
+ * @route   POST /api/studentregistration
  * @desc    Matricular un estudiante en un grupo y asignatura
  * @access  Admin only
  */

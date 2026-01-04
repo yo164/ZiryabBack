@@ -1,14 +1,13 @@
 import prisma from "../../config/prisma.js";
 
-export const create = async (data: {
-  idStudent: number;
-  idGroup: number;
-  idSubject: number;
-  schoolYear: string;
-}) => {
+// Service
+export const create = async (data: { registrations: { idStudent: number, idGroup: number, idSubject: number, schoolYear: string }[]}) => {
+  const results = [];
 
-    
-  return prisma.studentOnSubjectonGroup.create({
-    data,
-  });
+  for (const reg of data.registrations) {
+    const created = await prisma.studentOnSubjectonGroup.create({ data: reg });
+    results.push(created);
+  }
+
+  return results;
 };

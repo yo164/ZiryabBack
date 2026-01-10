@@ -1,6 +1,8 @@
 import type { Request, Response } from 'express';
 import * as courseService from './course.service.js';
 
+
+//GET ALL
 export const getAllCourses = async (req: Request, res: Response) => {
   try {
     const courses = await courseService.findAll();
@@ -150,11 +152,12 @@ export const deleteCourse = async (req: Request, res: Response) => {
       });
     }
 
-    await courseService.remove(id);
+    const courseDeleted = await courseService.remove(id);
 
     res.json({
       success: true,
       message: 'Curso eliminado exitosamente',
+      data: courseDeleted
     });
   } catch (error: any) {
     if (error.message === 'Curso no encontrado') {

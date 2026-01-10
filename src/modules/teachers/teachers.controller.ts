@@ -3,24 +3,6 @@ import * as teachersService from './teachers.service.js';
 
 
 
-export const createTeacher = async (req: Request, res: Response) => {
-    try {
-        const teacherData = req.body;
-        const newTeacher = await teachersService.create(teacherData);
-
-        res.status(201).json({
-            success: true,
-            message: 'Profesor creada exitosamente',
-            data: newTeacher,
-        });
-    } catch (error: any) {
-        res.status(400).json({
-            success: false,
-            message: 'Error al crear Profesor',
-            error: error.message,
-        });
-    }
-};
 /*
 
 export const updateSubject = async (req: Request, res: Response) => {
@@ -162,7 +144,7 @@ export const getTeacherById = async (req: Request, res: Response) => {
         if (!subject) {
             return res.status(404).json({
                 success: false,
-                message: 'Asignatura no encontrada',
+                message: 'Profesor no encontrado',
             });
         }
 
@@ -173,7 +155,27 @@ export const getTeacherById = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({
             success: false,
-            message: 'Error al obtener asignatura',
+            message: 'Error al obtener profesor',
+            error: error.message,
+        });
+    }
+};
+
+
+export const createTeacher = async (req: Request, res: Response) => {
+    try {
+        const teacherData = req.body;
+        const newTeacher = await teachersService.create(teacherData);
+
+        res.status(201).json({
+            success: true,
+            message: 'Profesor creado exitosamente',
+            data: newTeacher,
+        });
+    } catch (error: any) {
+        res.status(400).json({
+            success: false,
+            message: 'Error al crear Profesor',
             error: error.message,
         });
     }

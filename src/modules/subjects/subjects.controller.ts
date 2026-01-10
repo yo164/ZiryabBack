@@ -234,7 +234,7 @@ export const getSubjectCourse = async (req: Request, res: Response) => {
         const id = parseInt(req.params.id || '0');
         if (isNaN(id) || id == 0) {
             return res.status(400).json({
-                succes: false,
+                success: false,
                 message: 'Id invalido'
             });
         }

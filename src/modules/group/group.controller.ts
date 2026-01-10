@@ -58,11 +58,7 @@ export const createGroup = async (req: Request, res: Response) => {
 
     res.status(201).json({
       success: true,
-      data: {
-        id: newGroup.id,
-        name: newGroup.name,
-        createdAt: newGroup.createdAt.toISOString(), // string como en la interfaz
-      },
+      data: newGroup,
     });
   } catch (error: any) {
     res.status(400).json({
@@ -159,11 +155,12 @@ export const deleteGroup = async (req: Request, res: Response) => {
       });
     }
 
-    await groupService.remove(id);
+    const deletedGroup = await groupService.remove(id);
 
     res.json({
       success: true,
       message: 'Grupo eliminado exitosamente',
+      data: deletedGroup,
     });
   } catch (error: any) {
     if (error.message === 'Grupo no encontrado') {

@@ -1,6 +1,8 @@
 import type { Request, Response } from 'express';
 import * as studentsService from './students.service.js';
 
+//GET ALL
+
 export const getAllStudents = async (req: Request, res: Response) => {
     try {
         const students = await studentsService.findAll();
@@ -18,6 +20,7 @@ export const getAllStudents = async (req: Request, res: Response) => {
     }
 };
 
+//GET BY ID
 export const getStudentById = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id || '0');
@@ -51,6 +54,7 @@ export const getStudentById = async (req: Request, res: Response) => {
     }
 };
 
+//CREATE
 export const createStudent = async (req: Request, res: Response) => {
     try {
         const studentData = req.body;
@@ -70,6 +74,7 @@ export const createStudent = async (req: Request, res: Response) => {
     }
 };
 
+//UPDATE (PUT)
 export const updateStudent = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id || '0');
@@ -104,7 +109,7 @@ export const updateStudent = async (req: Request, res: Response) => {
         });
     }
 };
-
+//UPDATE (PATCH)
 export const patchStudent = async (req: Request, res: Response) => {
     try {
 
@@ -124,7 +129,7 @@ export const patchStudent = async (req: Request, res: Response) => {
     }
 };
 
-
+//DELETE
 export const deleteStudent = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id || '0');
@@ -136,11 +141,12 @@ export const deleteStudent = async (req: Request, res: Response) => {
             });
         }
 
-        await studentsService.remove(id);
+         const deletedStudent = await studentsService.remove(id);
 
         res.json({
             success: true,
             message: 'Estudiante eliminado exitosamente',
+            data: deletedStudent,
         });
     } catch (error: any) {
         if (error.message === 'Estudiante no encontrado') {
@@ -157,7 +163,7 @@ export const deleteStudent = async (req: Request, res: Response) => {
         });
     }
 };
-
+// OTROS GETS
 export const getStudentSubjects = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id || '0');

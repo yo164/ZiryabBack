@@ -1,4 +1,4 @@
-/*import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -209,11 +209,7 @@ await Promise.all([
     prisma.course.create({ data: { name: 'ASIR' } }),
     prisma.course.create({ data: { name: 'SMR' } }),
     prisma.course.create({ data: { name: 'IT' } }),
-    prisma.course.create({ data: { name: 'DAM' } }),
-    prisma.course.create({ data: { name: 'DAW' } }),
-    prisma.course.create({ data: { name: 'ASIR' } }),
-    prisma.course.create({ data: { name: 'SMR' } }),
-    prisma.course.create({ data: { name: 'IT' } }),
+    
   ]);
 
   // Crear Asignaturas
@@ -251,13 +247,7 @@ await Promise.all([
     prisma.group.create({ data: { name: '1º Asir' } }),
     prisma.group.create({ data: { name: '1º SMR'} }),
     prisma.group.create({ data: { name: '1º IT'} }),
-    prisma.group.create({ data: { name: '1º Dam Mañana' } }),
-    prisma.group.create({ data: { name: '1º Daw Tarde' } }),
-    prisma.group.create({ data: { name: '1º Dam Tarde' } }),
-    prisma.group.create({ data: { name: '1º Daw Mañana' } }),
-    prisma.group.create({ data: { name: '1º Asir' } }),
-    prisma.group.create({ data: { name: '1º SMR'} }),
-    prisma.group.create({ data: { name: '1º IT'} })
+   
   ]);
 
   // Crear relaciones Profesor-Asignatura
@@ -386,4 +376,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-  });*/
+  });

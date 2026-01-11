@@ -14,7 +14,7 @@ model Student {
   surname    String
   ndSurname  String?
   birthDate  DateTime
-  dni        String   @unique
+  dni        String?   @unique
   role       String   @default("STUDENT")
   firebaseUID String   @unique
   isActive   Boolean  @default(true)

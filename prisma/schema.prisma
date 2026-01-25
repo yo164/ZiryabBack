@@ -81,7 +81,7 @@ model Subject {
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
   
-  // NUEVO: Evita duplicar asignaturas en el mismo curso y grado
+  // NUEVO: Evita duplicar asignaturas en el mismo ciclo y curso
   @@unique([name, idCourse, grade])
   @@index([idCourse, grade])  // NUEVO: Índice para búsquedas frecuentes
 }
@@ -148,4 +148,58 @@ model StudentOnSubjectOnGroup {
   @@unique([idStudent, idGroup, idSubject, schoolYear])
   @@index([schoolYear, status])  // NUEVO: Para reportes por año
   @@index([idStudent, schoolYear])  // NUEVO: Para expediente del alumno
+}
+
+
+model HorarioSemanal {
+  id                   Int      @id @default(autoincrement())
+  idTeacherAssignment  Int
+  teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], onDelete: Cascade)
+  
+  diaSemana            Int      // 1=Lunes, 7=Domingo
+  horaInicio           String   // "09:00" o usar DateTime
+  horaFin              String   // "10:00"
+  aula                 String?
+  
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  
+  sesiones             SesionClase[]
+  
+  @@index([idTeacherAssignment, diaSemana])
+  @@index([isActive])
+}
+
+model SesionClase {
+  id          Int      @id @default(autoincrement())
+  idHorario   Int
+  horario     HorarioSemanal @relation(fields: [idHorario], references: [id], onDelete: Cascade)
+  
+  fecha       DateTime
+  estado      String   @default("PROGRAMADA") // PROGRAMADA, REALIZADA, CANCELADA
+  observaciones String?
+  
+  createdAt   DateTime @default(now())
+  
+  asistencias Asistencia[]
+  
+  @@index([fecha])
+  @@index([idHorario, fecha])
+}
+
+model Asistencia {
+  id                  Int      @id @default(autoincrement())
+  idSesion            Int
+  sesion              SesionClase @relation(fields: [idSesion], references: [id], onDelete: Cascade)
+  
+  idStudentEnrollment Int
+  studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], onDelete: Cascade)
+  
+  estado              String   // PRESENTE, AUSENTE, RETRASO, JUSTIFICADA
+  
+  createdAt           DateTime @default(now())
+  
+  @@unique([idSesion, idStudentEnrollment]) // Un alumno solo puede tener una asistencia por sesión
+  @@index([idStudentEnrollment])
+  @@index([idSesion, estado])
 }

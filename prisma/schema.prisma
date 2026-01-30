@@ -17,9 +17,8 @@ model Student {
   dni        String?   @unique
   role       String   @default("STUDENT")
   firebaseUID String   @unique
-  isActive   Boolean  @default(true)
+  //isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt  // NUEVO: Tracking de actualizaciones
   
   enrollments StudentOnSubjectOnGroup[]
 }
@@ -34,9 +33,8 @@ model Teacher {
   dni        String   @unique
   role       String   @default("TEACHER")
   firebaseUID String   @unique
-  isActive   Boolean  @default(true)  // NUEVO: También para profesores (bajas, jubilaciones)
+  //isActive   Boolean  @default(true)  // NUEVO: También para profesores (bajas, jubilaciones)
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt  // NUEVO: Tracking de actualizaciones
   
   assignments TeacherOnSubjectOnGroup[]
 }
@@ -52,7 +50,6 @@ model Admin {
   role       String   @default("ADMIN")
   firebaseUID String   @unique
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt  // NUEVO: Tracking de actualizaciones
 }
 
 model Course {
@@ -60,17 +57,16 @@ model Course {
   name        String   @unique  // NUEVO: Evita duplicar ciclos como "DAM"
   description String?  // NUEVO: Descripción del ciclo formativo
   duration    Int      @default(2)  // NUEVO: Duración en años (normalmente 2)
-  isActive    Boolean  @default(true)  // NUEVO: Controla si el ciclo se oferta actualmente
+  //isActive    Boolean  @default(true)  // NUEVO: Controla si el ciclo se oferta actualmente
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+
   subjects Subject[]
 }
 
 model Subject {
   id          Int      @id @default(autoincrement())
   name        String
-  code        String?  // NUEVO: Código oficial de la asignatura (ej: "0483")
+  //code        String?  // NUEVO: Código oficial de la asignatura (ej: "0483")
   grade       String   // "1" o "2" - Curso dentro del ciclo
   hours       Int?     // NUEVO: Horas semanales de la asignatura
   description String?  // NUEVO: Descripción breve
@@ -89,16 +85,23 @@ model Subject {
 model Group {
   id          Int      @id @default(autoincrement())
   name        String
-  shift       String?  // NUEVO: "Mañana", "Tarde", "Noche" (más estructurado)
+  //shift       String?  // NUEVO: "Mañana", "Tarde", "Noche" (más estructurado)
   capacity    Int?     // NUEVO: Capacidad máxima de alumnos
-  isActive    Boolean  @default(true)  // NUEVO: Si el grupo está activo
+  
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  
   
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
-  
-  @@index([isActive])  // NUEVO: Para filtrar grupos activos rápidamente
+}
+
+enum AssignmentStatus {
+  ACTIVE // EQUIVALENTE DE ENROLLED PARA STUDENT
+  SUSPENDED//SUSPENDIDO DE EMPLEO Y SUELDO(NO SE SI SE LO HACENA LOS FUNCIONARIOS PERO)
+  ILLNESS//BAJA POR ENFERMEDAD
+  EXCEDENCE//ESTA DE EXCEDENCIA
+  WITHDRAWN // BAJA VOLUNTARIA EN PUESTO DE TRABAJO
+  STANDBY//PROFESOR QUE ESTA EN EL SISTEMA PERO NO DA CLASE EN NINGUN CENTRO
 }
 
 model TeacherOnSubjectOnGroup {
@@ -114,13 +117,22 @@ model TeacherOnSubjectOnGroup {
   group      Group    @relation(fields: [idGroup], references: [id], onDelete: Cascade)
   
   schoolYear String   // Formato: "2024-2025"
-  isActive   Boolean  @default(true)  // NUEVO: Si la asignación está vigente
+  status AssignmentStatus @default(STANDBY)
+  //isActive   Boolean  @default(true)  // NUEVO: Si la asignación está vigente
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
   
   @@unique([idTeacher, idSubject, idGroup, schoolYear])
-  @@index([schoolYear, isActive])  // NUEVO: Para consultas por año académico
+  @@index([schoolYear])  // NUEVO: Para consultas por año académico
   @@index([idTeacher, schoolYear])  // NUEVO: Para ver carga de un profesor
+}
+
+enum EnrollmentStatus {
+  ENROLLED//MATRICULADO
+  EVALUATION_LOST//EVALUACION PERDIDA
+  COMPLETED // PASADO
+  FAILED //SUSPENSO
+  WITHDRAWN // BAJA VOLUNTARIA
+  EXPELLED // EXPULSADO
 }
 
 model StudentOnSubjectOnGroup {
@@ -136,10 +148,10 @@ model StudentOnSubjectOnGroup {
   subject    Subject  @relation(fields: [idSubject], references: [id], onDelete: Cascade)
   
   schoolYear String   // Formato: "2024-2025"
-  status     String   @default("ENROLLED")  // NUEVO: "ENROLLED", "COMPLETED", "FAILED", "WITHDRAWN"
-  enrollmentDate DateTime @default(now())  // NUEVO: Fecha de matriculación
+  status     EnrollmentStatus   @default(ENROLLED)  // NUEVO: "ENROLLED", "COMPLETED", "FAILED", "WITHDRAWN"
+  
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+ 
   
   // FUTURO: Aquí podrás añadir calificaciones
   // finalGrade Decimal?
@@ -150,56 +162,62 @@ model StudentOnSubjectOnGroup {
   @@index([idStudent, schoolYear])  // NUEVO: Para expediente del alumno
 }
 
-
-model HorarioSemanal {
+//horariosemana
+model WeekSchedule {
   id                   Int      @id @default(autoincrement())
   idTeacherAssignment  Int
   teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], onDelete: Cascade)
+  weekDay            Int      // 1=Lunes, 7=Domingo o enum de los dias??
+  startTime          String   // "09:00" o usar DateTime horaInicio
+  finishTime             String   // "10:00" horaFin
+  //aula                 String?
   
-  diaSemana            Int      // 1=Lunes, 7=Domingo
-  horaInicio           String   // "09:00" o usar DateTime
-  horaFin              String   // "10:00"
-  aula                 String?
   
-  isActive             Boolean  @default(true)
   createdAt            DateTime @default(now())
   
-  sesiones             SesionClase[]
+  sessions             SessionClass[]
   
-  @@index([idTeacherAssignment, diaSemana])
-  @@index([isActive])
+  @@index([idTeacherAssignment, weekDay])//filtra por id de teacherOnSubjectOnGroup y el dia de la semana
 }
-
-model SesionClase {
+//una clase propiamente hablando
+model SessionClass {
   id          Int      @id @default(autoincrement())
-  idHorario   Int
-  horario     HorarioSemanal @relation(fields: [idHorario], references: [id], onDelete: Cascade)
+  idSchedule   Int
+  schedule     WeekSchedule @relation(fields: [idSchedule], references: [id], onDelete: Cascade)//horario
   
-  fecha       DateTime
-  estado      String   @default("PROGRAMADA") // PROGRAMADA, REALIZADA, CANCELADA
-  observaciones String?
+  date       DateTime//fecha
+  status      String   @default("PROGRAMADA") // PROGRAMADA, REALIZADA, CANCELADA estado
+  apointments String?//detalles, observaciones
   
   createdAt   DateTime @default(now())
   
-  asistencias Asistencia[]
+  assistances Assistance[]
   
-  @@index([fecha])
-  @@index([idHorario, fecha])
+  @@index([date])
+  @@index([idSchedule, date])
+}
+//FALTA TRADUCIR
+enum AssistanceStatus {
+  PRESENT//presente
+  MISSING// AUSENTE
+  LAG//RETRASO
+  JUSTIFY//JUSTIFICADA
 }
 
-model Asistencia {
+//asistencia
+model Assistance {
   id                  Int      @id @default(autoincrement())
-  idSesion            Int
-  sesion              SesionClase @relation(fields: [idSesion], references: [id], onDelete: Cascade)
+  idSession            Int
+  session              SessionClass @relation(fields: [idSession], references: [id], onDelete: Cascade)
   
   idStudentEnrollment Int
   studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], onDelete: Cascade)
   
-  estado              String   // PRESENTE, AUSENTE, RETRASO, JUSTIFICADA
+  status              AssistanceStatus @default(PRESENT)   // PRESENTE, AUSENTE, RETRASO, JUSTIFICADA
   
   createdAt           DateTime @default(now())
   
-  @@unique([idSesion, idStudentEnrollment]) // Un alumno solo puede tener una asistencia por sesión
-  @@index([idStudentEnrollment])
-  @@index([idSesion, estado])
+  @@unique([idSession, idStudentEnrollment]) // Un alumno solo puede tener una asistencia por sesión
+  @@index([idStudentEnrollment])//filtra por id StudentOnSubjectOnGroup
+  @@index([idSession, status])//filtra por estado y clase
 }

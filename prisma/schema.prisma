@@ -107,6 +107,7 @@ enum AssignmentStatus {
 model TeacherOnSubjectOnGroup {
   id         Int      @id @default(autoincrement())
   
+  
   idTeacher  Int
   teacher    Teacher  @relation(fields: [idTeacher], references: [id], onDelete: Cascade)
   
@@ -124,6 +125,8 @@ model TeacherOnSubjectOnGroup {
   @@unique([idTeacher, idSubject, idGroup, schoolYear])
   @@index([schoolYear])  // NUEVO: Para consultas por año académico
   @@index([idTeacher, schoolYear])  // NUEVO: Para ver carga de un profesor
+  
+  WeekSchedule WeekSchedule[] @relation(name: "TeacherAssignment")
 }
 
 enum EnrollmentStatus {
@@ -160,13 +163,15 @@ model StudentOnSubjectOnGroup {
   @@unique([idStudent, idGroup, idSubject, schoolYear])
   @@index([schoolYear, status])  // NUEVO: Para reportes por año
   @@index([idStudent, schoolYear])  // NUEVO: Para expediente del alumno
+ 
+  Assistance Assistance[] @relation(name: "StudentEnrollment")
 }
 
 //horariosemana
 model WeekSchedule {
   id                   Int      @id @default(autoincrement())
   idTeacherAssignment  Int
-  teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], onDelete: Cascade)
+  teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id],name:"TeacherAssignment", onDelete: Cascade)
   weekDay            Int      // 1=Lunes, 7=Domingo o enum de los dias??
   startTime          String   // "09:00" o usar DateTime horaInicio
   finishTime             String   // "10:00" horaFin
@@ -211,7 +216,8 @@ model Assistance {
   session              SessionClass @relation(fields: [idSession], references: [id], onDelete: Cascade)
   
   idStudentEnrollment Int
-  studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], onDelete: Cascade)
+ studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], name: "StudentEnrollment", onDelete: Cascade)
+
   
   status              AssistanceStatus @default(PRESENT)   // PRESENTE, AUSENTE, RETRASO, JUSTIFICADA
   

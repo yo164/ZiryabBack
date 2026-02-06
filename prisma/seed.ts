@@ -888,7 +888,7 @@ await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 
           idGroup: 1,
           idSubject: 8,
           schoolYear: acaYear
-        },
+        }/*,
         //Estudiante 4 en DAM grupo tarde
         {
           idStudent: 4,
@@ -1476,7 +1476,7 @@ await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 
           idGroup: 1,
           idSubject: 24,
           schoolYear: acaYear
-        },
+        },*/
       ]
     });
   
@@ -1874,8 +1874,14 @@ await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 
           {
             idTeacherAssignment: 2,
             weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
+            startTime: '8:15',
+            finishTime: '9:15',
+          },
+          {
+            idTeacherAssignment: 2,
+            weekDay: 2,
+            startTime: '9:15',
+            finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
@@ -1884,28 +1890,22 @@ await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 
             finishTime: '11:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 6,
             weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
+            startTime: '11:45',
+            finishTime: '12:45',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 6,
             weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
+            startTime: '12:45',
+            finishTime: '13:45',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 6,
             weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
+            startTime: '13:45',
+            finishTime: '14:45',
           },
           //un miercoles
           {
@@ -1915,109 +1915,109 @@ await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 
             finishTime: '9:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 4,
             weekDay: 3,
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 1,
             weekDay: 3,
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 1,
             weekDay: 3,
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 1,
             weekDay: 3,
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 8,
             weekDay: 3,
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un jueves
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 7,
             weekDay: 4,
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 4,
             weekDay: 4,
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 4,
             weekDay: 4,
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 5,
             weekDay: 4,
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 5,
             weekDay: 4,
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 5,
             weekDay: 4,
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un viernes
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 1,
             weekDay: 5,
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 1,
             weekDay: 5,
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 1,
             weekDay: 5,
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 3,
             weekDay: 5,
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 3,
             weekDay: 5,
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
-            idTeacherAssignment: 2,
+            idTeacherAssignment: 3,
             weekDay: 5,
             startTime: '13:45',
             finishTime: '14:45',
-          },
+          }/*,
 
           //ahora el horario de otra clase (por ejemplo 1 daw mañana)
           {
@@ -2573,7 +2573,7 @@ await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 
             weekDay: 5,
             startTime: '13:45',
             finishTime: '14:45',
-          }
+          }*/
         ]
       });
 
@@ -2775,7 +2775,7 @@ await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 
       status: 'PROGRAMADA',
       apointments: '',
       idSchedule: 30
-    },
+    }/*,
 
     // === GRUPO 2 (1 DAW MAÑANA) - LUNES 15 Sept ===
     // idSchedule 31-36
@@ -4122,7 +4122,7 @@ await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 
       status: 'PROGRAMADA',
       apointments: '',
       idSchedule: 120
-    }
+    }*/
           
         ]
       });
@@ -4130,24 +4130,25 @@ await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 
      
 
 
-const assistance = await prisma.assistance.createMany({
+const assistance = await 
+prisma.assistance.createMany({
   data: [
     // ========== SEMANA 1 - DAM (Sesiones 1-30, Estudiantes 1-3) ==========
    
-    // Sesión 1
+    // Sesión 1 primera hora del primer dia
     { status: 'PRESENT', idSession: 1, idStudentEnrollment: 1 },
-    { status: 'PRESENT', idSession: 1, idStudentEnrollment: 2 },
-    { status: 'MISSING', idSession: 1, idStudentEnrollment: 3 },
+    { status: 'PRESENT', idSession: 1, idStudentEnrollment: 9 },
+    { status: 'MISSING', idSession: 1, idStudentEnrollment: 17 },
    
     // Sesión 2
     { status: 'LAG', idSession: 2, idStudentEnrollment: 1 },
-    { status: 'PRESENT', idSession: 2, idStudentEnrollment: 2 },
-    { status: 'PRESENT', idSession: 2, idStudentEnrollment: 3 },
+    { status: 'PRESENT', idSession: 2, idStudentEnrollment: 9 },
+    { status: 'PRESENT', idSession: 2, idStudentEnrollment: 17 },
    
     // Sesión 3
-    { status: 'PRESENT', idSession: 3, idStudentEnrollment: 1 },
     { status: 'PRESENT', idSession: 3, idStudentEnrollment: 2 },
-    { status: 'PRESENT', idSession: 3, idStudentEnrollment: 3 },
+    { status: 'PRESENT', idSession: 3, idStudentEnrollment: 10 },
+    { status: 'PRESENT', idSession: 3, idStudentEnrollment: 18 },
    
     // Sesión 4
     { status: 'PRESENT', idSession: 4, idStudentEnrollment: 1 },
@@ -4282,8 +4283,9 @@ const assistance = await prisma.assistance.createMany({
     // Sesión 30
     { status: 'PRESENT', idSession: 30, idStudentEnrollment: 1 },
     { status: 'PRESENT', idSession: 30, idStudentEnrollment: 2 },
-    { status: 'PRESENT', idSession: 30, idStudentEnrollment: 3 },
+    { status: 'PRESENT', idSession: 30, idStudentEnrollment: 3 }
 
+    /*
     // ========== SEMANA 1 - DAW (Sesiones 31-60, Estudiantes 7-9) ==========
    
     // Sesión 31
@@ -5042,7 +5044,7 @@ const assistance = await prisma.assistance.createMany({
     // Sesión 210
     { status: 'PRESENT', idSession: 210, idStudentEnrollment: 105 },
     { status: 'PRESENT', idSession: 210, idStudentEnrollment: 113 },
-    { status: 'PRESENT', idSession: 210, idStudentEnrollment: 121 },
+    { status: 'PRESENT', idSession: 210, idStudentEnrollment: 121 },*/
   ]
 });
 

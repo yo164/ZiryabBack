@@ -7,6 +7,7 @@ export const findAll = async () => {
         },
     });
 };
+//nuevos cambios para git
 
 export const findById = async (id: number) => {
     return await prisma.admin.findUnique({

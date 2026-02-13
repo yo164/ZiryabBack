@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import * as horarioSemanalService from './horario-semanal.service.js';
+import * as horarioSemanalService from './weekSchedule.service.js';
 
 export const getAllHorarios = async (req: Request, res: Response) => {
   try {

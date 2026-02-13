@@ -12,6 +12,9 @@ import studentsRoutes from './modules/students/students.routes.js';
 import subjectsRoutes from './modules/subjects/subjects.routes.js';
 import teachersRoutes from './modules/teachers/teachers.routes.js';
 import adminsRoutes from './modules/admin/admins.routes.js';
+import enrollmentRoutes from './modules/enrollments/enrollments.routes.js';
+import horariosRoutes from './modules/weekSchedule/weekSchedule.routes.js';
+import classSesionRoutes from './modules/classSession/classSession.routes.js'
 
 import courseRouter from './modules/course/course.routes.js';
 import groupRouter from './modules/group/group.routes.js';
@@ -67,6 +70,9 @@ app.use('/api/courses', courseRouter);
 app.use('/api/groups', groupRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/studentregistration', studentregsitrationRouter);
+app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/horarios-semanales', horariosRoutes);
+app.use('/api/sessions', classSesionRoutes);
 
 // Rutas de auth comentadas para pruebas
 // app.use('/api/auth', authRoutes);

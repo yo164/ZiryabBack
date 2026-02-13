@@ -13,12 +13,12 @@ export const findById = async (id: number) => {
     where: { id },
     include: {
       course: true,
-      teacher: {
+       teacherAssignments: {
         include: {
           teacher: true,
         },
       },
-      student: {
+      studentEnrollments: {
         include: {
           student: true,
           group: true,

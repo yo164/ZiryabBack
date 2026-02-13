@@ -1,7 +1,7 @@
 import prisma from '../../config/prisma.js';
 
 export const findAll = async () => {
-  return prisma.horarioSemanal.findMany({
+  return prisma.weekSchedule.findMany({
     include: {
       teacherAssignment: {
         include: {
@@ -12,14 +12,14 @@ export const findAll = async () => {
       },
     },
     orderBy: [
-      { diaSemana: 'asc' },
-      { horaInicio: 'asc' },
+      { weekDay: 'asc' },
+      { startTime: 'asc' },
     ],
   });
 };
 
 export const findById = async (id: number) => {
-  return prisma.horarioSemanal.findUnique({
+  return prisma.weekSchedule.findUnique({
     where: { id },
     include: {
       teacherAssignment: {
@@ -29,9 +29,9 @@ export const findById = async (id: number) => {
           group: true,
         },
       },
-      sesiones: {
+      sessions: {
         include: {
-          asistencias: true,
+          assistances: true,
         },
       },
     },
@@ -39,7 +39,7 @@ export const findById = async (id: number) => {
 };
 
 export const findByTeacherAssignment = async (idTeacherAssignment: number) => {
-  return prisma.horarioSemanal.findMany({
+  return prisma.weekSchedule.findMany({
     where: { idTeacherAssignment },
     include: {
       teacherAssignment: {
@@ -51,15 +51,15 @@ export const findByTeacherAssignment = async (idTeacherAssignment: number) => {
       },
     },
     orderBy: [
-      { diaSemana: 'asc' },
-      { horaInicio: 'asc' },
+      { weekDay: 'asc' },
+      { startTime: 'asc' },
     ],
   });
 };
 
 export const findByDiaSemana = async (diaSemana: number) => {
-  return prisma.horarioSemanal.findMany({
-    where: { diaSemana },
+  return prisma.weekSchedule.findMany({
+    where: { weekDay: diaSemana },
     include: {
       teacherAssignment: {
         include: {
@@ -69,18 +69,18 @@ export const findByDiaSemana = async (diaSemana: number) => {
         },
       },
     },
-    orderBy: { horaInicio: 'asc' },
+    orderBy: { startTime: 'asc' },
   });
 };
 
 export const create = async (data: {
   idTeacherAssignment: number;
-  diaSemana: number;
-  horaInicio: string;
-  horaFin: string;
+  weekDay: number;
+  startTime: string;
+  finishTime: string;
 }) => {
-  // Validar que diaSemana esté entre 1 y 7
-  if (data.diaSemana < 1 || data.diaSemana > 7) {
+  // Validar que weekDay esté entre 1 y 7
+  if (data.weekDay < 1 || data.weekDay > 7) {
     throw new Error('El día de la semana debe estar entre 1 (Lunes) y 7 (Domingo)');
   }
 
@@ -93,8 +93,13 @@ export const create = async (data: {
     throw new Error('La asignación de profesor no existe');
   }
 
-  return prisma.horarioSemanal.create({
-    data,
+  return prisma.weekSchedule.create({
+    data: {
+      idTeacherAssignment: data.idTeacherAssignment,
+      weekDay: data.weekDay,
+      startTime: data.startTime,
+      finishTime: data.finishTime,
+    },
     include: {
       teacherAssignment: {
         include: {
@@ -107,6 +112,9 @@ export const create = async (data: {
   });
 };
 
+
+
+
 export const update = async (
   id: number,
   data: {
@@ -116,7 +124,7 @@ export const update = async (
     horaFin?: string;
   }
 ) => {
-  const exists = await prisma.horarioSemanal.findUnique({ where: { id } });
+  const exists = await prisma.weekSchedule.findUnique({ where: { id } });
   if (!exists) {
     throw new Error('Horario no encontrado');
   }
@@ -125,7 +133,7 @@ export const update = async (
     throw new Error('El día de la semana debe estar entre 1 (Lunes) y 7 (Domingo)');
   }
 
-  return prisma.horarioSemanal.update({
+  return prisma.weekSchedule.update({
     where: { id },
     data,
     include: {
@@ -149,7 +157,7 @@ export const patch = async (
     horaFin: string;
   }>
 ) => {
-  const exists = await prisma.horarioSemanal.findUnique({ where: { id } });
+  const exists = await prisma.weekSchedule.findUnique({ where: { id } });
   if (!exists) {
     throw new Error('Horario no encontrado');
   }
@@ -158,7 +166,7 @@ export const patch = async (
     throw new Error('El día de la semana debe estar entre 1 (Lunes) y 7 (Domingo)');
   }
 
-  return prisma.horarioSemanal.update({
+  return prisma.weekSchedule.update({
     where: { id },
     data,
     include: {
@@ -174,12 +182,12 @@ export const patch = async (
 };
 
 export const remove = async (id: number) => {
-  const exists = await prisma.horarioSemanal.findUnique({ where: { id } });
+  const exists = await prisma.weekSchedule.findUnique({ where: { id } });
   if (!exists) {
     throw new Error('Horario no encontrado');
   }
 
-  return prisma.horarioSemanal.delete({
+  return prisma.weekSchedule.delete({
     where: { id },
   });
 };

@@ -1,0 +1,164 @@
+import type { Request, Response } from 'express';
+import * as classSessionService from './classSession.service.js';
+
+export const getAllSessions = async (req: Request, res: Response) => {
+  try {
+    const sessions = await classSessionService.findAll();
+    res.json({
+      success: true,
+      data: sessions,
+      count: sessions.length,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener sesiones',
+      error: error.message,
+    });
+  }
+};
+
+export const getSessionById = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || '0');
+
+    if (isNaN(id) || id === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID inválido',
+      });
+    }
+
+    const session = await classSessionService.findById(id);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sesión no encontrada',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: session,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener sesión',
+      error: error.message,
+    });
+  }
+};
+
+export const getSessionsBySchedule = async (req: Request, res: Response) => {
+  try {
+    const idSchedule = parseInt(req.params.idSchedule || '0');
+
+    if (isNaN(idSchedule) || idSchedule === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID de horario inválido',
+      });
+    }
+
+    const sessions = await classSessionService.findBySchedule(idSchedule);
+
+    res.json({
+      success: true,
+      data: sessions,
+      count: sessions.length,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener sesiones del horario',
+      error: error.message,
+    });
+  }
+};
+
+export const createSession = async (req: Request, res: Response) => {
+  try {
+    const sessionData = req.body;
+    const newSession = await classSessionService.create(sessionData);
+
+    res.status(201).json({
+      success: true,
+      data: newSession,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: 'Error al crear sesión',
+      error: error.message,
+    });
+  }
+};
+
+export const updateSession = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || '0');
+
+    if (isNaN(id) || id === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID inválido',
+      });
+    }
+
+    const updatedSession = await classSessionService.update(id, req.body);
+
+    res.json({
+      success: true,
+      message: 'Sesión actualizada exitosamente',
+      data: updatedSession,
+    });
+  } catch (error: any) {
+    if (error.message === 'Sesión no encontrada') {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    res.status(400).json({
+      success: false,
+      message: 'Error al actualizar sesión',
+      error: error.message,
+    });
+  }
+};
+
+export const deleteSession = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || '0');
+
+    if (isNaN(id) || id === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID inválido',
+      });
+    }
+
+    await classSessionService.remove(id);
+
+    res.json({
+      success: true,
+      message: 'Sesión eliminada exitosamente',
+    });
+  } catch (error: any) {
+    if (error.message === 'Sesión no encontrada') {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error al eliminar sesión',
+      error: error.message,
+    });
+  }
+};

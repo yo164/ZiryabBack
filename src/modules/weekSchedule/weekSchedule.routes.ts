@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { auth } from '../../middleware/auth.js';
 import { authorize } from '../../middleware/authorize.js';
-import * as horarioSemanalController from './horario-semanal.controller.js';
+import * as horarioSemanalController from './weekSchedule.controller.js';
 
 const router = Router();
 

@@ -15,6 +15,10 @@ import adminsRoutes from './modules/admin/admins.routes.js';
 import enrollmentRoutes from './modules/enrollments/enrollments.routes.js';
 import horariosRoutes from './modules/weekSchedule/weekSchedule.routes.js';
 import classSesionRoutes from './modules/classSession/classSession.routes.js'
+import taskRoutes from './modules/task/task.routes.js';
+import studentTaskRoutes from './modules/student-task/student-task.routes.js';
+
+
 
 import courseRouter from './modules/course/course.routes.js';
 import groupRouter from './modules/group/group.routes.js';
@@ -74,6 +78,33 @@ app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/horarios-semanales', horariosRoutes);
 app.use('/api/sessions', classSesionRoutes);
 
+
+app.use('/api/tasks', taskRoutes);
+
+
+app.use('/api/student-tasks', studentTaskRoutes);
+
+
+
+/*
+**URLs para probar en Bruno:**
+GET http://localhost:3000/api/tasks
+GET http://localhost:3000/api/tasks/1
+GET http://localhost:3000/api/tasks/teacher-assignment/1
+*/
+
+
+
+
+
+/*
+**URLs para probar en Bruno:**
+
+GET http://localhost:3000/api/student-tasks
+GET http://localhost:3000/api/student-tasks/1
+GET http://localhost:3000/api/student-tasks/task/1
+GET http://localhost:3000/api/student-tasks/student/1
+*/
 // Rutas de auth comentadas para pruebas
 // app.use('/api/auth', authRoutes);
 

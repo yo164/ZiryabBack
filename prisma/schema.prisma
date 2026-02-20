@@ -227,3 +227,64 @@ model Assistance {
   @@index([idStudentEnrollment])//filtra por id StudentOnSubjectOnGroup
   @@index([idSession, status])//filtra por estado y clase
 }
+
+enum TaskType {
+  PRACTICE     // Práctica
+  THEORY       // Teoría/trabajo/material
+  EXAM         // Examen
+  PROJECT      // Proyecto
+  HOMEWORK     // Deberes
+}
+
+model Task {
+  id                   Int      @id @default(autoincrement())
+  
+  idTeacherAssignment  Int
+  teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], onDelete: Cascade)
+  
+  title                String
+  description          String?
+  type                 TaskType
+  
+  startDate            DateTime  // Fecha/hora desde que se puede ver
+  dueDate              DateTime  // Fecha/hora límite de entrega
+  
+  schoolYear           String    // "2024-2025"
+  
+  createdAt            DateTime @default(now())
+  
+  studentTasks         StudentTask[]  // Entregas de los alumnos
+  
+  @@index([idTeacherAssignment, schoolYear])
+  @@index([dueDate])
+}
+
+enum SubmissionStatus {
+  PENDING      // Pendiente de entregar
+  SUBMITTED    // Entregada
+  LATE         // Entregada tarde
+  GRADED       // Calificada
+  NOT_SUBMITTED // No entregada (después de la fecha)
+}
+
+model StudentTask {
+  id                  Int      @id @default(autoincrement())
+  
+  idTask              Int
+  task                Task @relation(fields: [idTask], references: [id], onDelete: Cascade)
+  
+  idStudentEnrollment Int
+  studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], onDelete: Cascade)
+  
+  status              SubmissionStatus @default(PENDING)
+  submissionDate      DateTime?        // Fecha/hora de entrega (null si no ha entregado)
+  score               Decimal?         // Nota (null si no está calificada)
+  feedback            String?          // Comentarios del profesor
+  attachmentUrl       String?          // URL del archivo subido (opcional)
+  
+  createdAt           DateTime @default(now())
+  
+  @@unique([idTask, idStudentEnrollment])  // Un alumno solo puede tener una entrega por tarea
+  @@index([idStudentEnrollment, status])
+  @@index([idTask, status])
+}

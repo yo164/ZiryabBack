@@ -21,6 +21,8 @@ async function main() {
   await prisma.weekSchedule.deleteMany();
   await prisma.sessionClass.deleteMany();
   await prisma.assistance.deleteMany();
+  await prisma.task.deleteMany();
+  await prisma.studentTask.deleteMany();
   //borrado de horariosemanal, sesion clase y asistencia
 
 
@@ -36,6 +38,8 @@ async function main() {
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "WeekSchedule_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "SessionClass_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Task_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentTask_id_seq" RESTART WITH 1;`);
   //reinicio de conteo de id falta horario semanal, sesion clase yy asistencia 
 
 

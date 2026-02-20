@@ -127,6 +127,7 @@ model TeacherOnSubjectOnGroup {
   @@index([idTeacher, schoolYear])  // NUEVO: Para ver carga de un profesor
   
   WeekSchedule WeekSchedule[] @relation(name: "TeacherAssignment")
+  tasks        Task[]  // ← AÑADIR ESTA LÍNEA
 }
 
 enum EnrollmentStatus {
@@ -165,6 +166,7 @@ model StudentOnSubjectOnGroup {
   @@index([idStudent, schoolYear])  // NUEVO: Para expediente del alumno
  
   Assistance Assistance[] @relation(name: "StudentEnrollment")
+  studentTasks StudentTask[]  // ← AÑADIR ESTA LÍNEA
 }
 
 //horariosemana

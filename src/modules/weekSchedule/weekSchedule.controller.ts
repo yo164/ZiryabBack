@@ -224,3 +224,29 @@ export const deleteHorario = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getHorariosByTeacher = async (req: Request, res: Response) => {
+  try {
+    const idTeacher = parseInt(req.params.idTeacher || '0');
+    if (isNaN(idTeacher) || idTeacher === 0) {
+      return res.status(400).json({ success: false, message: 'ID inválido' });
+    }
+    const horarios = await horarioSemanalService.findByTeacherId(idTeacher);
+    res.json({ success: true, data: horarios, count: horarios.length });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Error al obtener horarios', error: error.message });
+  }
+};
+
+export const getHorariosByStudent = async (req: Request, res: Response) => {
+  try {
+    const idStudent = parseInt(req.params.idStudent || '0');
+    if (isNaN(idStudent) || idStudent === 0) {
+      return res.status(400).json({ success: false, message: 'ID inválido' });
+    }
+    const horarios = await horarioSemanalService.findByStudentId(idStudent);
+    res.json({ success: true, data: horarios, count: horarios.length });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Error al obtener horarios', error: error.message });
+  }
+};

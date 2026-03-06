@@ -914,7 +914,7 @@ async function main() {
           idGroup: 1,
           idSubject: 8,
           schoolYear: acaYear
-        }/*,
+        },
         //Estudiante 4 en DAM grupo tarde
         {
           idStudent: 4,
@@ -1063,6 +1063,7 @@ async function main() {
           schoolYear: acaYear
         },
         //Estudiante 7 en DAW grupo mañana
+        
         {
           idStudent: 7,
           idGroup: 1,
@@ -1208,7 +1209,7 @@ async function main() {
           idGroup: 1,
           idSubject: 16,
           schoolYear: acaYear
-        },
+        }/*
         //Estudiante 10 en DAW grupo tarde
         {
           idStudent: 10,
@@ -1868,13 +1869,13 @@ async function main() {
         {
           idTeacherAssignment: 1,
           weekDay: 1,
-          startTime: '8:15',
-          finishTime: '9:15',
+          startTime: '08:15',
+          finishTime: '09:15',
         },
         {
           idTeacherAssignment: 1,
           weekDay: 1,
-          startTime: '9:15',
+          startTime: '09:15',
           finishTime: '10:15',
         },
         {
@@ -1905,13 +1906,13 @@ async function main() {
         {
           idTeacherAssignment: 2,
           weekDay: 2,
-          startTime: '8:15',
-          finishTime: '9:15',
+          startTime: '08:15',
+          finishTime: '09:15',
         },
         {
           idTeacherAssignment: 2,
           weekDay: 2,
-          startTime: '9:15',
+          startTime: '09:15',
           finishTime: '10:15',
         },
         {
@@ -1942,13 +1943,13 @@ async function main() {
         {
           idTeacherAssignment: 2,
           weekDay: 3,
-          startTime: '8:15',
-          finishTime: '9:15',
+          startTime: '08:15',
+          finishTime: '09:15',
         },
         {
           idTeacherAssignment: 4,
           weekDay: 3,
-          startTime: '9:15',
+          startTime: '09:15',
           finishTime: '10:15',
         },
         {
@@ -1979,13 +1980,13 @@ async function main() {
         {
           idTeacherAssignment: 7,
           weekDay: 4,
-          startTime: '8:15',
-          finishTime: '9:15',
+          startTime: '08:15',
+          finishTime: '09:15',
         },
         {
           idTeacherAssignment: 4,
           weekDay: 4,
-          startTime: '9:15',
+          startTime: '09:15',
           finishTime: '10:15',
         },
         {
@@ -2016,13 +2017,13 @@ async function main() {
         {
           idTeacherAssignment: 1,
           weekDay: 5,
-          startTime: '8:15',
-          finishTime: '9:15',
+          startTime: '08:15',
+          finishTime: '09:15',
         },
         {
           idTeacherAssignment: 1,
           weekDay: 5,
-          startTime: '9:15',
+          startTime: '09:15',
           finishTime: '10:15',
         },
         {
@@ -2048,7 +2049,42 @@ async function main() {
           weekDay: 5,
           startTime: '13:45',
           finishTime: '14:45',
-        }/*,
+        },
+        // DAM TARDE - Grupo 2
+{ idTeacherAssignment: 32, weekDay: 1, startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 32, weekDay: 1, startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, weekDay: 1, startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, weekDay: 1, startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 37, weekDay: 1, startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 39, weekDay: 1, startTime: '20:30', finishTime: '21:30' },
+
+{ idTeacherAssignment: 32, weekDay: 2, startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 33, weekDay: 2, startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, weekDay: 2, startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, weekDay: 2, startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 35, weekDay: 2, startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 38, weekDay: 2, startTime: '20:30', finishTime: '21:30' },
+
+{ idTeacherAssignment: 32, weekDay: 3, startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 32, weekDay: 3, startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, weekDay: 3, startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, weekDay: 3, startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 35, weekDay: 3, startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 36, weekDay: 3, startTime: '20:30', finishTime: '21:30' },
+
+{ idTeacherAssignment: 32, weekDay: 4, startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 33, weekDay: 4, startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 34, weekDay: 4, startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 35, weekDay: 4, startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 36, weekDay: 4, startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 37, weekDay: 4, startTime: '20:30', finishTime: '21:30' },
+
+{ idTeacherAssignment: 32, weekDay: 5, startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 32, weekDay: 5, startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, weekDay: 5, startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, weekDay: 5, startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 36, weekDay: 5, startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 37, weekDay: 5, startTime: '20:30', finishTime: '21:30' }/*,
 
           //ahora el horario de otra clase (por ejemplo 1 daw mañana)
           {
@@ -5241,9 +5277,9 @@ async function main() {
   console.log(`👥 ${groups.count} grupos creados`);
   console.log(`👥 ${enrollments.count} enrollments creados`);
   console.log(`👥 ${assignments.count} assignments creados`);
-  console.log(`👥 ${weekSchedule.count} assignments creados`);
-  console.log(`👥 ${classSession.count} assignments creados`);
-  console.log(`👥 ${assistance.count} assignments creados`);
+  console.log(`👥 ${weekSchedule.count} weekSchedules creados`);
+  console.log(`👥 ${classSession.count} classSessions creados`);
+  console.log(`👥 ${assistance.count} assistances creados`);
 
 
   console.log(`✅ ${theoryTasks.count} tareas de temario creadas`);

@@ -253,3 +253,30 @@ export const patchTeacher = async (req: Request, res: Response) => {
     }
 };
 
+
+export const getTeacherSubjects = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido'
+            });
+        }
+
+        const subjects = await teachersService.findSubjectsByTeacherId(id);
+
+        res.json({
+            success: true,
+            data: subjects,
+            count: subjects.length
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener asignaturas del profesor',
+            error: error.message
+        });
+    }
+};

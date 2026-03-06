@@ -37,6 +37,20 @@ router.get('/teacher-assignment/:idTeacherAssignment', horarioSemanalController.
  */
 router.get('/dia/:diaSemana', horarioSemanalController.getHorariosByDia);
 
+/**
+ * @route   GET /api/horarios-semanales/teacher/:idTeacher
+ * @desc    Obtener todos los horarios semanales de un profesor por su ID
+ * @access  Public
+ */
+router.get('/teacher/:idTeacher', horarioSemanalController.getHorariosByTeacher);
+
+/**
+ * @route   GET /api/horarios-semanales/student/:idStudent
+ * @desc    Obtener todos los horarios de un alumno por su ID
+ * @access  Public
+ */
+router.get('/student/:idStudent', horarioSemanalController.getHorariosByStudent);
+
 // ============================================
 // RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN y TEACHER)
 // ============================================

@@ -11,6 +11,13 @@ const router = Router();
 router.get('/', teachersController.getAllTeachers);
 
 /**
+ * @route   GET /api/teachers/:id/subjects
+ * @desc    Obtener asignaturas de un profesor por ID
+ * @access  Public
+ */
+router.get('/:id/subjects', teachersController.getTeacherSubjects);
+
+/**
  * @route   GET /api/teachers/:id
  * @desc    Obtener un profesor por ID
  * @access  Public

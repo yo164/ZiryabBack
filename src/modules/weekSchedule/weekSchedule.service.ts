@@ -57,6 +57,33 @@ export const findByTeacherAssignment = async (idTeacherAssignment: number) => {
   });
 };
 
+export const findByTeacherId = async(idTeacher: number) => {
+  return prisma.weekSchedule.findMany({
+    where: { 
+      teacherAssignment: {
+        idTeacher
+      }
+     },
+    include: {
+      teacherAssignment:{
+        include: {
+          teacher: {
+            select: {
+              id: true
+            }
+          },
+          subject: true,
+          group: true
+        }
+      }
+    },
+    orderBy: [
+      { weekDay: 'asc' },
+      { startTime: 'asc' }
+    ]
+
+  });
+};
 export const findByDiaSemana = async (diaSemana: number) => {
   return prisma.weekSchedule.findMany({
     where: { weekDay: diaSemana },
@@ -70,6 +97,42 @@ export const findByDiaSemana = async (diaSemana: number) => {
       },
     },
     orderBy: { startTime: 'asc' },
+  });
+};
+
+
+export const findByStudentId = async (idStudent: number) => {
+  return prisma.weekSchedule.findMany({
+    where: {
+      teacherAssignment: {
+        subject: {
+          studentEnrollments: {
+            some: {
+              idStudent: idStudent
+            }
+          }
+        },
+        group: {
+          studentEnrollments: {
+            some: {
+              idStudent: idStudent
+            }
+          }
+        }
+      }
+    },
+    include: {
+      teacherAssignment: {
+        include: {
+          subject: true,
+          group: true
+        }
+      }
+    },
+    orderBy: [
+      { weekDay: 'asc' },
+      { startTime: 'asc' }
+    ]
   });
 };
 

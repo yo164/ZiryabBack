@@ -192,7 +192,7 @@ model SessionClass {
   idSchedule   Int
   schedule     WeekSchedule @relation(fields: [idSchedule], references: [id], onDelete: Cascade)//horario
   
-  date       DateTime//fecha
+  date       DateTime @db.Date//fecha
   status      String   @default("PROGRAMADA") // PROGRAMADA, REALIZADA, CANCELADA estado
   apointments String?//detalles, observaciones
   

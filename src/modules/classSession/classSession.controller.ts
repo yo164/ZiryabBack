@@ -51,6 +51,23 @@ export const getSessionById = async (req: Request, res: Response) => {
   }
 };
 
+
+export const getActiveSession = async (req: Request, res: Response) => {
+  try {
+    const idTeacherAssignment = parseInt(req.query.idTeacherAssignment as string || '0');
+
+    if (isNaN(idTeacherAssignment) || idTeacherAssignment === 0) {
+      return res.status(400).json({ success: false, message: 'idTeacherAssignment inválido' });
+    }
+
+    const session = await classSessionService.findOrCreateActiveSession(idTeacherAssignment);
+    res.json({ success: true, data: session });
+  } catch (error: any) {
+    res.status(404).json({ success: false, message: error.message });
+  }
+};
+
+
 export const getSessionsBySchedule = async (req: Request, res: Response) => {
   try {
     const idSchedule = parseInt(req.params.idSchedule || '0');

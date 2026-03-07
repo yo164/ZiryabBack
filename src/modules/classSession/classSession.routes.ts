@@ -17,6 +17,14 @@ const router = Router();
 router.get('/', classSessionController.getAllSessions);
 
 /**
+ * @route   GET /api/sessions/active
+ * @desc    Obtener o crear la sesión activa para un assignment en este momento
+ * @access  Public
+ */
+router.get('/active', classSessionController.getActiveSession);
+
+
+/**
  * @route   GET /api/sessions/:id
  * @desc    Obtener una sesión por ID
  * @access  Public
@@ -29,6 +37,13 @@ router.get('/:id', classSessionController.getSessionById);
  * @access  Public
  */
 router.get('/schedule/:idSchedule', classSessionController.getSessionsBySchedule);
+
+/**
+ * @route   GET /api/sessions/active
+ * @desc    Obtener o crear la sesión activa para un assignment en este momento
+ * @access  Public
+ */
+router.get('/active', classSessionController.getActiveSession);
 
 // ============================================
 // RUTAS PROTEGIDAS (POST, PUT, DELETE - solo ADMIN y TEACHER)

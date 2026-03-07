@@ -65,6 +65,41 @@ export const findBySchedule = async (idSchedule: number) => {
   });
 };
 
+
+export const findOrCreateActiveSession = async (idTeacherAssignment: number) => {
+  /*
+  const now = new Date();
+  const weekDay = now.getDay() === 0 ? 7 : now.getDay();
+  const horaActual = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const fechaHoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+*/
+
+const weekDay = 1; // Lunes
+const horaActual = '09:00';
+const fechaHoy = new Date('2025-09-22'); // Un lunes cualquiera
+
+  const schedule = await prisma.weekSchedule.findFirst({
+    where: {
+      idTeacherAssignment,
+      weekDay,
+      startTime: { lte: horaActual },
+      finishTime: { gte: horaActual },
+    },
+  });
+
+  if (!schedule) throw new Error('No hay clase activa en este momento');
+
+  const existing = await prisma.sessionClass.findFirst({
+    where: { idSchedule: schedule.id, date: fechaHoy },
+  });
+
+  if (existing) return existing;
+
+  return prisma.sessionClass.create({
+    data: { idSchedule: schedule.id, date: fechaHoy, status: 'PROGRAMADA' },
+  });
+};
+
 export const create = async (data: {
   idSchedule: number;
   date: string; // "2024-09-01"

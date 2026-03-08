@@ -10,76 +10,70 @@ const router = Router();
 // ============================================
 
 /**
- * @route   GET /api/subjects
- * @desc    Obtener todas las asistencias de alumnos que esten en activo(no dados de baja)
+ * @route   GET /api/assistances
+ * @desc    Obtener todas las asistencias
  * @access  Public
  */
-router.get('/', assistanceController.getAllActiveStudents);
+router.get('/', assistanceController.getAll);
 
 /**
- * @route   GET /api/subjects/:id
- * @desc    Obtener una asignatura por ID
+ * @route   GET /api/assistances/student-enrollment/:idStudentEnrollment
+ * @desc    Obtener faltas de un alumno por idStudentEnrollment
  * @access  Public
- * router.get('/:id', subjectsController.getSubjectById);
-
  */
+router.get('/student-enrollment/:idStudentEnrollment', assistanceController.getByStudentEnrollment);
 
 /**
- * @route   GET /api/subjects/:id/teachers
- * @desc    Obtener profesores de una asignatura
+ * @route   GET /api/assistances/student/:idStudent
+ * @desc    Obtener faltas de un alumno por idStudent
  * @access  Public
- * router.get('/:id/teachers', subjectsController.getSubjectTeachers);
-
  */
+router.get('/student/:idStudent', assistanceController.getByStudentId);
 
 /**
- * @route   GET /api/subjects/:id/students
- * @desc    Obtener estudiantes de una asignatura
+ * @route   GET /api/assistances/:id
+ * @desc    Obtener una asistencia por ID
  * @access  Public
- * router.get('/:id/students', subjectsController.getSubjectStudents);
-
  */
+router.get('/:id', assistanceController.getById);
 
 // ============================================
-// RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)
+// RUTAS PROTEGIDAS (POST, PATCH, DELETE)
 // ============================================
 
 /**
- * @route   POST /api/
- * @desc    Crear un registro de asistencia(el profesor pasa lista no rellena casilla por defecto asistencia "presente"
- *            falta injustificada/justificada o retraso)
- * @access  Admin y profesor
+ * @route   POST /api/assistances/bulk
+ * @desc    Crear múltiples asistencias de una vez
+ * @access  Admin y Teacher
  */
-router.post('/', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.registrarAsistencia);
+router.post('/bulk', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.createBulk);
 
 /**
- * @route   PUT /api/subjects/:id
- * @desc    Actualizar una asignatura completamente
- * @access  Admin only
-    router.put('/:id', auth, authorize(['ADMIN']), subjectsController.updateSubject);
+ * @route   POST /api/assistances
+ * @desc    Crear una asistencia individual
+ * @access  Admin y Teacher
+ */
+router.post('/', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.createOne);
 
-*/
+/**
+ * @route   PATCH /api/assistances/justify
+ * @desc    Justificar una falta
+ * @access  Admin y Teacher
+ */
+router.patch('/justify', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.justify);
 
 /**
  * @route   PATCH /api/assistances/:id
- * @desc    Actualizar parcialmente una asistencia
- *          el sistema recibirá instrucción del profesor validando una justificación
- *          solicitada por un alumno y actualizará el estado de una falta de injustificada a justificada
- *           
- *          Al recibir y verificar la justificación del alumno el profesor dará instrucción al programa
- *          para actualizar el estado de la falta de injustificada a justificada 
- * @access  Admin y profesor
+ * @desc    Actualizar estado de una asistencia
+ * @access  Admin y Teacher
  */
-router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.patchAssistance);
+router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.updateOne);
 
 /**
- * @route   DELETE /api/subjects/:id
- * @desc    Eliminar una asignatura
+ * @route   DELETE /api/assistances/:id
+ * @desc    Eliminar una asistencia
  * @access  Admin only
- * 
- * router.delete('/:id', auth, authorize(['ADMIN']), subjectsController.deleteSubject);
-
  */
-
+router.delete('/:id', auth, authorize(['ADMIN']), assistanceController.deleteOne);
 
 export default router;

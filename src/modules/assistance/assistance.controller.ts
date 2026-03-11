@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express';
 import * as assistanceService from './assistance.service.js';
+import { success } from 'zod';
+import { count } from 'console';
 
 export const getAll = async (req: Request, res: Response) => {
     try {
@@ -48,6 +50,18 @@ export const getByStudentId = async (req: Request, res: Response) => {
     }
 };
 
+export const getBySessionId = async (req: Request, res: Response) => {
+    try {
+        const sessionId = parseInt(req.params.idSession || '0');
+        if(isNaN(sessionId) || sessionId === 0) return res.status(400).json({ success: false, message: 'ID inválido'});
+
+        const assitances = await assistanceService.findBySessionId(sessionId);
+        res.json({ success: true, data: assitances, count: assitances.length});
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: 'Error al obtener asistencias de la sesión', error: error.message});
+    }
+}
+
 export const createOne = async (req: Request, res: Response) => {
     try {
         const assistance = await assistanceService.create(req.body);
@@ -71,23 +85,21 @@ export const createBulk = async (req: Request, res: Response) => {
     }
 };
 
-export const updateOne = async (req: Request, res: Response) => {
-    try {
-        const id = parseInt(req.params.id || '0');
-        if (isNaN(id) || id === 0) return res.status(400).json({ success: false, message: 'ID inválido' });
 
-        const updated = await assistanceService.update(id, req.body);
-        res.json({ success: true, data: updated });
-    } catch (error: any) {
-        if (error.message === 'Asistencia no encontrada') return res.status(404).json({ success: false, message: error.message });
-        res.status(400).json({ success: false, message: 'Error al actualizar asistencia', error: error.message });
-    }
-};
 
 export const justify = async (req: Request, res: Response) => {
     try {
-        const { idSession, idStudentEnrollment } = req.body;
-        const updated = await assistanceService.updateStatusToJustified(idSession, idStudentEnrollment);
+
+         const id = parseInt(req.params.id || '0');
+
+    if (isNaN(id) || id === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID inválido',
+      });
+    }
+        
+        const updated = await assistanceService.updateStatusToJustified(id);
         res.json({ success: true, data: updated });
     } catch (error: any) {
         res.status(400).json({ success: false, message: 'Error al justificar asistencia', error: error.message });

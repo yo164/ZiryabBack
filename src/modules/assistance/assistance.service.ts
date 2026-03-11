@@ -31,21 +31,16 @@ export const findAllByStudentId = async (studentId: number) => {
         orderBy: { createdAt: 'desc' }
     });
 };
-//actualiza uan asistencia a justify (justifica asistencias)
-export const updateStatusToJustified = async (idSession: number, idStudentEnrollment: number) => {
+export const updateStatusToJustified = async (idAssistance: number) => {
     return await prisma.assistance.update({
         where: {
-            idSession_idStudentEnrollment: {
-                idSession: idSession,
-                idStudentEnrollment: idStudentEnrollment,
-            },
+            id: idAssistance, 
         },
         data: {
             status: 'JUSTIFY',
         },
     });
 };
-
 
 export const findAll = async () => {
     return await prisma.assistance.findMany({
@@ -66,6 +61,18 @@ export const findById = async (id: number) => {
         }
     });
 };
+
+export const findBySessionId = async (idSession: number) => {
+    return await prisma.assistance.findMany({
+        where: { idSession },
+        include: {
+            session: true,
+            studentEnrollment: { include: { student: true } }
+        },
+        orderBy: { createdAt: 'desc' }
+    });
+};
+
 
 export const findAllByStudentEnrollment = async (studentEnrollmentId: number) => {
     return await prisma.assistance.findMany({
@@ -102,15 +109,6 @@ export const createMany = async (assistances: {
     });
 };
 
-export const update = async (id: number, data: { status: AssistanceStatus }) => {
-    const exists = await prisma.assistance.findUnique({ where: { id } });
-    if (!exists) throw new Error('Asistencia no encontrada');
-
-    return await prisma.assistance.update({
-        where: { id },
-        data: { status: data.status }
-    });
-};
 
 
 

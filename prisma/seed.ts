@@ -4222,80 +4222,80 @@ async function main() {
         { status: 'PRESENT', idSession: 3, idStudentEnrollment: 18 },
 
         // Sesión 4
-        { status: 'PRESENT', idSession: 4, idStudentEnrollment: 1 },
-        { status: 'MISSING', idSession: 4, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 4, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 4, idStudentEnrollment: 2 },
+        { status: 'MISSING', idSession: 4, idStudentEnrollment: 10 },
+        { status: 'PRESENT', idSession: 4, idStudentEnrollment: 18 },
 
         // Sesión 5
-        { status: 'PRESENT', idSession: 5, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 5, idStudentEnrollment: 2 },
-        { status: 'LAG', idSession: 5, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 5, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 5, idStudentEnrollment: 11 },
+        { status: 'LAG', idSession: 5, idStudentEnrollment: 19 },
 
         // Sesión 6
-        { status: 'PRESENT', idSession: 6, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 6, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 6, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 6, idStudentEnrollment: 11 },
+        { status: 'PRESENT', idSession: 6, idStudentEnrollment: 19 },
 
         // Sesión 7
-        { status: 'PRESENT', idSession: 7, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 7, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 7, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 7, idStudentEnrollment: 10 },
+        { status: 'PRESENT', idSession: 7, idStudentEnrollment: 18 },
 
         // Sesión 8
-        { status: 'PRESENT', idSession: 8, idStudentEnrollment: 1 },
-        { status: 'MISSING', idSession: 8, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 8, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 8, idStudentEnrollment: 2 },
+        { status: 'MISSING', idSession: 8, idStudentEnrollment: 10 },
+        { status: 'PRESENT', idSession: 8, idStudentEnrollment: 18 },
 
         // Sesión 9
-        { status: 'PRESENT', idSession: 9, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 9, idStudentEnrollment: 2 },
-        { status: 'LAG', idSession: 9, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 9, idStudentEnrollment: 10 },
+        { status: 'LAG', idSession: 9, idStudentEnrollment: 18 },
 
         // Sesión 10
-        { status: 'PRESENT', idSession: 10, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 10, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 10, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 10, idStudentEnrollment: 6 },
+        { status: 'PRESENT', idSession: 10, idStudentEnrollment: 14 },
+        { status: 'PRESENT', idSession: 10, idStudentEnrollment: 22 },
 
         // Sesión 11
-        { status: 'PRESENT', idSession: 11, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 11, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 11, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 11, idStudentEnrollment: 6 },
+        { status: 'PRESENT', idSession: 11, idStudentEnrollment: 14 },
+        { status: 'PRESENT', idSession: 11, idStudentEnrollment: 22 },
 
         // Sesión 12
-        { status: 'LAG', idSession: 12, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 12, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 12, idStudentEnrollment: 3 },
+        { status: 'LAG', idSession: 12, idStudentEnrollment: 6 },
+        { status: 'PRESENT', idSession: 12, idStudentEnrollment: 14 },
+        { status: 'PRESENT', idSession: 12, idStudentEnrollment: 22 },
 
         // Sesión 13
-        { status: 'PRESENT', idSession: 13, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 13, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 13, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 13, idStudentEnrollment: 10 },
+        { status: 'PRESENT', idSession: 13, idStudentEnrollment: 18 },
 
         // Sesión 14
-        { status: 'PRESENT', idSession: 14, idStudentEnrollment: 1 },
-        { status: 'MISSING', idSession: 14, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 14, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 14, idStudentEnrollment: 4 },
+        { status: 'MISSING', idSession: 14, idStudentEnrollment: 12 },
+        { status: 'PRESENT', idSession: 14, idStudentEnrollment: 20 },
 
         // Sesión 15
         { status: 'PRESENT', idSession: 15, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 15, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 15, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 15, idStudentEnrollment: 9 },
+        { status: 'PRESENT', idSession: 15, idStudentEnrollment: 17 },
 
         // Sesión 16
         { status: 'PRESENT', idSession: 16, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 16, idStudentEnrollment: 2 },
-        { status: 'LAG', idSession: 16, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 16, idStudentEnrollment: 9 },
+        { status: 'LAG', idSession: 16, idStudentEnrollment: 17 },
 
         // Sesión 17
         { status: 'PRESENT', idSession: 17, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 17, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 17, idStudentEnrollment: 3 },
+        { status: 'PRESENT', idSession: 17, idStudentEnrollment: 9 },
+        { status: 'PRESENT', idSession: 17, idStudentEnrollment: 17 },
 
         // Sesión 18
-        { status: 'PRESENT', idSession: 18, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 18, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 18, idStudentEnrollment: 3 },
-
+        { status: 'PRESENT', idSession: 18, idStudentEnrollment: 8 },
+        { status: 'PRESENT', idSession: 18, idStudentEnrollment: 16 },
+        { status: 'PRESENT', idSession: 18, idStudentEnrollment: 24 },
+//me he quedado aqui 8/3
         // Sesión 19
         { status: 'PRESENT', idSession: 19, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 19, idStudentEnrollment: 2 },

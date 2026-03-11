@@ -250,6 +250,8 @@ model Task {
   
   startDate            DateTime  // Fecha/hora desde que se puede ver
   dueDate              DateTime  // Fecha/hora límite de entrega
+
+  attachmentUrl        String?//url del fichero que sube el profesor, puede ser temario o contenido para una tarea
   
   schoolYear           String    // "2024-2025"
   

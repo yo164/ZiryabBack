@@ -7,6 +7,12 @@ CREATE TYPE "EnrollmentStatus" AS ENUM ('ENROLLED', 'EVALUATION_LOST', 'COMPLETE
 -- CreateEnum
 CREATE TYPE "AssistanceStatus" AS ENUM ('PRESENT', 'MISSING', 'LAG', 'JUSTIFY');
 
+-- CreateEnum
+CREATE TYPE "TaskType" AS ENUM ('PRACTICE', 'THEORY', 'EXAM', 'PROJECT', 'HOMEWORK');
+
+-- CreateEnum
+CREATE TYPE "SubmissionStatus" AS ENUM ('PENDING', 'SUBMITTED', 'LATE', 'GRADED', 'NOT_SUBMITTED');
+
 -- CreateTable
 CREATE TABLE "Student" (
     "id" SERIAL NOT NULL,
@@ -130,7 +136,7 @@ CREATE TABLE "WeekSchedule" (
 CREATE TABLE "SessionClass" (
     "id" SERIAL NOT NULL,
     "idSchedule" INTEGER NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL,
+    "date" DATE NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'PROGRAMADA',
     "apointments" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -147,6 +153,37 @@ CREATE TABLE "Assistance" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Assistance_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Task" (
+    "id" SERIAL NOT NULL,
+    "idTeacherAssignment" INTEGER NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "type" "TaskType" NOT NULL,
+    "startDate" TIMESTAMP(3) NOT NULL,
+    "dueDate" TIMESTAMP(3) NOT NULL,
+    "attachmentUrl" TEXT,
+    "schoolYear" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "StudentTask" (
+    "id" SERIAL NOT NULL,
+    "idTask" INTEGER NOT NULL,
+    "idStudentEnrollment" INTEGER NOT NULL,
+    "status" "SubmissionStatus" NOT NULL DEFAULT 'PENDING',
+    "submissionDate" TIMESTAMP(3),
+    "score" DECIMAL(65,30),
+    "feedback" TEXT,
+    "attachmentUrl" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "StudentTask_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -221,6 +258,21 @@ CREATE INDEX "Assistance_idSession_status_idx" ON "Assistance"("idSession", "sta
 -- CreateIndex
 CREATE UNIQUE INDEX "Assistance_idSession_idStudentEnrollment_key" ON "Assistance"("idSession", "idStudentEnrollment");
 
+-- CreateIndex
+CREATE INDEX "Task_idTeacherAssignment_schoolYear_idx" ON "Task"("idTeacherAssignment", "schoolYear");
+
+-- CreateIndex
+CREATE INDEX "Task_dueDate_idx" ON "Task"("dueDate");
+
+-- CreateIndex
+CREATE INDEX "StudentTask_idStudentEnrollment_status_idx" ON "StudentTask"("idStudentEnrollment", "status");
+
+-- CreateIndex
+CREATE INDEX "StudentTask_idTask_status_idx" ON "StudentTask"("idTask", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "StudentTask_idTask_idStudentEnrollment_key" ON "StudentTask"("idTask", "idStudentEnrollment");
+
 -- AddForeignKey
 ALTER TABLE "Subject" ADD CONSTRAINT "Subject_idCourse_fkey" FOREIGN KEY ("idCourse") REFERENCES "Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -253,3 +305,12 @@ ALTER TABLE "Assistance" ADD CONSTRAINT "Assistance_idSession_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "Assistance" ADD CONSTRAINT "Assistance_idStudentEnrollment_fkey" FOREIGN KEY ("idStudentEnrollment") REFERENCES "StudentOnSubjectOnGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Task" ADD CONSTRAINT "Task_idTeacherAssignment_fkey" FOREIGN KEY ("idTeacherAssignment") REFERENCES "TeacherOnSubjectOnGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StudentTask" ADD CONSTRAINT "StudentTask_idTask_fkey" FOREIGN KEY ("idTask") REFERENCES "Task"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StudentTask" ADD CONSTRAINT "StudentTask_idStudentEnrollment_fkey" FOREIGN KEY ("idStudentEnrollment") REFERENCES "StudentOnSubjectOnGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE;

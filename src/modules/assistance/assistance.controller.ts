@@ -85,7 +85,33 @@ export const createBulk = async (req: Request, res: Response) => {
     }
 };
 
+export const updateStatus = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
 
+        if (isNaN(id) || id === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID inválido',
+            });
+        }
+
+        const { status } = req.body;
+
+        if (!status) {
+            return res.status(400).json({
+                success: false,
+                message: 'Status requerido',
+            });
+        }
+
+        const updated = await assistanceService.updateStatusById(id, status);
+        res.json({ success: true, data: updated });
+        
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: 'Error al actualizar asistencia', error: error.message });
+    }
+};
 
 export const justify = async (req: Request, res: Response) => {
     try {

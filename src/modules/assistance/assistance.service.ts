@@ -42,6 +42,13 @@ export const updateStatusToJustified = async (idAssistance: number) => {
     });
 };
 
+export const updateStatusById = async (id: number, status: AssistanceStatus) => {
+    return await prisma.assistance.update({
+        where: { id },
+        data: { status }
+    });
+};
+
 export const findAll = async () => {
     return await prisma.assistance.findMany({
         include: {

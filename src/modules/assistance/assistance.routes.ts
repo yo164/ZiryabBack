@@ -35,7 +35,7 @@ router.get('/student/:idStudent', assistanceController.getByStudentId);
  * @desc  Obtener asistencias por id de Sesión
  * @access Public
  */
-router.get('/session/:idStudent', assistanceController.getBySessionId);
+router.get('/session/:idSession', assistanceController.getBySessionId);
 
 /**
  * @route   GET /api/assistances/:id
@@ -69,6 +69,13 @@ router.post('/', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.cre
  */
 router.patch('/justify/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.justify);
 
+/**
+ * @route PATCH /api/assistances/assistancestatus/{id}
+ * @desc  actualizar el estado de una falta
+ * @acces admin y teacher
+ */
+router.patch('/assistancestatus/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.updateStatus)
+
 
 
 /**
@@ -77,5 +84,7 @@ router.patch('/justify/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceCo
  * @access  Admin only
  */
 router.delete('/:id', auth, authorize(['ADMIN']), assistanceController.deleteOne);
+
+
 
 export default router;

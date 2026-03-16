@@ -1580,7 +1580,7 @@ async function main() {
           idGroup: 1,
           schoolYear: acaYear
         },
-
+//cambio para seguridad 
         //profesor 2 da base de daots en 1 daw de mañana
         {
           idTeacher: 2,

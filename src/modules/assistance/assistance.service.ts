@@ -12,6 +12,7 @@ export const findAllByStudentId = async (studentId: number) => {
             status: true,
             session: {
                 select: {
+                    id: true,
                     date: true,
                     schedule: {
                         select: {
@@ -42,10 +43,35 @@ export const updateStatusToJustified = async (idAssistance: number) => {
     });
 };
 
+export const updateStatusById = async (id: number, status: AssistanceStatus) => {
+    return await prisma.assistance.update({
+        where: { id },
+        data: { status }
+    });
+};
+
 export const findAll = async () => {
     return await prisma.assistance.findMany({
         include: {
-            session: true,
+            session: {
+                include: {
+                    schedule: {
+                        include: {
+                            teacherAssignment: {
+                                include: {
+                                    subject: {
+                                        select: { name: true }
+                                    }
+                                },
+                                select: {
+                                    idTeacher: true,
+                                    subject: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             studentEnrollment: { include: { student: true } }
         },
         orderBy: { createdAt: 'desc' }

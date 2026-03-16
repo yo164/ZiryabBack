@@ -58,14 +58,11 @@ export const findAll = async () => {
                     schedule: {
                         include: {
                             teacherAssignment: {
-                                include: {
+                                select: {
+                                    idTeacher: true,
                                     subject: {
                                         select: { name: true }
                                     }
-                                },
-                                select: {
-                                    idTeacher: true,
-                                    subject: true
                                 }
                             }
                         }

@@ -62,10 +62,6 @@ export const findAll = async () => {
                                     subject: {
                                         select: { name: true }
                                     }
-                                },
-                                select: {
-                                    idTeacher: true,
-                                    subject: true
                                 }
                             }
                         }

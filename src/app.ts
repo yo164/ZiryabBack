@@ -28,16 +28,23 @@ import studentregsitrationRouter from './modules/student-registration/student-re
 const app = express();
 
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+    },
+  },
 }));
 app.use(cors({
-  origin: 'http://localhost:4200', // Tu frontend Angular
+  origin: env.FRONTEND_URL, // Tu frontend Angular
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200
 }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '100kb' }));
 app.use(requestLogger);
 
 if (env.NODE_ENV !== 'test') {

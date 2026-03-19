@@ -75,7 +75,7 @@ export const findOrCreateActiveSession = async (idTeacherAssignment: number) => 
 */
 
 const weekDay = 1; // Lunes
-const horaActual = '10:00';
+const horaActual = '11:00';
 const fechaHoy = new Date('2025-09-22'); // Un lunes cualquiera
 
   const schedule = await prisma.weekSchedule.findFirst({

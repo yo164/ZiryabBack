@@ -21,6 +21,8 @@ const envSchema = z.object({
   FIREBASE_PROJECT_ID: z.string(),
   FIREBASE_PRIVATE_KEY: z.string(),
   FIREBASE_CLIENT_EMAIL: z.string().email(),
+
+  FRONTEND_URL: z.string(),
 });
 
 // Parsea y exporta

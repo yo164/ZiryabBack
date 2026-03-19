@@ -36,24 +36,6 @@ app.use((req, res, next) => {
   //   "object-src 'none';"
   // );
 
-// =========================================
-// SERVIR APP ANGULAR (dist/)
-// =========================================
-app.use(express.static(path.join(__dirname, 'dist/tu-app/browser')));
-
-// Redirigir todo al index.html (Angular Router)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/tu-app/browser/index.html'));
-});
-
-// =========================================
-// ARRANCAR SERVIDOR
-// =========================================
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
-
   // CSP PRODUCCIÓN — activa
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
@@ -70,4 +52,22 @@ app.listen(PORT, () => {
   );
 
   next();
+});
+
+// =========================================
+// SERVIR APP ANGULAR (dist/)
+// =========================================
+app.use(express.static(path.join(__dirname, 'dist/tu-app/browser')));
+
+// Redirigir todo al index.html (Angular Router)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/tu-app/browser/index.html'));
+});
+
+// =========================================
+// ARRANCAR SERVIDOR
+// =========================================
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

@@ -34,11 +34,19 @@ app.use(helmet({
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:"],
+      fontSrc: ["'self'"],          
+      connectSrc: ["'self'"],        
+      frameAncestors: ["'none'"],    
+      formAction: ["'self'"],        
+      baseUri: ["'self'"],           
+      objectSrc: ["'none'"],         
+      upgradeInsecureRequests: [],   
     },
   },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }, 
 }));
 app.use(cors({
-  origin: env.FRONTEND_URL, // Tu frontend Angular
+  origin: env.FRONTEND_URL, 
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

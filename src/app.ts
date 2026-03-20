@@ -47,7 +47,9 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: env.FRONTEND_URL, 
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  methods: env.NODE_ENV === 'production' 
+    ? ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    : ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200

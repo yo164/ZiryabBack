@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
+import cookieParser from 'cookie-parser';
 import { errorHandler } from './middleware/error.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
 import { requestLogger } from './middleware/requestLogger.js';
@@ -26,6 +27,7 @@ import groupRouter from './modules/group/group.routes.js';
 import studentregsitrationRouter from './modules/student-registration/student-registration.routes.js'
 //SACO UNA RAMA PARA IR HACIENDO PEQUEÑOS CAMBIOS EN LA BASE DE DATOS DE CARA A LA FUTURA ASIGNACIÓN DE UN PROFESOR A UNA ASIGNATURA IMPARTIDA EN UN GRUPO
 const app = express();
+app.use(cookieParser());
 
 app.use(helmet({
   contentSecurityPolicy: false,

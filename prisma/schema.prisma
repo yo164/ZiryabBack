@@ -211,6 +211,13 @@ enum AssistanceStatus {
   JUSTIFY//JUSTIFICADA
 }
 
+enum JustificationStatus {
+  PENDING   // Enviado por el alumno, pendiente de revisión
+  VIEWED    // El profesor lo ha visto
+  REJECTED  // Rechazado, no válido
+  // Aceptado = AssistanceStatus cambia a JUSTIFY
+}
+
 //asistencia
 model Assistance {
   id                  Int      @id @default(autoincrement())
@@ -222,6 +229,8 @@ model Assistance {
 
   
   status              AssistanceStatus @default(PRESENT)   // PRESENTE, AUSENTE, RETRASO, JUSTIFICADA
+  justificationUri    String?             // URL/path del archivo subido
+  justificationStatus JustificationStatus? // null = sin justificante enviado o estaba presente
   
   createdAt           DateTime @default(now())
   

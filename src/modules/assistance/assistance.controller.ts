@@ -48,6 +48,18 @@ export const getByStudentId = async (req: Request, res: Response) => {
     }
 };
 
+export const getBySessionId = async (req: Request, res: Response) => {
+    try {
+        const sessionId = parseInt(req.params.idSession || '0');
+        if (isNaN(sessionId) || sessionId === 0) return res.status(400).json({ success: false, message: 'ID de sesión inválido' });
+
+        const assistances = await assistanceService.findAllBySessionId(sessionId);
+        res.json({ success: true, data: assistances, count: assistances.length });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: 'Error al obtener asistencias de la sesión', error: error.message });
+    }
+};
+
 const validStatuses = ['PRESENT', 'MISSING', 'LAG', 'JUSTIFY'];
 
 export const createOne = async (req: Request, res: Response) => {

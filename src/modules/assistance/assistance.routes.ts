@@ -31,6 +31,13 @@ router.get('/student-enrollment/:idStudentEnrollment', assistanceController.getB
 router.get('/student/:idStudent', assistanceController.getByStudentId);
 
 /**
+ * @route   GET /api/assistances/session/:idSession
+ * @desc    Obtener lista de asistencias por id de sesión de clase
+ * @access  Public
+ */
+router.get('/session/:idSession', assistanceController.getBySessionId);
+
+/**
  * @route   GET /api/assistances/:id
  * @desc    Obtener una asistencia por ID
  * @access  Public

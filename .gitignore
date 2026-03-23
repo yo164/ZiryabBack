@@ -19,3 +19,4 @@ logs/
 # Docs
 jwt-migration.md
 assistances-implementation.md
+get-session-assistances.md

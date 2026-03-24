@@ -77,6 +77,13 @@ router.patch('/justify', auth, authorize(['ADMIN', 'TEACHER']), assistanceContro
 router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.updateOne);
 
 /**
+ * @route   PUT /api/assistances/:id
+ * @desc    Actualizar completamente o modificar estado de una asistencia
+ * @access  Admin y Teacher
+ */
+router.put('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.updateOne);
+
+/**
  * @route   DELETE /api/assistances/:id
  * @desc    Eliminar una asistencia
  * @access  Admin only

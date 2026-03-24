@@ -127,6 +127,10 @@ export const updateOne = async (req: Request, res: Response) => {
         const id = parseInt(req.params.id || '0');
         if (isNaN(id) || id === 0) return res.status(400).json({ success: false, message: 'ID inválido' });
 
+        if (req.body.status && !validStatuses.includes(req.body.status)) {
+            return res.status(400).json({ success: false, message: `Estado de asistencia inválido. Valores permitidos: ${validStatuses.join(', ')}` });
+        }
+
         const updated = await assistanceService.update(id, req.body);
         res.json({ success: true, data: updated });
     } catch (error: any) {

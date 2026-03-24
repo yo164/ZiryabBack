@@ -26,9 +26,9 @@ router.get('/student-enrollment/:idStudentEnrollment', auth, authorize(['ADMIN',
 /**
  * @route   GET /api/assistances/student/:idStudent
  * @desc    Obtener faltas de un alumno por idStudent
- * @access  Admin y Teacher
+ * @access  Admin, Teacher y Student
  */
-router.get('/student/:idStudent', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getByStudentId);
+router.get('/student/:idStudent', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), assistanceController.getByStudentId);
 
 /**
  * @route   GET /api/assistances/session/:idSession

@@ -51,6 +51,10 @@ export const getByStudentId = async (req: Request, res: Response) => {
         const studentId = parseInt(req.params.idStudent || '0');
         if (isNaN(studentId) || studentId === 0) return res.status(400).json({ success: false, message: 'ID inválido' });
 
+        if (req.user?.role === 'STUDENT' && req.user.sub !== studentId) {
+            return res.status(403).json({ success: false, message: 'No puedes ver las faltas de otro alumno' });
+        }
+
         const teacherId = req.user?.role === 'TEACHER' ? req.user.sub : undefined;
         const assistances = await assistanceService.findAllByStudentId(studentId, teacherId);
         res.json({ success: true, data: assistances, count: assistances.length });

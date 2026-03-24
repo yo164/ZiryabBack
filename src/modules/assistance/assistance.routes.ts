@@ -86,8 +86,8 @@ router.put('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.u
 /**
  * @route   DELETE /api/assistances/:id
  * @desc    Eliminar una asistencia
- * @access  Admin only
+ * @access  Admin y Teacher
  */
-router.delete('/:id', auth, authorize(['ADMIN']), assistanceController.deleteOne);
+router.delete('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.deleteOne);
 
 export default router;

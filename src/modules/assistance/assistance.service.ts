@@ -1,12 +1,23 @@
 import { AssistanceStatus } from '@prisma/client';
 import prisma from '../../config/prisma.js';
-//este find all byIdAlumno nos da las asistencias de un alumno cuyo status sea 'LAG' RETRASO O 'MISSING' PERDIDO (FALTA A CLASE)
-export const findAllByStudentId = async (studentId: number) => {
+export const findAllByStudentId = async (studentId: number, teacherId?: number) => {
+    const whereClause: any = {
+        studentEnrollment: { idStudent: studentId },
+        OR: [{ status: 'LAG' }, { status: 'MISSING' }, { status: 'JUSTIFY' }]
+    };
+
+    if (teacherId) {
+        whereClause.session = {
+            schedule: {
+                teacherAssignment: {
+                    idTeacher: teacherId
+                }
+            }
+        };
+    }
+
     return await prisma.assistance.findMany({
-        where: {
-            studentEnrollment: { idStudent: studentId },
-            OR: [{ status: 'LAG' }, { status: 'MISSING' }, { status: 'JUSTIFY' }]
-        },
+        where: whereClause,
         select: {
             id: true,
             status: true,
@@ -67,12 +78,24 @@ export const findById = async (id: number) => {
     });
 };
 
-export const findAllByStudentEnrollment = async (studentEnrollmentId: number) => {
+export const findAllByStudentEnrollment = async (studentEnrollmentId: number, teacherId?: number) => {
+    const whereClause: any = {
+        idStudentEnrollment: studentEnrollmentId,
+        OR: [{ status: 'LAG' }, { status: 'MISSING' }]
+    };
+
+    if (teacherId) {
+        whereClause.session = {
+            schedule: {
+                teacherAssignment: {
+                    idTeacher: teacherId
+                }
+            }
+        };
+    }
+
     return await prisma.assistance.findMany({
-        where: {
-            idStudentEnrollment: studentEnrollmentId,
-            OR: [{ status: 'LAG' }, { status: 'MISSING' }]
-        },
+        where: whereClause,
         orderBy: { createdAt: 'desc' }
     });
 };
@@ -142,4 +165,49 @@ export const remove = async (id: number) => {
     if (!exists) throw new Error('Asistencia no encontrada');
 
     return await prisma.assistance.delete({ where: { id } });
+};
+
+export const findAllByTeacher = async (teacherId: number) => {
+    return await prisma.assistance.findMany({
+        where: {
+            session: {
+                schedule: {
+                    teacherAssignment: {
+                        idTeacher: teacherId
+                    }
+                }
+            }
+        },
+        include: {
+            session: true,
+            studentEnrollment: { include: { student: true } }
+        },
+        orderBy: { createdAt: 'desc' }
+    });
+};
+
+export const checkSessionOwnership = async (sessionId: number, teacherId: number): Promise<boolean> => {
+    const session = await prisma.sessionClass.findUnique({
+        where: { id: sessionId },
+        include: { schedule: true }
+    });
+    if (!session) return false;
+
+    const teacherAssignment = await prisma.teacherOnSubjectOnGroup.findUnique({
+        where: { id: session.schedule.idTeacherAssignment }
+    });
+    return teacherAssignment?.idTeacher === teacherId;
+};
+
+export const checkAssistanceOwnership = async (assistanceId: number, teacherId: number): Promise<boolean> => {
+    const assistance = await prisma.assistance.findUnique({
+        where: { id: assistanceId },
+        include: { session: { include: { schedule: true } } }
+    });
+    if (!assistance) return false;
+
+    const teacherAssignment = await prisma.teacherOnSubjectOnGroup.findUnique({
+        where: { id: assistance.session.schedule.idTeacherAssignment }
+    });
+    return teacherAssignment?.idTeacher === teacherId;
 };

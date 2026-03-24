@@ -22,3 +22,4 @@ assistances-implementation.md
 get-session-assistances.md
 put-assistance.md
 delete-assistance.md
+jwt-assistance-protection.md

@@ -6,46 +6,46 @@ import * as assistanceController from './assistance.controller.js';
 const router = Router();
 
 // ============================================
-// RUTAS PÚBLICAS (GET - sin autenticación)
+// RUTAS PROTEGIDAS (TODAS REQUIEREN AUTENTICACIÓN)
 // ============================================
 
 /**
  * @route   GET /api/assistances
  * @desc    Obtener todas las asistencias
- * @access  Public
+ * @access  Admin y Teacher
  */
-router.get('/', assistanceController.getAll);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getAll);
 
 /**
  * @route   GET /api/assistances/student-enrollment/:idStudentEnrollment
  * @desc    Obtener faltas de un alumno por idStudentEnrollment
- * @access  Public
+ * @access  Admin y Teacher
  */
-router.get('/student-enrollment/:idStudentEnrollment', assistanceController.getByStudentEnrollment);
+router.get('/student-enrollment/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getByStudentEnrollment);
 
 /**
  * @route   GET /api/assistances/student/:idStudent
  * @desc    Obtener faltas de un alumno por idStudent
- * @access  Public
+ * @access  Admin y Teacher
  */
-router.get('/student/:idStudent', assistanceController.getByStudentId);
+router.get('/student/:idStudent', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getByStudentId);
 
 /**
  * @route   GET /api/assistances/session/:idSession
  * @desc    Obtener lista de asistencias por id de sesión de clase
- * @access  Public
+ * @access  Admin y Teacher
  */
-router.get('/session/:idSession', assistanceController.getBySessionId);
+router.get('/session/:idSession', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getBySessionId);
 
 /**
  * @route   GET /api/assistances/:id
  * @desc    Obtener una asistencia por ID
- * @access  Public
+ * @access  Admin y Teacher
  */
-router.get('/:id', assistanceController.getById);
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getById);
 
 // ============================================
-// RUTAS PROTEGIDAS (POST, PATCH, DELETE)
+// RUTAS DE MODIFICACIÓN (POST, PUT, PATCH, DELETE)
 // ============================================
 
 /**

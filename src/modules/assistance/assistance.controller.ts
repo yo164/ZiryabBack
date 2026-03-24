@@ -3,6 +3,10 @@ import * as assistanceService from './assistance.service.js';
 
 export const getAll = async (req: Request, res: Response) => {
     try {
+        if (req.user?.role === 'TEACHER') {
+            const assistances = await assistanceService.findAllByTeacher(req.user.sub);
+            return res.json({ success: true, data: assistances, count: assistances.length });
+        }
         const assistances = await assistanceService.findAll();
         res.json({ success: true, data: assistances, count: assistances.length });
     } catch (error: any) {
@@ -18,6 +22,11 @@ export const getById = async (req: Request, res: Response) => {
         const assistance = await assistanceService.findById(id);
         if (!assistance) return res.status(404).json({ success: false, message: 'Asistencia no encontrada' });
 
+        if (req.user?.role === 'TEACHER') {
+            const isOwner = await assistanceService.checkAssistanceOwnership(id, req.user.sub);
+            if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
+
         res.json({ success: true, data: assistance });
     } catch (error: any) {
         res.status(500).json({ success: false, message: 'Error al obtener asistencia', error: error.message });
@@ -29,7 +38,8 @@ export const getByStudentEnrollment = async (req: Request, res: Response) => {
         const studentEnrollmentId = parseInt(req.params.idStudentEnrollment || '0');
         if (isNaN(studentEnrollmentId) || studentEnrollmentId === 0) return res.status(400).json({ success: false, message: 'ID inválido' });
 
-        const assistances = await assistanceService.findAllByStudentEnrollment(studentEnrollmentId);
+        const teacherId = req.user?.role === 'TEACHER' ? req.user.sub : undefined;
+        const assistances = await assistanceService.findAllByStudentEnrollment(studentEnrollmentId, teacherId);
         res.json({ success: true, data: assistances, count: assistances.length });
     } catch (error: any) {
         res.status(500).json({ success: false, message: 'Error al obtener asistencias', error: error.message });
@@ -41,7 +51,8 @@ export const getByStudentId = async (req: Request, res: Response) => {
         const studentId = parseInt(req.params.idStudent || '0');
         if (isNaN(studentId) || studentId === 0) return res.status(400).json({ success: false, message: 'ID inválido' });
 
-        const assistances = await assistanceService.findAllByStudentId(studentId);
+        const teacherId = req.user?.role === 'TEACHER' ? req.user.sub : undefined;
+        const assistances = await assistanceService.findAllByStudentId(studentId, teacherId);
         res.json({ success: true, data: assistances, count: assistances.length });
     } catch (error: any) {
         res.status(500).json({ success: false, message: 'Error al obtener asistencias del alumno', error: error.message });
@@ -52,6 +63,11 @@ export const getBySessionId = async (req: Request, res: Response) => {
     try {
         const sessionId = parseInt(req.params.idSession || '0');
         if (isNaN(sessionId) || sessionId === 0) return res.status(400).json({ success: false, message: 'ID de sesión inválido' });
+
+        if (req.user?.role === 'TEACHER') {
+            const isOwner = await assistanceService.checkSessionOwnership(sessionId, req.user.sub);
+            if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
 
         const assistances = await assistanceService.findAllBySessionId(sessionId);
         res.json({ success: true, data: assistances, count: assistances.length });
@@ -72,6 +88,11 @@ export const createOne = async (req: Request, res: Response) => {
 
         if (status && !validStatuses.includes(status)) {
             return res.status(400).json({ success: false, message: `Estado de asistencia inválido. Valores permitidos: ${validStatuses.join(', ')}` });
+        }
+
+        if (req.user?.role === 'TEACHER') {
+            const isOwner = await assistanceService.checkSessionOwnership(idSession, req.user.sub);
+            if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
         }
 
         const assistance = await assistanceService.create(req.body);
@@ -109,6 +130,17 @@ export const createBulk = async (req: Request, res: Response) => {
             }
         }
 
+        if (req.user?.role === 'TEACHER') {
+            const sessionsChecked = new Set<number>();
+            for (const assistance of assistances) {
+                if (!sessionsChecked.has(assistance.idSession)) {
+                    const isOwner = await assistanceService.checkSessionOwnership(assistance.idSession, req.user.sub);
+                    if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado para una o más sesiones' });
+                    sessionsChecked.add(assistance.idSession);
+                }
+            }
+        }
+
         const result = await assistanceService.createMany(assistances);
         res.status(201).json({ success: true, count: result.count });
     } catch (error: any) {
@@ -131,6 +163,11 @@ export const updateOne = async (req: Request, res: Response) => {
             return res.status(400).json({ success: false, message: `Estado de asistencia inválido. Valores permitidos: ${validStatuses.join(', ')}` });
         }
 
+        if (req.user?.role === 'TEACHER') {
+            const isOwner = await assistanceService.checkAssistanceOwnership(id, req.user.sub);
+            if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
+
         const updated = await assistanceService.update(id, req.body);
         res.json({ success: true, data: updated });
     } catch (error: any) {
@@ -142,6 +179,12 @@ export const updateOne = async (req: Request, res: Response) => {
 export const justify = async (req: Request, res: Response) => {
     try {
         const { idSession, idStudentEnrollment } = req.body;
+
+        if (req.user?.role === 'TEACHER') {
+            const isOwner = await assistanceService.checkSessionOwnership(idSession, req.user.sub);
+            if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
+
         const updated = await assistanceService.updateStatusToJustified(idSession, idStudentEnrollment);
         res.json({ success: true, data: updated });
     } catch (error: any) {
@@ -153,6 +196,11 @@ export const deleteOne = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id || '0');
         if (isNaN(id) || id === 0) return res.status(400).json({ success: false, message: 'ID inválido' });
+
+        if (req.user?.role === 'TEACHER') {
+            const isOwner = await assistanceService.checkAssistanceOwnership(id, req.user.sub);
+            if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
 
         await assistanceService.remove(id);
         res.json({ success: true, message: 'Asistencia eliminada' });

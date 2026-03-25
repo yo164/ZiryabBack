@@ -1,7 +1,21 @@
 import type { Request, Response } from 'express';
 import * as assistanceService from './assistance.service.js';
-import { success } from 'zod';
-import { count } from 'console';
+
+// Controlador para obtener faltas del alumno logueado
+export const getMyAbsences = async (req: Request, res: Response) => {
+    try {
+        if (!req.user || req.user.role !== 'STUDENT') {
+            return res.status(403).json({ success: false, message: 'Acceso denegado' });
+        }
+        const studentId = req.user.sub;
+        
+        // Reutilizamos el servicio existente que ya excluye presentaciones ('PRESENT')
+        const absences = await assistanceService.findAllByStudentId(studentId);
+        res.json({ success: true, data: absences, count: absences.length });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: 'Error al obtener tus faltas', error: error.message });
+    }
+};
 
 export const getAll = async (req: Request, res: Response) => {
     try {

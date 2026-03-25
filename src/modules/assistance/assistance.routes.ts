@@ -37,16 +37,23 @@ router.get('/student/:idStudent', assistanceController.getByStudentId);
  */
 router.get('/session/:idSession', assistanceController.getBySessionId);
 
+// ============================================
+// RUTAS PROTEGIDAS (POST, PATCH, DELETE, y GET específico)
+// ============================================
+
+/**
+ * @route   GET /api/assistances/my-absences
+ * @desc    Obtener las faltas (LATE, ABSENT, EXCUSED) del alumno logueado
+ * @access  Student solo
+ */
+router.get('/my-absences', auth, authorize(['STUDENT']), assistanceController.getMyAbsences);
+
 /**
  * @route   GET /api/assistances/:id
  * @desc    Obtener una asistencia por ID
  * @access  Public
  */
 router.get('/:id', assistanceController.getById);
-
-// ============================================
-// RUTAS PROTEGIDAS (POST, PATCH, DELETE)
-// ============================================
 
 /**
  * @route   POST /api/assistances/bulk

@@ -5,7 +5,7 @@ export const findAllByStudentId = async (studentId: number) => {
     return await prisma.assistance.findMany({
         where: {
             studentEnrollment: { idStudent: studentId },
-            OR: [{ status: 'LAG' }, { status: 'MISSING' }, { status: 'JUSTIFY' }]
+            status: { not: AssistanceStatus.PRESENT } // Obtener cualquier falta (ABSENT, LATE, EXCUSED)
         },
         select: {
             id: true,
@@ -38,7 +38,7 @@ export const updateStatusToJustified = async (idAssistance: number) => {
             id: idAssistance, 
         },
         data: {
-            status: 'JUSTIFY',
+            status: AssistanceStatus.EXCUSED,
         },
     });
 };
@@ -101,7 +101,7 @@ export const findAllByStudentEnrollment = async (studentEnrollmentId: number) =>
     return await prisma.assistance.findMany({
         where: {
             idStudentEnrollment: studentEnrollmentId,
-            OR: [{ status: 'LAG' }, { status: 'MISSING' }]
+            status: { in: [AssistanceStatus.LATE, AssistanceStatus.ABSENT] }
         },
         orderBy: { createdAt: 'desc' }
     });
@@ -116,7 +116,7 @@ export const create = async (data: {
         data: {
             idSession: data.idSession,
             idStudentEnrollment: data.idStudentEnrollment,
-            status: data.status || 'PRESENT'
+            status: data.status || AssistanceStatus.PRESENT
         }
     });
 };

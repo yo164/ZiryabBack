@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, DayOfWeek } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -74,7 +74,7 @@ export const findOrCreateActiveSession = async (idTeacherAssignment: number) => 
   const fechaHoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 */
 
-const weekDay = 1; // Lunes
+const weekDay = DayOfWeek.MONDAY; // Lunes
 const horaActual = '10:00';
 const fechaHoy = new Date('2025-09-22'); // Un lunes cualquiera
 

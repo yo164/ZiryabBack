@@ -12,23 +12,23 @@ const router = Router();
 /**
  * @route   GET /api/tasks
  * @desc    Obtener todas las tareas
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/', taskController.getAllTasks);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER']), taskController.getAllTasks);
 
 /**
  * @route   GET /api/tasks/:id
  * @desc    Obtener una tarea por ID
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/:id', taskController.getTaskById);
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), taskController.getTaskById);
 
 /**
  * @route   GET /api/tasks/teacher-assignment/:idTeacherAssignment
  * @desc    Obtener tareas de una asignación de profesor
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/teacher-assignment/:idTeacherAssignment', taskController.getTasksByTeacherAssignment);
+router.get('/teacher-assignment/:idTeacherAssignment', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), taskController.getTasksByTeacherAssignment);
 
 // ============================================
 // RUTAS PROTEGIDAS (POST, PATCH, DELETE - solo ADMIN y TEACHER)

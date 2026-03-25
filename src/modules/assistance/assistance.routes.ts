@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { auth } from '../../middleware/auth.js';
 import { authorize } from '../../middleware/authorize.js';
+import { restrictToSelfOrRoles } from '../../middleware/restrictSelf.js';
 import * as assistanceController from './assistance.controller.js';
 
 const router = Router();
@@ -12,30 +13,30 @@ const router = Router();
 /**
  * @route   GET /api/assistances
  * @desc    Obtener todas las asistencias
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/', assistanceController.getAll);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getAll);
 
 /**
  * @route   GET /api/assistances/student-enrollment/:idStudentEnrollment
- * @desc    Obtener faltas de un alumno por idStudentEnrollment
- * @access  Public
+ * @desc    Obtener faltas cruzadas. Exclusivo para profes y admins.
+ * @access  Admin, Teacher
  */
-router.get('/student-enrollment/:idStudentEnrollment', assistanceController.getByStudentEnrollment);
+router.get('/student-enrollment/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getByStudentEnrollment);
 
 /**
  * @route   GET /api/assistances/student/:idStudent
  * @desc    Obtener faltas de un alumno por idStudent
- * @access  Public
+ * @access  Admin, Teacher o el propio alumno
  */
-router.get('/student/:idStudent', assistanceController.getByStudentId);
+router.get('/student/:idStudent', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER'], 'idStudent'), assistanceController.getByStudentId);
 
 /**
  * @route GET /api/assistances/session/:idSession
  * @desc  Obtener asistencias por id de Sesión
- * @access Public
+ * @access Admin, Teacher
  */
-router.get('/session/:idSession', assistanceController.getBySessionId);
+router.get('/session/:idSession', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getBySessionId);
 
 // ============================================
 // RUTAS PROTEGIDAS (POST, PATCH, DELETE, y GET específico)
@@ -58,9 +59,9 @@ router.get('/:id/justification-status', auth, authorize(['STUDENT', 'TEACHER', '
 /**
  * @route   GET /api/assistances/:id
  * @desc    Obtener una asistencia por ID
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/:id', assistanceController.getById);
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getById);
 
 /**
  * @route   POST /api/assistances/bulk

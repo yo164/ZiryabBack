@@ -12,30 +12,30 @@ const router = Router();
 /**
  * @route   GET /api/student-tasks
  * @desc    Obtener todas las entregas de estudiantes
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/', studentTaskController.getAllStudentTasks);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.getAllStudentTasks);
 
 /**
  * @route   GET /api/student-tasks/:id
  * @desc    Obtener una entrega por ID
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/:id', studentTaskController.getStudentTaskById);
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.getStudentTaskById);
 
 /**
  * @route   GET /api/student-tasks/task/:idTask
  * @desc    Obtener todas las entregas de una tarea específica
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/task/:idTask', studentTaskController.getStudentTasksByTask);
+router.get('/task/:idTask', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.getStudentTasksByTask);
 
 /**
  * @route   GET /api/student-tasks/student/:idStudentEnrollment
- * @desc    Obtener todas las entregas de un estudiante
- * @access  Public
+ * @desc    Obtener todas las entregas de un estudiante (por enrollment)
+ * @access  Admin, Teacher
  */
-router.get('/student/:idStudentEnrollment', studentTaskController.getStudentTasksByStudent);
+router.get('/student/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.getStudentTasksByStudent);
 
 // ============================================
 // RUTAS PROTEGIDAS (PATCH, DELETE)

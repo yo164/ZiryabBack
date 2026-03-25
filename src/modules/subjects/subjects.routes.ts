@@ -12,30 +12,30 @@ const router = Router();
 /**
  * @route   GET /api/subjects
  * @desc    Obtener todas las asignaturas
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/', subjectsController.getAllSubjects);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), subjectsController.getAllSubjects);
 
 /**
  * @route   GET /api/subjects/:id
  * @desc    Obtener una asignatura por ID
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/:id', subjectsController.getSubjectById);
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), subjectsController.getSubjectById);
 
 /**
  * @route   GET /api/subjects/:id/teachers
  * @desc    Obtener profesores de una asignatura
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/:id/teachers', subjectsController.getSubjectTeachers);
+router.get('/:id/teachers', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), subjectsController.getSubjectTeachers);
 
 /**
  * @route   GET /api/subjects/:id/students
  * @desc    Obtener estudiantes de una asignatura
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/:id/students', subjectsController.getSubjectStudents);
+router.get('/:id/students', auth, authorize(['ADMIN', 'TEACHER']), subjectsController.getSubjectStudents);
 
 // ============================================
 // RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)
@@ -71,8 +71,8 @@ router.delete('/:id', auth, authorize(['ADMIN']), subjectsController.deleteSubje
 /**
  * @route GET /api/subjects/:id/course
  * @desc  Obtener asignaturas en un Ciclo
- * @access Public
+ * @access Admin, Teacher, Student
  */
-router.get('/:id/course', subjectsController.getSubjectCourse);
+router.get('/:id/course', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), subjectsController.getSubjectCourse);
 
 export default router;

@@ -85,6 +85,36 @@ export const findById = async (id: number) => {
     });
 };
 
+export const findJustificationDetailsById = async (id: number) => {
+    return await prisma.assistance.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            status: true,
+            studentEnrollment: {
+                select: { idStudent: true }
+            },
+            session: {
+                select: {
+                    date: true,
+                    schedule: {
+                        select: {
+                            startTime: true,
+                            teacherAssignment: {
+                                select: {
+                                    subject: {
+                                        select: { name: true }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+};
+
 export const findBySessionId = async (idSession: number) => {
     return await prisma.assistance.findMany({
         where: { idSession },

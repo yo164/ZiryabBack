@@ -17,6 +17,34 @@ export const getMyAbsences = async (req: Request, res: Response) => {
     }
 };
 
+export const getJustificationStatus = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+        if (isNaN(id) || id === 0) return res.status(400).json({ success: false, message: 'ID de asistencia inválido' });
+
+        const assistance = await assistanceService.findJustificationDetailsById(id);
+        if (!assistance) return res.status(404).json({ success: false, message: 'Asistencia no encontrada' });
+
+        // Seguridad: Si es un estudiante, asegurarnos de que la falta es verdaderamente suya
+        if (req.user?.role === 'STUDENT' && assistance.studentEnrollment.idStudent !== req.user.sub) {
+            return res.status(403).json({ success: false, message: 'Acceso denegado: esta asistencia no te pertenece' });
+        }
+
+        res.json({ 
+            success: true, 
+            data: { 
+                idAssistance: assistance.id, 
+                status: assistance.status,
+                subject: assistance.session.schedule.teacherAssignment.subject.name,
+                date: assistance.session.date,
+                startTime: assistance.session.schedule.startTime
+            } 
+        });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: 'Error al consultar estado de justificación', error: error.message });
+    }
+};
+
 export const getAll = async (req: Request, res: Response) => {
     try {
         const assistances = await assistanceService.findAll();

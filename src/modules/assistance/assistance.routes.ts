@@ -49,6 +49,13 @@ router.get('/session/:idSession', assistanceController.getBySessionId);
 router.get('/my-absences', auth, authorize(['STUDENT']), assistanceController.getMyAbsences);
 
 /**
+ * @route   GET /api/assistances/:id/justification-status
+ * @desc    Consultar el estado de justificación de una falta concreta
+ * @access  Student, Teacher, Admin
+ */
+router.get('/:id/justification-status', auth, authorize(['STUDENT', 'TEACHER', 'ADMIN']), assistanceController.getJustificationStatus);
+
+/**
  * @route   GET /api/assistances/:id
  * @desc    Obtener una asistencia por ID
  * @access  Public

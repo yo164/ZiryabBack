@@ -169,12 +169,23 @@ model StudentOnSubjectOnGroup {
   studentTasks StudentTask[]  // ← AÑADIR ESTA LÍNEA
 }
 
+// Días de la semana para el horario
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
 //horariosemana
 model WeekSchedule {
   id                   Int      @id @default(autoincrement())
   idTeacherAssignment  Int
   teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id],name:"TeacherAssignment", onDelete: Cascade)
-  weekDay            Int      // 1=Lunes, 7=Domingo o enum de los dias??
+  weekDay            DayOfWeek // Convertimos el Int a Enum para mayor consistencia
   startTime          String   // "09:00" o usar DateTime horaInicio
   finishTime             String   // "10:00" horaFin
   //aula                 String?
@@ -186,6 +197,13 @@ model WeekSchedule {
   
   @@index([idTeacherAssignment, weekDay])//filtra por id de teacherOnSubjectOnGroup y el dia de la semana
 }
+// Estados de una sesión de clase
+enum SessionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
 //una clase propiamente hablando
 model SessionClass {
   id          Int      @id @default(autoincrement())
@@ -193,7 +211,7 @@ model SessionClass {
   schedule     WeekSchedule @relation(fields: [idSchedule], references: [id], onDelete: Cascade)//horario
   
   date       DateTime @db.Date//fecha
-  status      String   @default("PROGRAMADA") // PROGRAMADA, REALIZADA, CANCELADA estado
+  status      SessionStatus   @default(SCHEDULED) // PROGRAMADA, REALIZADA, CANCELADA estado
   apointments String?//detalles, observaciones
   
   createdAt   DateTime @default(now())
@@ -202,13 +220,15 @@ model SessionClass {
   
   @@index([date])
   @@index([idSchedule, date])
+  // Evitamos clases duplicadas para el mismo horario y fecha
+  @@unique([idSchedule, date])
 }
-//FALTA TRADUCIR
+// Estados de asistencia
 enum AssistanceStatus {
-  PRESENT//presente
-  MISSING// AUSENTE
-  LAG//RETRASO
-  JUSTIFY//JUSTIFICADA
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
 }
 
 //asistencia
@@ -221,7 +241,7 @@ model Assistance {
  studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], name: "StudentEnrollment", onDelete: Cascade)
 
   
-  status              AssistanceStatus @default(PRESENT)   // PRESENTE, AUSENTE, RETRASO, JUSTIFICADA
+  status              AssistanceStatus @default(PRESENT)
   
   createdAt           DateTime @default(now())
   

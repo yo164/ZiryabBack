@@ -1,4 +1,19 @@
 import prisma from '../../config/prisma.js';
+import { DayOfWeek } from '@prisma/client';
+
+// Convertir de número (1-7) al Enum DayOfWeek para Prisma
+const mapNumberToDayOfWeek = (day: number): DayOfWeek => {
+  const map: Record<number, DayOfWeek> = {
+    1: DayOfWeek.MONDAY,
+    2: DayOfWeek.TUESDAY,
+    3: DayOfWeek.WEDNESDAY,
+    4: DayOfWeek.THURSDAY,
+    5: DayOfWeek.FRIDAY,
+    6: DayOfWeek.SATURDAY,
+    7: DayOfWeek.SUNDAY,
+  };
+  return map[day] || DayOfWeek.MONDAY;
+};
 
 export const findAll = async () => {
   return prisma.weekSchedule.findMany({
@@ -86,7 +101,7 @@ export const findByTeacherId = async(idTeacher: number) => {
 };
 export const findByDiaSemana = async (diaSemana: number) => {
   return prisma.weekSchedule.findMany({
-    where: { weekDay: diaSemana },
+    where: { weekDay: mapNumberToDayOfWeek(diaSemana) },
     include: {
       teacherAssignment: {
         include: {
@@ -159,7 +174,7 @@ export const create = async (data: {
   return prisma.weekSchedule.create({
     data: {
       idTeacherAssignment: data.idTeacherAssignment,
-      weekDay: data.weekDay,
+      weekDay: mapNumberToDayOfWeek(data.weekDay),
       startTime: data.startTime,
       finishTime: data.finishTime,
     },
@@ -198,7 +213,12 @@ export const update = async (
 
   return prisma.weekSchedule.update({
     where: { id },
-    data,
+    data: {
+      ...(data.idTeacherAssignment && { idTeacherAssignment: data.idTeacherAssignment }),
+      ...(data.diaSemana && { weekDay: mapNumberToDayOfWeek(data.diaSemana) }),
+      ...(data.horaInicio && { startTime: data.horaInicio }),
+      ...(data.horaFin && { finishTime: data.horaFin }),
+    },
     include: {
       teacherAssignment: {
         include: {
@@ -231,7 +251,12 @@ export const patch = async (
 
   return prisma.weekSchedule.update({
     where: { id },
-    data,
+    data: {
+      ...(data.idTeacherAssignment && { idTeacherAssignment: data.idTeacherAssignment }),
+      ...(data.diaSemana && { weekDay: mapNumberToDayOfWeek(data.diaSemana) }),
+      ...(data.horaInicio && { startTime: data.horaInicio }),
+      ...(data.horaFin && { finishTime: data.horaFin }),
+    },
     include: {
       teacherAssignment: {
         include: {

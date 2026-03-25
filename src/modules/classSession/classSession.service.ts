@@ -96,7 +96,7 @@ const fechaHoy = new Date('2025-09-22'); // Un lunes cualquiera
   if (existing) return existing;
 
   return prisma.sessionClass.create({
-    data: { idSchedule: schedule.id, date: fechaHoy, status: 'PROGRAMADA' },
+    data: { idSchedule: schedule.id, date: fechaHoy, status: 'SCHEDULED' },
   });
 };
 
@@ -119,7 +119,7 @@ export const create = async (data: {
     data: {
       idSchedule: data.idSchedule,
       date: new Date(data.date),
-      status: data.status || 'PROGRAMADA',
+      status: data.status || 'SCHEDULED',
       apointments: data.apointments || null,
     },
     include: {

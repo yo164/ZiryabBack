@@ -9,7 +9,7 @@ export class AuthController {
   static async register(req: Request, res: Response) {
     try {
       const {
-        firebaseUID,
+        token, // Usamos el token de Firebase en lugar de firebaseUID directamente
         email,
         name,
         surname,
@@ -24,11 +24,11 @@ export class AuthController {
       // ============================================
 
       // Campos obligatorios
-      if (!firebaseUID || !email || !name || !surname || !birthDate || !dni || !role) {
+      if (!token || !email || !name || !surname || !birthDate || !dni || !role) {
         return res.status(400).json({
           message: 'Faltan campos requeridos',
           required: [
-            'firebaseUID',
+            'token',
             'email',
             'name',
             'surname',
@@ -56,6 +56,9 @@ export class AuthController {
       // ============================================
       // REGISTRAR
       // ============================================
+
+      // Verificar y obtener el firebaseUID de forma segura
+      const firebaseUID = await AuthService.verifyFirebaseToken(token);
 
       const user = await AuthService.registerUser({
         firebaseUID,
@@ -86,14 +89,17 @@ export class AuthController {
    */
   static async login(req: Request, res: Response) {
     try {
-      const { firebaseUID } = req.body;
+      const { token } = req.body;
 
       // Validar
-      if (!firebaseUID) {
+      if (!token) {
         return res.status(400).json({
-          message: 'firebaseUID requerido',
+          message: 'Token requerido',
         });
       }
+
+      // Verificar y obtener el firebaseUID de forma segura
+      const firebaseUID = await AuthService.verifyFirebaseToken(token);
 
       // Login
       const user = await AuthService.loginUser(firebaseUID);

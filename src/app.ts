@@ -62,6 +62,9 @@ app.get('/', (_req, res) => {
   });
 });
 
+// Rutas estáticas para uploads
+app.use('/uploads', express.static('uploads'));
+
 // Documentación Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

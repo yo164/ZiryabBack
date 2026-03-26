@@ -100,6 +100,19 @@ router.patch('/assistancestatus/:id', auth, authorize(['ADMIN', 'TEACHER']), ass
  */
 router.delete('/:id', auth, authorize(['ADMIN']), assistanceController.deleteOne);
 
+import { uploadJustification } from '../../middleware/upload.js';
 
+/**
+ * @route   POST /api/assistances/:id/justification-document
+ * @desc    Subir un documento de justificación (PDF, PNG, JPG hasta 5MB)
+ * @access  Student, Teacher, Admin
+ */
+router.post(
+    '/:id/justification-document',
+    auth,
+    authorize(['STUDENT', 'TEACHER', 'ADMIN']),
+    uploadJustification.single('document'),
+    assistanceController.uploadDocument
+);
 
 export default router;

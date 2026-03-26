@@ -50,6 +50,13 @@ export const updateStatusById = async (id: number, status: AssistanceStatus) => 
     });
 };
 
+export const updateJustificationUrl = async (id: number, justificationUrl: string) => {
+    return await prisma.assistance.update({
+        where: { id },
+        data: { justificationUrl }
+    });
+};
+
 export const findAll = async () => {
     return await prisma.assistance.findMany({
         include: {

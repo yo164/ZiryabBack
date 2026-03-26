@@ -186,3 +186,37 @@ export const deleteOne = async (req: Request, res: Response) => {
         res.status(500).json({ success: false, message: 'Error al eliminar asistencia', error: error.message });
     }
 };
+
+export const uploadDocument = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+        if (isNaN(id) || id === 0) return res.status(400).json({ success: false, message: 'ID inválido' });
+
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No se ha subido ningún documento válido' });
+        }
+
+        const assistance = await assistanceService.findById(id);
+        if (!assistance) {
+             // Si no existe, borramos el archivo subido para no ocupar espacio
+             const fs = await import('fs');
+             const path = await import('path');
+             if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+             return res.status(404).json({ success: false, message: 'Asistencia no encontrada' });
+        }
+
+        // Construir la URL relativa del archivo documentado
+        // Express static lo sirve en /uploads, por tanto la URL será /uploads/justifications/{filename}
+        const justificationUrl = `/uploads/justifications/${req.file.filename}`;
+
+        const updated = await assistanceService.updateJustificationUrl(id, justificationUrl);
+
+        res.json({
+            success: true,
+            message: 'Documento subido correctamente',
+            data: { justificationUrl: updated.justificationUrl }
+        });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: 'Error al subir el documento de justificación', error: error.message });
+    }
+};

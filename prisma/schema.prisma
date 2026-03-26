@@ -242,6 +242,7 @@ model Assistance {
 
   
   status              AssistanceStatus @default(PRESENT)
+  justificationUrl    String?
   
   createdAt           DateTime @default(now())
   

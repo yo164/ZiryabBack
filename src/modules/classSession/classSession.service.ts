@@ -175,3 +175,51 @@ export const remove = async (id: number) => {
     where: { id },
   });
 };
+
+export const findOrCreateSessionForSubjectAndTeacher = async (
+  idSubject: number,
+  idTeacher: number
+) => {
+  const assignment = await prisma.teacherOnSubjectOnGroup.findFirst({
+    where: { idSubject, idTeacher },
+    include: {
+      WeekSchedule: { take: 1 },
+    },
+  });
+
+  if (!assignment) {
+    throw new Error('No se encontró una asignación para ese profesor y asignatura');
+  }
+
+  let schedule = assignment.WeekSchedule[0];
+
+  // Si el profesor no tiene horario configurado, creamos uno genérico
+  // para poder registrar la asistencia sin depender del horario semanal
+  if (!schedule) {
+    schedule = await prisma.weekSchedule.create({
+      data: {
+        idTeacherAssignment: assignment.id,
+        weekDay: 'MONDAY',
+        startTime: '00:00',
+        finishTime: '23:59',
+      },
+    });
+  }
+
+  const today = new Date();
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  const existing = await prisma.sessionClass.findFirst({
+    where: { idSchedule: schedule.id, date: todayDate },
+  });
+
+  if (existing) return existing;
+
+  return prisma.sessionClass.create({
+    data: {
+      idSchedule: schedule.id,
+      date: todayDate,
+      status: 'SCHEDULED',
+    },
+  });
+};

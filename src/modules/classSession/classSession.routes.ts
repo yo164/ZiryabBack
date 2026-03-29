@@ -42,6 +42,13 @@ router.get('/schedule/:idSchedule', auth, authorize(['ADMIN', 'TEACHER']), class
 // ============================================
 
 /**
+ * @route   POST /api/sessions/start
+ * @desc    Obtener o crear la sesión de hoy para una asignatura y profesor concretos
+ * @access  Admin and Teacher
+ */
+router.post('/start', auth, authorize(['ADMIN', 'TEACHER']), classSessionController.startSessionForSubject);
+
+/**
  * @route   POST /api/sessions
  * @desc    Crear una nueva sesión de clase
  * @access  Admin and Teacher

@@ -106,7 +106,7 @@ export const findTeachersBySubjectId = async (subjectId: number) => {
 };
 
 export const findStudentsBySubjectId = async (subjectId: number) => {
-  const result = await prisma.studentOnSubjectonGroup.findMany({
+  const result = await prisma.studentOnSubjectOnGroup.findMany({
     where: { idSubject: subjectId },
     include: {
       student: true,
@@ -115,6 +115,7 @@ export const findStudentsBySubjectId = async (subjectId: number) => {
   });
 
   return result.map((item) => ({
+    enrollmentId: item.id,   // id del StudentOnSubjectOnGroup  (idStudentEnrollment)
     ...item.student,
     group: item.group,
     schoolYear: item.schoolYear,

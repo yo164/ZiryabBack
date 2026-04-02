@@ -28,16 +28,33 @@ import studentregsitrationRouter from './modules/student-registration/student-re
 const app = express();
 
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      fontSrc: ["'self'"],          
+      connectSrc: ["'self'"],        
+      frameAncestors: ["'none'"],    
+      formAction: ["'self'"],        
+      baseUri: ["'self'"],           
+      objectSrc: ["'none'"],         
+      upgradeInsecureRequests: [],   
+    },
+  },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }, 
 }));
 app.use(cors({
-  origin: 'http://localhost:4200', // Tu frontend Angular
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  origin: env.FRONTEND_URL, 
+  methods: env.NODE_ENV === 'production' 
+    ? ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    : ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200
 }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '100kb' }));
 app.use(requestLogger);
 
 if (env.NODE_ENV !== 'test') {

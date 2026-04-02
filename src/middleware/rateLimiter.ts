@@ -8,6 +8,8 @@ export const generalLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+
+//windowMs: 60 * 60 * 1000 para que sea una hora entre bloques de intentos
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,

@@ -7,7 +7,7 @@ import * as assistanceController from './assistance.controller.js';
 const router = Router();
 
 // ============================================
-// RUTAS PÚBLICAS (GET - sin autenticación)
+// RUTAS PROTEGIDAS (TODAS REQUIEREN AUTENTICACIÓN)
 // ============================================
 
 /**
@@ -29,7 +29,7 @@ router.get('/student-enrollment/:idStudentEnrollment', auth, authorize(['ADMIN',
  * @desc    Obtener faltas de un alumno por idStudent
  * @access  Admin, Teacher o el propio alumno
  */
-router.get('/student/:idStudent', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER'], 'idStudent'), assistanceController.getByStudentId);
+router.get('/student/:idStudent', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER', 'STUDENT'], 'idStudent'), assistanceController.getByStudentId);
 
 /**
  * @route GET /api/assistances/session/:idSession
@@ -59,9 +59,13 @@ router.get('/:id/justification-status', auth, authorize(['STUDENT', 'TEACHER', '
 /**
  * @route   GET /api/assistances/:id
  * @desc    Obtener una asistencia por ID
- * @access  Admin, Teacher
+ * @access  Admin y Teacher
  */
 router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getById);
+
+// ============================================
+// RUTAS DE MODIFICACIÓN (POST, PUT, PATCH, DELETE)
+// ============================================
 
 /**
  * @route   POST /api/assistances/bulk
@@ -94,11 +98,18 @@ router.patch('/assistancestatus/:id', auth, authorize(['ADMIN', 'TEACHER']), ass
 
 
 /**
+ * @route   PUT /api/assistances/:id
+ * @desc    Actualizar completamente o modificar estado de una asistencia
+ * @access  Admin y Teacher
+ */
+router.put('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.updateOne);
+
+/**
  * @route   DELETE /api/assistances/:id
  * @desc    Eliminar una asistencia
- * @access  Admin only
+ * @access  Admin y Teacher
  */
-router.delete('/:id', auth, authorize(['ADMIN']), assistanceController.deleteOne);
+router.delete('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.deleteOne);
 
 import { uploadJustification } from '../../middleware/upload.js';
 

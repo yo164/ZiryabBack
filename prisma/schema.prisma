@@ -219,8 +219,6 @@ model SessionClass {
   assistances Assistance[]
   
   @@index([date])
-  @@index([idSchedule, date])
-  // Evitamos clases duplicadas para el mismo horario y fecha
   @@unique([idSchedule, date])
 }
 // Estados de asistencia

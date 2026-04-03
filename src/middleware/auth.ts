@@ -36,22 +36,12 @@ declare global {
  * Middleware que valida el JWT en cada petición protegida
  */
 export function auth(req: Request, res: Response, next: NextFunction): void {
-  // 1. Leer el header Authorization
-  const authHeader = req.headers.authorization;
+  // token de las cookies
+  const token = req.cookies.auth_token;
 
-  if (!authHeader?.startsWith('Bearer ')) {
+  if (!token) {
     res.status(401).json({
       message: 'No autorizado. Falta el token.',
-    });
-    return;
-  }
-
-  // 2. Extraer el token de forma segura
-  const token = authHeader.split(' ')[1];
-
-  if (!token || token === '') {
-    res.status(401).json({
-      message: 'No autorizado. Token vacío.',
     });
     return;
   }

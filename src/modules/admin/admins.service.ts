@@ -22,6 +22,7 @@ export const create = async (data: {
     ndSurname?: string;
     birthDate: string | Date;
     dni: string;
+    firebaseUID: string;
 }) => {
     return await prisma.admin.create({
         data: {

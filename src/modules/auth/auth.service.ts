@@ -45,7 +45,7 @@ type User = {
   surname: string;
   ndSurname: string | null;
   birthDate: Date;
-  dni: string;
+  dni: string | null;
   role: string;
   firebaseUID: string;
   createdAt: Date;

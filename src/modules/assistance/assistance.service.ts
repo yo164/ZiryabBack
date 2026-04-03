@@ -3,7 +3,7 @@ import prisma from '../../config/prisma.js';
 export const findAllByStudentId = async (studentId: number, teacherId?: number) => {
     const whereClause: any = {
         studentEnrollment: { idStudent: studentId },
-        OR: [{ status: AssistanceStatus.LAG }, { status: AssistanceStatus.MISSING }, { status: AssistanceStatus.JUSTIFY }]
+        OR: [{ status: AssistanceStatus.LATE }, { status: AssistanceStatus.ABSENT }, { status: AssistanceStatus.EXCUSED }]
     };
 
     if (teacherId) {
@@ -49,7 +49,7 @@ export const updateStatusToJustified = async (idAssistance: number) => {
             id: idAssistance, 
         },
         data: {
-            status: AssistanceStatus.JUSTIFY,
+            status: AssistanceStatus.EXCUSED,
         },
     });
 };
@@ -61,10 +61,10 @@ export const updateStatusById = async (id: number, status: AssistanceStatus) => 
     });
 };
 
-export const updateJustificationUrl = async (id: number, justificationUrl: string) => {
+export const updateJustificationUrl = async (id: number, justificationUri: string) => {
     return await prisma.assistance.update({
         where: { id },
-        data: { justificationUrl }
+        data: { justificationUri }
     });
 };
 
@@ -148,7 +148,7 @@ export const findBySessionId = async (idSession: number) => {
 export const findAllByStudentEnrollment = async (studentEnrollmentId: number, teacherId?: number) => {
     const whereClause: any = {
         idStudentEnrollment: studentEnrollmentId,
-        OR: [{ status: AssistanceStatus.LAG }, { status: AssistanceStatus.MISSING }]
+        OR: [{ status: AssistanceStatus.LATE }, { status: AssistanceStatus.ABSENT }]
     };
 
     if (teacherId) {

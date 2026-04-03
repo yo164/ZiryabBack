@@ -31,6 +31,7 @@ export const findById = async (id: number) => {
 export const create = async (data: {
   name: string;
   idCourse: number;
+  grade: string;
 }) => {
   return await prisma.subject.create({
     data,
@@ -95,7 +96,7 @@ export const remove = async (id: number) => {
 };
 
 export const findTeachersBySubjectId = async (subjectId: number) => {
-  const result = await prisma.teacherOnSubject.findMany({
+  const result = await prisma.teacherOnSubjectOnGroup.findMany({
     where: { idSubject: subjectId },
     include: {
       teacher: true,

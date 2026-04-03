@@ -3,7 +3,7 @@ import prisma from '../../config/prisma.js';
 export const findAllByStudentId = async (studentId: number, teacherId?: number) => {
     const whereClause: any = {
         studentEnrollment: { idStudent: studentId },
-        OR: [{ status: 'LAG' }, { status: 'MISSING' }, { status: 'JUSTIFY' }]
+        OR: [{ status: AssistanceStatus.LAG }, { status: AssistanceStatus.MISSING }, { status: AssistanceStatus.JUSTIFY }]
     };
 
     if (teacherId) {
@@ -52,7 +52,7 @@ export const updateStatusToJustified = async (idSession: number, idStudentEnroll
             },
         },
         data: {
-            status: 'JUSTIFY',
+            status: AssistanceStatus.JUSTIFY,
         },
     });
 };
@@ -81,7 +81,7 @@ export const findById = async (id: number) => {
 export const findAllByStudentEnrollment = async (studentEnrollmentId: number, teacherId?: number) => {
     const whereClause: any = {
         idStudentEnrollment: studentEnrollmentId,
-        OR: [{ status: 'LAG' }, { status: 'MISSING' }]
+        OR: [{ status: AssistanceStatus.LAG }, { status: AssistanceStatus.MISSING }]
     };
 
     if (teacherId) {

@@ -1,4 +1,4 @@
-import { PrismaClient, DayOfWeek } from '@prisma/client';
+import { PrismaClient, DayOfWeek, SessionStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -119,7 +119,7 @@ export const create = async (data: {
     data: {
       idSchedule: data.idSchedule,
       date: new Date(data.date),
-      status: data.status || 'SCHEDULED',
+      status: (data.status as SessionStatus) || 'SCHEDULED',
       apointments: data.apointments || null,
     },
     include: {
@@ -155,7 +155,7 @@ export const update = async (
     where: { id },
     data: {
       ...(data.date && { date: new Date(data.date) }),
-      ...(data.status && { status: data.status }),
+      ...(data.status && { status: data.status as SessionStatus }),
       ...(data.apointments !== undefined && { apointments: data.apointments }),
     },
     include: {

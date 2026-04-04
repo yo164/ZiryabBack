@@ -102,7 +102,7 @@ router.patch('/assistancestatus/:id', auth, authorize(['ADMIN', 'TEACHER']), ass
  * @desc    Actualizar completamente o modificar estado de una asistencia
  * @access  Admin y Teacher
  */
-router.put('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.updateOne);
+//router.put('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.updateOne);
 
 /**
  * @route   DELETE /api/assistances/:id

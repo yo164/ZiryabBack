@@ -5,7 +5,16 @@ CREATE TYPE "AssignmentStatus" AS ENUM ('ACTIVE', 'SUSPENDED', 'ILLNESS', 'EXCED
 CREATE TYPE "EnrollmentStatus" AS ENUM ('ENROLLED', 'EVALUATION_LOST', 'COMPLETED', 'FAILED', 'WITHDRAWN', 'EXPELLED');
 
 -- CreateEnum
-CREATE TYPE "AssistanceStatus" AS ENUM ('PRESENT', 'MISSING', 'LAG', 'JUSTIFY');
+CREATE TYPE "DayOfWeek" AS ENUM ('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY');
+
+-- CreateEnum
+CREATE TYPE "SessionStatus" AS ENUM ('SCHEDULED', 'COMPLETED', 'CANCELLED');
+
+-- CreateEnum
+CREATE TYPE "AssistanceStatus" AS ENUM ('PRESENT', 'ABSENT', 'LATE', 'EXCUSED');
+
+-- CreateEnum
+CREATE TYPE "JustificationStatus" AS ENUM ('PENDING', 'VIEWED', 'REJECTED');
 
 -- CreateEnum
 CREATE TYPE "TaskType" AS ENUM ('PRACTICE', 'THEORY', 'EXAM', 'PROJECT', 'HOMEWORK');
@@ -124,7 +133,7 @@ CREATE TABLE "StudentOnSubjectOnGroup" (
 CREATE TABLE "WeekSchedule" (
     "id" SERIAL NOT NULL,
     "idTeacherAssignment" INTEGER NOT NULL,
-    "weekDay" INTEGER NOT NULL,
+    "weekDay" "DayOfWeek" NOT NULL,
     "startTime" TEXT NOT NULL,
     "finishTime" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -136,8 +145,8 @@ CREATE TABLE "WeekSchedule" (
 CREATE TABLE "SessionClass" (
     "id" SERIAL NOT NULL,
     "idSchedule" INTEGER NOT NULL,
-    "date" DATE NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'PROGRAMADA',
+    "date" TIMESTAMP(3) NOT NULL,
+    "status" "SessionStatus" NOT NULL DEFAULT 'SCHEDULED',
     "apointments" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -150,6 +159,8 @@ CREATE TABLE "Assistance" (
     "idSession" INTEGER NOT NULL,
     "idStudentEnrollment" INTEGER NOT NULL,
     "status" "AssistanceStatus" NOT NULL DEFAULT 'PRESENT',
+    "justificationUri" TEXT,
+    "justificationStatus" "JustificationStatus",
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Assistance_pkey" PRIMARY KEY ("id")
@@ -247,7 +258,7 @@ CREATE INDEX "WeekSchedule_idTeacherAssignment_weekDay_idx" ON "WeekSchedule"("i
 CREATE INDEX "SessionClass_date_idx" ON "SessionClass"("date");
 
 -- CreateIndex
-CREATE INDEX "SessionClass_idSchedule_date_idx" ON "SessionClass"("idSchedule", "date");
+CREATE UNIQUE INDEX "SessionClass_idSchedule_date_key" ON "SessionClass"("idSchedule", "date");
 
 -- CreateIndex
 CREATE INDEX "Assistance_idStudentEnrollment_idx" ON "Assistance"("idStudentEnrollment");

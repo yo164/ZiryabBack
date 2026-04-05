@@ -232,6 +232,28 @@ export const justify = async (req: Request, res: Response) => {
     }
 };
 
+export const updateOne = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+        if (isNaN(id) || id === 0) return res.status(400).json({ success: false, message: 'ID inválido' });
+
+        const { status } = req.body;
+        if (!status || !validStatuses.includes(status)) {
+            return res.status(400).json({ success: false, message: `Estado inválido. Valores permitidos: ${validStatuses.join(', ')}` });
+        }
+
+        if (req.user?.role === 'TEACHER') {
+            const isOwner = await assistanceService.checkAssistanceOwnership(id, req.user.sub);
+            if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
+
+        const updated = await assistanceService.updateStatusById(id, status);
+        res.json({ success: true, data: updated });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: 'Error al actualizar asistencia', error: error.message });
+    }
+};
+
 export const deleteOne = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id || '0');

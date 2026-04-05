@@ -71,9 +71,9 @@ export class AuthController {
         role,
       });
 
-      const { token, ...userData } = user;
+      const { token: jwtToken, ...userData } = user;
 
-      res.cookie('auth_token', token, {
+      res.cookie('auth_token', jwtToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -112,9 +112,9 @@ export class AuthController {
 
       // Login
       const user = await AuthService.loginUser(firebaseUID);
-      const { token, ...userData } = user;
+      const { token: jwtToken, ...userData } = user;
 
-      res.cookie('auth_token', token, {
+      res.cookie('auth_token', jwtToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

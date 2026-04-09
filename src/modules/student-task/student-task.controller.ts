@@ -3,7 +3,16 @@ import * as studentTaskService from './student-task.service.js';
 
 export const getAllStudentTasks = async (req: Request, res: Response) => {
   try {
-    const studentTasks = await studentTaskService.findAll();
+    const userRole = req.user?.role;
+    const userId = req.user?.sub;
+
+    let teacherId: number | undefined;
+    let studentId: number | undefined;
+
+    if (userRole === 'TEACHER') teacherId = userId;
+    if (userRole === 'STUDENT') studentId = userId;
+
+    const studentTasks = await studentTaskService.findAll(teacherId, studentId);
     res.json({
       success: true,
       data: studentTasks,
@@ -169,5 +178,61 @@ export const deleteStudentTask = async (req: Request, res: Response) => {
       message: 'Error al eliminar entrega',
       error: error.message,
     });
+  }
+};
+
+export const submitStudentTask = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || '0');
+    if (isNaN(id) || id === 0) {
+      return res.status(400).json({ success: false, message: 'ID inválido' });
+    }
+
+    const studentTask = await studentTaskService.findById(id);
+    if (!studentTask) {
+      return res.status(404).json({ success: false, message: 'Entrega de estudiante no encontrada' });
+    }
+
+    // Validar propiedad del estudiante
+    if (req.user?.role === 'STUDENT' && studentTask.studentEnrollment.idStudent !== req.user.sub) {
+      return res.status(403).json({ success: false, message: 'No puedes entregar una tarea de otro alumno' });
+    }
+
+    const { attachmentUrl } = req.body;
+    const submittedTask = await studentTaskService.submit(id, { attachmentUrl });
+
+    res.json({ success: true, message: 'Tarea entregada exitosamente', data: submittedTask });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: 'Error al entregar tarea', error: error.message });
+  }
+};
+
+export const gradeStudentTask = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || '0');
+    if (isNaN(id) || id === 0) {
+      return res.status(400).json({ success: false, message: 'ID inválido' });
+    }
+
+    const studentTask = await studentTaskService.findById(id);
+    if (!studentTask) {
+      return res.status(404).json({ success: false, message: 'Entrega de estudiante no encontrada' });
+    }
+
+    // Validar propiedad del profesor
+    if (req.user?.role === 'TEACHER' && studentTask.task.teacherAssignment.idTeacher !== req.user.sub) {
+      return res.status(403).json({ success: false, message: 'No puedes calificar tareas de esta asignatura que no impartes' });
+    }
+
+    const { score, feedback } = req.body;
+    if (score === undefined) {
+      return res.status(400).json({ success: false, message: 'La puntuación (score) es requerida' });
+    }
+
+    const gradedTask = await studentTaskService.grade(id, { score, feedback });
+
+    res.json({ success: true, message: 'Tarea calificada exitosamente', data: gradedTask });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: 'Error al calificar tarea', error: error.message });
   }
 };

@@ -101,12 +101,13 @@ export const create = async (data: {
     },
   });
 
-  // Obtener todos los estudiantes enrollados en esa asignatura + grupo + schoolYear
+  // Obtener todos los estudiantes matriculados en esa asignatura
   const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
     where: {
       idSubject: assignmentExists.idSubject,
       idGroup: assignmentExists.idGroup,
       schoolYear: data.schoolYear,
+      status: 'ENROLLED',
     },
   });
 

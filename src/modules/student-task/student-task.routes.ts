@@ -14,7 +14,7 @@ const router = Router();
  * @desc    Obtener todas las entregas de estudiantes
  * @access  Admin, Teacher
  */
-router.get('/', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.getAllStudentTasks);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.getAllStudentTasks);
 
 /**
  * @route   GET /api/student-tasks/:id
@@ -38,13 +38,75 @@ router.get('/task/:idTask', auth, authorize(['ADMIN', 'TEACHER']), studentTaskCo
 router.get('/student/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.getStudentTasksByStudent);
 
 // ============================================
-// RUTAS PROTEGIDAS (PATCH, DELETE)
+// RUTAS PROTEGIDAS (PUT, PATCH, DELETE)
 // ============================================
 
 /**
+ * @openapi
+ * /student-tasks/{id}/submit:
+ *   put:
+ *     summary: Entrega una tarea por parte del alumno
+ *     tags: [StudentTasks]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               attachmentUrl:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tarea entregada
+ */
+router.put('/:id/submit', auth, authorize(['STUDENT']), studentTaskController.submitStudentTask);
+
+/**
+ * @openapi
+ * /student-tasks/{id}/grade:
+ *   put:
+ *     summary: Califica una tarea entregada (sólo profesor asignado)
+ *     tags: [StudentTasks]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - score
+ *             properties:
+ *               score:
+ *                 type: number
+ *               feedback:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tarea calificada
+ */
+router.put('/:id/grade', auth, authorize(['TEACHER']), studentTaskController.gradeStudentTask);
+
+/**
  * @route   PATCH /api/student-tasks/:id
- * @desc    Actualizar una entrega (estado, calificación, etc.)
- * @access  Teacher and Student
+ * @desc    Actualizar una entrega (estado, calificación, etc.) genérico
+ * @access  Admin, Teacher, Student
  */
 router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.updateStudentTask);
 

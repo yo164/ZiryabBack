@@ -66,18 +66,12 @@ export const findBySchedule = async (idSchedule: number) => {
 };
 
 
-export const findOrCreateActiveSession = async (idTeacherAssignment: number) => {
-  /*
-  const now = new Date();
-  const weekDay = now.getDay() === 0 ? 7 : now.getDay();
-  const horaActual = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  const fechaHoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-*/
-
-const weekDay = 1; // Lunes
-const horaActual = '11:00';
-const fechaHoy = new Date('2025-09-22'); // Un lunes cualquiera
-
+export const findOrCreateActiveSession = async (
+  idTeacherAssignment: number,
+  weekDay: number,
+  horaActual: string,
+  fechaHoy: Date
+) => {
   const schedule = await prisma.weekSchedule.findFirst({
     where: {
       idTeacherAssignment,
@@ -89,14 +83,26 @@ const fechaHoy = new Date('2025-09-22'); // Un lunes cualquiera
 
   if (!schedule) throw new Error('No hay clase activa en este momento');
 
+  const startOfDay = new Date(fechaHoy);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(fechaHoy);
+  endOfDay.setHours(23, 59, 59, 999);
+
   const existing = await prisma.sessionClass.findFirst({
-    where: { idSchedule: schedule.id, date: fechaHoy },
+    where: {
+      idSchedule: schedule.id,
+      date: { gte: startOfDay, lte: endOfDay },
+    },
   });
 
   if (existing) return existing;
 
   return prisma.sessionClass.create({
-    data: { idSchedule: schedule.id, date: fechaHoy, status: 'PROGRAMADA' },
+    data: {
+      idSchedule: schedule.id,
+      date: fechaHoy,
+      status: 'PROGRAMADA',
+    },
   });
 };
 

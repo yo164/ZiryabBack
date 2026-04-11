@@ -51,16 +51,21 @@ export const getSessionById = async (req: Request, res: Response) => {
   }
 };
 
-
 export const getActiveSession = async (req: Request, res: Response) => {
   try {
     const idTeacherAssignment = parseInt(req.query.idTeacherAssignment as string || '0');
+    const weekDay = parseInt(req.query.weekDay as string || '0');
+    const horaActual = req.query.horaActual as string;
+    const fechaHoy = new Date(req.query.fechaHoy as string);
 
-    if (isNaN(idTeacherAssignment) || idTeacherAssignment === 0) {
-      return res.status(400).json({ success: false, message: 'idTeacherAssignment inválido' });
+    if (!idTeacherAssignment || !weekDay || !horaActual || isNaN(fechaHoy.getTime())) {
+      return res.status(400).json({ success: false, message: 'Parámetros inválidos o incompletos' });
     }
 
-    const session = await classSessionService.findOrCreateActiveSession(idTeacherAssignment);
+    const session = await classSessionService.findOrCreateActiveSession(
+      idTeacherAssignment, weekDay, horaActual, fechaHoy
+    );
+
     res.json({ success: true, data: session });
   } catch (error: any) {
     res.status(404).json({ success: false, message: error.message });

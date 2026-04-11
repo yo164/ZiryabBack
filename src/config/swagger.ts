@@ -140,24 +140,58 @@ const options: swaggerJsdoc.Options = {
           type: 'object',
           properties: {
             id: { type: 'integer', example: 1, description: 'ID de la tarea' },
-            userId: { type: 'integer', example: 10, description: 'ID del usuario propietario' },
-            title: { type: 'string', example: 'Estudiar para examen', description: 'Título de la tarea' },
-            done: { type: 'boolean', example: false, description: '¿Está completada?' },
-            createdAt: { type: 'string', format: 'date-time', example: '2025-11-13T18:39:33.952Z', description: 'Fecha de creación' }
+            idTeacherAssignment: { type: 'integer', example: 10, description: 'ID de la asignación del profesor' },
+            title: { type: 'string', example: 'Práctica 1', description: 'Título de la tarea' },
+            description: { type: 'string', nullable: true, example: 'Resolver ejercicios del 1 al 10', description: 'Descripción detallada' },
+            type: { type: 'string', enum: ['PRACTICE', 'THEORY', 'EXAM', 'PROJECT', 'HOMEWORK'], example: 'PRACTICE' },
+            startDate: { type: 'string', format: 'date-time', example: '2025-11-13T18:39:33.952Z' },
+            dueDate: { type: 'string', format: 'date-time', example: '2025-11-20T23:59:59.999Z' },
+            attachmentUrl: { type: 'string', nullable: true, example: '/uploads/tasks/document.pdf' },
+            schoolYear: { type: 'string', example: '2024-2025' },
+            createdAt: { type: 'string', format: 'date-time', example: '2025-11-13T18:39:33.952Z' }
           }
         },
         CreateTask: {
           type: 'object',
-          required: ['title'],
+          required: ['idTeacherAssignment', 'title', 'type', 'startDate', 'dueDate', 'schoolYear'],
           properties: {
-            title: { type: 'string', example: 'Preparar presentación' }
+            idTeacherAssignment: { type: 'integer', example: 10 },
+            title: { type: 'string', example: 'Práctica 1' },
+            description: { type: 'string', example: 'Resolver ejercicios' },
+            type: { type: 'string', enum: ['PRACTICE', 'THEORY', 'EXAM', 'PROJECT', 'HOMEWORK'], example: 'PRACTICE' },
+            startDate: { type: 'string', format: 'date-time' },
+            dueDate: { type: 'string', format: 'date-time' },
+            schoolYear: { type: 'string', example: '2024-2025' }
           }
         },
         UpdateTask: {
           type: 'object',
           properties: {
-            title: { type: 'string', example: 'Preparar demo' },
-            done: { type: 'boolean', example: true }
+            title: { type: 'string', example: 'Práctica 1 Modificada' },
+            description: { type: 'string', example: 'Resolver ejercicios extra' },
+            dueDate: { type: 'string', format: 'date-time' }
+          }
+        },
+        StudentTask: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', example: 1 },
+            idTask: { type: 'integer', example: 5 },
+            idStudentEnrollment: { type: 'integer', example: 12 },
+            status: { type: 'string', enum: ['PENDING', 'SUBMITTED', 'LATE', 'GRADED', 'NOT_SUBMITTED'], example: 'PENDING' },
+            submissionDate: { type: 'string', format: 'date-time', nullable: true },
+            score: { type: 'number', nullable: true, example: 8.5 },
+            feedback: { type: 'string', nullable: true, example: 'Buen trabajo' },
+            attachmentUrl: { type: 'string', nullable: true },
+            createdAt: { type: 'string', format: 'date-time' }
+          }
+        },
+        UpdateStudentTask: {
+          type: 'object',
+          properties: {
+            status: { type: 'string', enum: ['PENDING', 'SUBMITTED', 'LATE', 'GRADED', 'NOT_SUBMITTED'] },
+            score: { type: 'number', example: 9.0 },
+            feedback: { type: 'string', example: 'Excelente!' }
           }
         },
         Assistance: {
@@ -209,7 +243,6 @@ const options: swaggerJsdoc.Options = {
       },
 
     ],
-
   },
   apis: [join(__dirname, '../modules/**/*.routes.js')],
 };

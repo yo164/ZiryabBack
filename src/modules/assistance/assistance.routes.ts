@@ -11,30 +11,82 @@ const router = Router();
 // ============================================
 
 /**
- * @route   GET /api/assistances
- * @desc    Obtener todas las asistencias
- * @access  Admin, Teacher
+ * @swagger
+ * /api/assistances:
+ *   get:
+ *     summary: Obtener todas las asistencias
+ *     description: Obtiene todas las asistencias. Admin ve todas, Teacher ve las de sus sesiones.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de asistencias
+ *       403:
+ *         description: Acceso denegado
  */
 router.get('/', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getAll);
 
 /**
- * @route   GET /api/assistances/student-enrollment/:idStudentEnrollment
- * @desc    Obtener faltas cruzadas. Exclusivo para profes y admins.
- * @access  Admin, Teacher
+ * @swagger
+ * /api/assistances/student-enrollment/{idStudentEnrollment}:
+ *   get:
+ *     summary: Obtener faltas de una matrícula
+ *     description: Obtiene las asistencias mediante el id de matrícula (StudentEnrollment).
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: idStudentEnrollment
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Lista de asistencias
  */
 router.get('/student-enrollment/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getByStudentEnrollment);
 
 /**
- * @route   GET /api/assistances/student/:idStudent
- * @desc    Obtener faltas de un alumno por idStudent
- * @access  Admin, Teacher o el propio alumno
+ * @swagger
+ * /api/assistances/student/{idStudent}:
+ *   get:
+ *     summary: Obtener faltas de un alumno por idStudent
+ *     description: Retorna las asistencias de un alumno por su ID de usuario.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: idStudent
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Lista de asistencias
  */
 router.get('/student/:idStudent', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER', 'STUDENT'], 'idStudent'), assistanceController.getByStudentId);
 
 /**
- * @route GET /api/assistances/session/:idSession
- * @desc  Obtener asistencias por id de Sesión
- * @access Admin, Teacher
+ * @swagger
+ * /api/assistances/session/{idSession}:
+ *   get:
+ *     summary: Obtener asistencias por id de Sesión
+ *     description: Obtiene las asistencias de una clase particular.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: idSession
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Lista de asistencias
  */
 router.get('/session/:idSession', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getBySessionId);
 
@@ -43,23 +95,59 @@ router.get('/session/:idSession', auth, authorize(['ADMIN', 'TEACHER']), assista
 // ============================================
 
 /**
- * @route   GET /api/assistances/my-absences
- * @desc    Obtener las faltas (LATE, ABSENT, EXCUSED) del alumno logueado
- * @access  Student solo
+ * @swagger
+ * /api/assistances/my-absences:
+ *   get:
+ *     summary: Obtener mis faltas
+ *     description: Obtiene las faltas (LATE, ABSENT, EXCUSED) del alumno logueado.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de faltas del alumno logueado
  */
 router.get('/my-absences', auth, authorize(['STUDENT']), assistanceController.getMyAbsences);
 
 /**
- * @route   GET /api/assistances/:id/justification-status
- * @desc    Consultar el estado de justificación de una falta concreta
- * @access  Student, Teacher, Admin
+ * @swagger
+ * /api/assistances/{id}/justification-status:
+ *   get:
+ *     summary: Consultar estado de justificación
+ *     description: Devuelve el estado de la justificación de una falta específica.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Estado de la justificación
  */
 router.get('/:id/justification-status', auth, authorize(['STUDENT', 'TEACHER', 'ADMIN']), assistanceController.getJustificationStatus);
 
 /**
- * @route   GET /api/assistances/:id
- * @desc    Obtener una asistencia por ID
- * @access  Admin y Teacher
+ * @swagger
+ * /api/assistances/{id}:
+ *   get:
+ *     summary: Obtener una asistencia por ID
+ *     description: Obtiene una asistencia por su ID.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Objeto de asistencia
  */
 router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.getById);
 
@@ -68,55 +156,181 @@ router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.g
 // ============================================
 
 /**
- * @route   POST /api/assistances/bulk
- * @desc    Crear múltiples asistencias de una vez
- * @access  Admin y Teacher
+ * @swagger
+ * /api/assistances/bulk:
+ *   post:
+ *     summary: Crear múltiples asistencias en lote
+ *     description: Permite registrar las asistencias de múltiples alumnos de una vez.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               assistances:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/CreateAssistance'
+ *     responses:
+ *       201:
+ *         description: Asistencias creadas exitosamente
  */
 router.post('/bulk', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.createBulk);
 
 /**
- * @route   POST /api/assistances
- * @desc    Crear una asistencia individual
- * @access  Admin y Teacher
+ * @swagger
+ * /api/assistances:
+ *   post:
+ *     summary: Crear asistencia individual
+ *     description: Registra una asistencia para un alumno.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateAssistance'
+ *     responses:
+ *       201:
+ *         description: Asistencia creada
  */
 router.post('/', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.createOne);
 
 /**
- * @route   PATCH /api/assistances/justify/{id}
- * @desc    Justificar una falta
- * @access  Admin y Teacher
+ * @swagger
+ * /api/assistances/justify/{id}:
+ *   patch:
+ *     summary: Justificar una falta
+ *     description: Cambia el estado de una falta a EXCUSED/JUSTIFIED.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Falta justificada
  */
 router.patch('/justify/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.justify);
 
 /**
- * @route PATCH /api/assistances/assistancestatus/{id}
- * @desc  actualizar el estado de una falta
- * @acces admin y teacher
+ * @swagger
+ * /api/assistances/assistancestatus/{id}:
+ *   patch:
+ *     summary: Actualizar estado de asistencia
+ *     description: Actualiza el estado (PRESENT, ABSENT, LATE, EXCUSED) de una asistencia existente.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateAssistanceStatus'
+ *     responses:
+ *       200:
+ *         description: Estado actualizado
  */
 router.patch('/assistancestatus/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.updateStatus)
 
 
 
 /**
- * @route   PUT /api/assistances/:id
- * @desc    Actualizar completamente o modificar estado de una asistencia
- * @access  Admin y Teacher
+ * @swagger
+ * /api/assistances/{id}:
+ *   put:
+ *     summary: Actualizar asistencia
+ *     description: Actualiza una asistencia por ID.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateAssistanceStatus'
+ *     responses:
+ *       200:
+ *         description: Asistencia actualizada
  */
 router.put('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.updateOne);
 
 /**
- * @route   DELETE /api/assistances/:id
- * @desc    Eliminar una asistencia
- * @access  Admin y Teacher
+ * @swagger
+ * /api/assistances/{id}:
+ *   delete:
+ *     summary: Eliminar asistencia
+ *     description: Elimina un registro de asistencia del sistema.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Asistencia eliminada
  */
 router.delete('/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.deleteOne);
 
 import { uploadJustification } from '../../middleware/upload.js';
 
 /**
- * @route   POST /api/assistances/:id/justification-document
- * @desc    Subir un documento de justificación (PDF, PNG, JPG hasta 5MB)
- * @access  Student, Teacher, Admin
+ * @swagger
+ * /api/assistances/{id}/justification-document:
+ *   post:
+ *     summary: Subir justificante
+ *     description: Sube un archivo de justificación para una falta (PDF, PNG, JPG).
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               document:
+ *                 type: string
+ *                 format: binary
+ *                 description: Archivo justificante
+ *     responses:
+ *       200:
+ *         description: Documento subido
  */
 router.post(
     '/:id/justification-document',

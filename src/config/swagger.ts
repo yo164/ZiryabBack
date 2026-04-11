@@ -160,6 +160,34 @@ const options: swaggerJsdoc.Options = {
             done: { type: 'boolean', example: true }
           }
         },
+        Assistance: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', example: 1, description: 'ID de la asistencia' },
+            idSession: { type: 'integer', example: 5, description: 'ID de la sesión de clase' },
+            idStudentEnrollment: { type: 'integer', example: 10, description: 'ID de la matrícula del estudiante' },
+            status: { type: 'string', enum: ['PRESENT', 'ABSENT', 'LATE', 'EXCUSED'], example: 'PRESENT', description: 'Estado de asistencia' },
+            justificationUri: { type: 'string', nullable: true, example: '/uploads/justifications/file.pdf', description: 'URL del justificante (opcional)' },
+            justificationStatus: { type: 'string', enum: ['PENDING', 'VIEWED', 'REJECTED'], nullable: true, example: 'PENDING', description: 'Estado del justificante (opcional)' },
+            createdAt: { type: 'string', format: 'date-time', example: '2025-11-13T18:39:33.952Z' }
+          }
+        },
+        CreateAssistance: {
+          type: 'object',
+          required: ['idSession', 'idStudentEnrollment'],
+          properties: {
+            idSession: { type: 'integer', example: 5 },
+            idStudentEnrollment: { type: 'integer', example: 10 },
+            status: { type: 'string', enum: ['PRESENT', 'ABSENT', 'LATE', 'EXCUSED'], example: 'PRESENT' }
+          }
+        },
+        UpdateAssistanceStatus: {
+          type: 'object',
+          required: ['status'],
+          properties: {
+            status: { type: 'string', enum: ['PRESENT', 'ABSENT', 'LATE', 'EXCUSED'], example: 'LATE' }
+          }
+        },
       },
     },
     tags: [
@@ -174,6 +202,10 @@ const options: swaggerJsdoc.Options = {
       {
         name: 'Tasks',
         description: 'Gestión de tareas personales del usuario'
+      },
+      {
+        name: 'Assistances',
+        description: 'Gestión de asistencias de los alumnos'
       },
 
     ],

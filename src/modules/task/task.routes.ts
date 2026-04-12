@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { auth } from '../../middleware/auth.js';
 import { authorize } from '../../middleware/authorize.js';
+import { uploadTaskAttachment } from '../../middleware/upload.js';
 import * as taskController from './task.controller.js';
 
 const router = Router();
@@ -89,7 +90,10 @@ router.get('/teacher-assignment/:idTeacherAssignment', auth, authorize(['ADMIN',
  *       201:
  *         description: Tarea creada
  */
-router.post('/', auth, authorize(['ADMIN', 'TEACHER']), taskController.createTask);
+// NOTA: Se ha añadido el middleware "uploadTaskAttachment.single('file')"
+// Esto hace que antes de llegar al controlador, Node intercepte la petición, agarre el archivo que viene
+// bajo el nombre 'file', y lo guarde físicamente en tu disco duro si cumple las validaciones.
+router.post('/', auth, authorize(['ADMIN', 'TEACHER']), uploadTaskAttachment.single('file'), taskController.createTask);
 
 /**
  * @swagger
@@ -116,7 +120,8 @@ router.post('/', auth, authorize(['ADMIN', 'TEACHER']), taskController.createTas
  *       200:
  *         description: Tarea actualizada
  */
-router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER']), taskController.updateTask);
+// Lo mismo aquí, permitimos subir o sobreescribir el archivo adjunto al actualizar
+router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER']), uploadTaskAttachment.single('file'), taskController.updateTask);
 
 /**
  * @swagger

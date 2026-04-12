@@ -80,7 +80,21 @@ export const getTasksByTeacherAssignment = async (req: Request, res: Response) =
 
 export const createTask = async (req: Request, res: Response) => {
   try {
-    const taskData = req.body;
+    // 1. Clona los datos que llegan (porque si vienen en FormData, todo es texto)
+    const taskData = { ...req.body };
+    
+    // 2. Si el profesor está creando esto, el ID viene como texto, lo forzamos a número para evitar errores en Prisma
+    if (taskData.idTeacherAssignment) {
+        taskData.idTeacherAssignment = Number(taskData.idTeacherAssignment);
+    }
+    
+    // 3. Si Multer ha procesado un fichero adjunto, guarda la ruta local generada
+    // Así Prisma sabrá exactamente dónde se guardó nuestro archivo en el servidor.
+    if (req.file) {
+      taskData.attachmentUrl = `/uploads/tasks/${req.file.filename}`;
+    }
+
+    // 4. Se lo pasamos al servicio para ejecutar el guardado en base de datos
     const newTask = await taskService.create(taskData);
 
     res.status(201).json({
@@ -107,7 +121,19 @@ export const updateTask = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedTask = await taskService.update(id, req.body);
+    // 1. Clonar datos y forzar la conversión de idTeacherAssignment a número si ha llegado como texto (FormData)
+    const taskData = { ...req.body };
+    if (taskData.idTeacherAssignment) {
+        taskData.idTeacherAssignment = Number(taskData.idTeacherAssignment);
+    }
+    
+    // 2. Si el profesor modificó el archivo y subió uno nuevo, sobreescribimos la ruta en base de datos
+    if (req.file) {
+      taskData.attachmentUrl = `/uploads/tasks/${req.file.filename}`;
+    }
+
+    // 3. Guardar cambios en base de datos
+    const updatedTask = await taskService.update(id, taskData);
 
     res.json({
       success: true,

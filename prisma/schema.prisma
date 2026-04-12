@@ -239,6 +239,13 @@ model Assistance {
   @@index([idSession, status])//filtra por estado y clase
 }
 
+model TaskGroup {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  tasks     Task[]
+}
+
 enum TaskType {
   PRACTICE     // Práctica
   THEORY       // Teoría/trabajo/material
@@ -252,6 +259,9 @@ model Task {
   
   idTeacherAssignment  Int
   teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], onDelete: Cascade)
+  
+  idTaskGroup          Int?
+  taskGroup            TaskGroup? @relation(fields: [idTaskGroup], references: [id], onDelete: SetNull)
   
   title                String
   description          String?

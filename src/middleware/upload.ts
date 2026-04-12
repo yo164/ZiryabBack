@@ -41,3 +41,24 @@ export const uploadJustification = multer({
     },
     fileFilter
 });
+
+// Configuración para StudentTasks (permite PDFs, ZIPs, Docs, y otros, máximo 50MB)
+const uploadSubmissionsDir = 'uploads/submissions';
+if (!fs.existsSync(uploadSubmissionsDir)) {
+    fs.mkdirSync(uploadSubmissionsDir, { recursive: true });
+}
+
+const storageSubmissions = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadSubmissionsDir),
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    }
+});
+
+export const uploadSubmission = multer({
+    storage: storageSubmissions,
+    limits: { fileSize: 50 * 1024 * 1024 }
+});
+

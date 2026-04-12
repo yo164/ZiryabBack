@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { auth } from '../../middleware/auth.js';
 import { authorize } from '../../middleware/authorize.js';
 import * as studentTaskController from './student-task.controller.js';
+import { uploadSubmission } from '../../middleware/upload.js';
 
 const router = Router();
 
@@ -38,8 +39,15 @@ router.get('/task/:idTask', auth, authorize(['ADMIN', 'TEACHER']), studentTaskCo
 router.get('/student/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.getStudentTasksByStudent);
 
 // ============================================
-// RUTAS PROTEGIDAS (PUT, PATCH, DELETE)
+// RUTAS PROTEGIDAS (PUT, PATCH, DELETE, POST)
 // ============================================
+
+/**
+ * @route   POST /api/student-tasks/upload-submission
+ * @desc    Sube un archivo de entrega (documento, pdf, zip)
+ * @access  Student
+ */
+router.post('/upload-submission', auth, authorize(['STUDENT']), uploadSubmission.single('file'), studentTaskController.uploadFile);
 
 /**
  * @openapi

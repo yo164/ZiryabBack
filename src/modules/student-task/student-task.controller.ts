@@ -236,3 +236,22 @@ export const gradeStudentTask = async (req: Request, res: Response) => {
     res.status(400).json({ success: false, message: 'Error al calificar tarea', error: error.message });
   }
 };
+
+export const uploadFile = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No se ha subido ningún archivo válido' });
+    }
+    
+    // Obtener la URL
+    const attachmentUrl = `${req.protocol}://${req.get('host')}/uploads/submissions/${req.file.filename}`;
+    
+    res.json({
+      success: true,
+      message: 'Archivo subido con éxito',
+      data: { attachmentUrl }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Error al recibir el archivo', error: error.message });
+  }
+};

@@ -15,6 +15,7 @@ export interface CreateTaskData {
   dueDate: string;
   attachmentUrl?: string;
   schoolYear: string;
+  idTaskGroup?: number;
 }
 
 export interface UpdateTaskData {
@@ -24,6 +25,7 @@ export interface UpdateTaskData {
   startDate?: string;
   dueDate?: string;
   attachmentUrl?: string | null;
+  idTaskGroup?: number | null;
 }
 
 // ============================================
@@ -40,9 +42,12 @@ export const findAll = async () => {
           group: true,
         },
       },
+      taskGroup: true,
       studentTasks: true,
     },
-    orderBy: { dueDate: 'desc' },
+    orderBy: {
+      dueDate: 'desc',
+    },
   });
 };
 
@@ -57,10 +62,13 @@ export const findById = async (id: number) => {
           group: true,
         },
       },
+      taskGroup: true,
       studentTasks: {
         include: {
           studentEnrollment: {
-            include: { student: true },
+            include: {
+              student: true,
+            },
           },
         },
       },
@@ -72,10 +80,19 @@ export const findByTeacherAssignment = async (idTeacherAssignment: number) => {
   return prisma.task.findMany({
     where: { idTeacherAssignment },
     include: {
-      teacherAssignment: true,
+      teacherAssignment: {
+        include: {
+          teacher: true,
+          subject: true,
+          group: true,
+        },
+      },
+      taskGroup: true,
       studentTasks: true,
     },
-    orderBy: { dueDate: 'desc' },
+    orderBy: {
+      dueDate: 'desc',
+    },
   });
 };
 
@@ -89,10 +106,13 @@ export const findByTeacherAssignment = async (idTeacherAssignment: number) => {
  * asignatura + grupo + curso académico correspondientes.
  */
 export const create = async (data: CreateTaskData) => {
-  // 1. Verificar que la asignación existe
+  // 1. Verificar que el teacher assignment existe
   const assignment = await prisma.teacherOnSubjectOnGroup.findUnique({
     where: { id: data.idTeacherAssignment },
-    include: { subject: true, group: true },
+    include: {
+      subject: true,
+      group: true,
+    },
   });
 
   if (!assignment) {
@@ -112,21 +132,27 @@ export const create = async (data: CreateTaskData) => {
     data: {
       idTeacherAssignment: data.idTeacherAssignment,
       title: data.title,
-      description: data.description ?? null,
-      type: data.type,
-      startDate,
-      dueDate,
+      description: data.description || null,
+      type: data.type as any,
+      startDate: new Date(data.startDate),
+      dueDate: new Date(data.dueDate),
       attachmentUrl: data.attachmentUrl ?? null,
       schoolYear: data.schoolYear,
+      ...(data.idTaskGroup && { idTaskGroup: data.idTaskGroup }),
     },
     include: {
       teacherAssignment: {
-        include: { teacher: true, subject: true, group: true },
+        include: {
+          teacher: true,
+          subject: true,
+          group: true,
+        },
       },
+      taskGroup: true,
     },
   });
 
-  // 4. Crear StudentTask para cada alumno matriculado
+  // 4. Obtener todos los estudiantes enrollados en esa asignatura + grupo + schoolYear
   const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
     where: {
       idSubject: assignment.idSubject,
@@ -135,9 +161,10 @@ export const create = async (data: CreateTaskData) => {
     },
   });
 
+  // 5. Crear StudentTask para cada estudiante
   if (enrollments.length > 0) {
     await prisma.studentTask.createMany({
-      data: enrollments.map((enrollment) => ({
+      data: enrollments.map(enrollment => ({
         idTask: task.id,
         idStudentEnrollment: enrollment.id,
         status: 'PENDING',
@@ -192,14 +219,16 @@ export const update = async (
     where: { id },
     data: {
       ...(data.title && { title: data.title }),
-      ...(data.description !== undefined && { description: data.description ?? null }),
-      ...(data.type && { type: data.type }),
+      ...(data.description !== undefined && { description: data.description || null }),
+      ...(data.type && { type: data.type as any }),
       ...(data.startDate && { startDate: new Date(data.startDate) }),
       ...(data.dueDate && { dueDate: new Date(data.dueDate) }),
       ...(data.attachmentUrl !== undefined && { attachmentUrl: data.attachmentUrl }),
+      ...(data.idTaskGroup !== undefined && { idTaskGroup: data.idTaskGroup }),
     },
     include: {
       teacherAssignment: true,
+      taskGroup: true,
       studentTasks: true,
     },
   });

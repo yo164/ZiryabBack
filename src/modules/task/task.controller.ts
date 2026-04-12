@@ -99,7 +99,17 @@ export const getTasksByTeacherAssignment = async (req: Request, res: Response) =
 
 export const createTask = async (req: Request, res: Response) => {
   try {
-    const { idTeacherAssignment, title, type, startDate, dueDate, schoolYear, description, attachmentUrl } = req.body;
+    const {
+      idTeacherAssignment,
+      title,
+      type,
+      startDate,
+      dueDate,
+      schoolYear,
+      description,
+      attachmentUrl,
+      idTaskGroup,
+    } = req.body;
 
     const missing = ['idTeacherAssignment', 'title', 'type', 'startDate', 'dueDate', 'schoolYear']
       .filter((field) => req.body[field] === undefined || req.body[field] === null || req.body[field] === '');
@@ -135,6 +145,7 @@ export const createTask = async (req: Request, res: Response) => {
       dueDate,
       attachmentUrl,
       schoolYear,
+      ...(idTaskGroup && { idTaskGroup: parseInt(idTaskGroup) }),
     });
 
     res.status(201).json({

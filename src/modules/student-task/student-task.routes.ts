@@ -79,6 +79,13 @@ router.post('/upload-submission', auth, authorize(['STUDENT']), uploadSubmission
 router.put('/:id/submit', auth, authorize(['STUDENT']), studentTaskController.submitStudentTask);
 
 /**
+ * @route   DELETE /api/student-tasks/:id/submit
+ * @desc    Borra una entrega de tarea de un alumno
+ * @access  Student
+ */
+router.delete('/:id/submit', auth, authorize(['STUDENT']), studentTaskController.unsubmitStudentTask);
+
+/**
  * @openapi
  * /student-tasks/{id}/grade:
  *   put:

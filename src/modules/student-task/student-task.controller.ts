@@ -207,6 +207,30 @@ export const submitStudentTask = async (req: Request, res: Response) => {
   }
 };
 
+export const unsubmitStudentTask = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || '0');
+    if (isNaN(id) || id === 0) {
+      return res.status(400).json({ success: false, message: 'ID inválido' });
+    }
+
+    const studentTask = await studentTaskService.findById(id);
+    if (!studentTask) {
+      return res.status(404).json({ success: false, message: 'Entrega de estudiante no encontrada' });
+    }
+
+    if (req.user?.role === 'STUDENT' && studentTask.studentEnrollment.idStudent !== req.user.sub) {
+      return res.status(403).json({ success: false, message: 'No puedes borrar una entrega de otro alumno' });
+    }
+
+    const unsubmittedTask = await studentTaskService.unsubmit(id);
+
+    res.json({ success: true, message: 'Entrega borrada exitosamente', data: unsubmittedTask });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: 'Error al borrar entrega', error: error.message });
+  }
+};
+
 export const gradeStudentTask = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id || '0');

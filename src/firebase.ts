@@ -1,5 +1,5 @@
 import admin from 'firebase-admin';
-import { env } from '../src/config/env.js';
+import { env } from './config/env.js';
 
 // Inicializar Firebase Admin una sola vez
 if (!admin.apps.length) {

@@ -42,23 +42,48 @@ export const uploadJustification = multer({
     fileFilter
 });
 
-// Configuración para StudentTasks (permite PDFs, ZIPs, Docs, y otros, máximo 50MB)
-const uploadSubmissionsDir = 'uploads/submissions';
-if (!fs.existsSync(uploadSubmissionsDir)) {
-    fs.mkdirSync(uploadSubmissionsDir, { recursive: true });
+// ============================================
+// CONFIGURACIÓN PARA ADJUNTOS EN TAREAS
+// ============================================
+const taskUploadDir = 'uploads/tasks';
+if (!fs.existsSync(taskUploadDir)) {
+    fs.mkdirSync(taskUploadDir, { recursive: true });
 }
 
-const storageSubmissions = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadSubmissionsDir),
+const taskStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, taskUploadDir);
+    },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const ext = path.extname(file.originalname);
-        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+        cb(null, 'task-' + uniqueSuffix + ext);
     }
 });
 
-export const uploadSubmission = multer({
-    storage: storageSubmissions,
-    limits: { fileSize: 50 * 1024 * 1024 }
-});
+// Este 'filtro' es el portero de la discoteca: solo deja pasar a formatos de archivo específicos.
+// Si alguien intenta subir un .exe malicioso, le devolverá el Error de abajo.
+const taskFileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    const allowedMimeTypes = [
+        'application/pdf', 
+        'image/png', 
+        'image/jpeg', 
+        'application/zip', 
+        'application/x-zip-compressed',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // docx
+    ];
+    
+    if (allowedMimeTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Formato de archivo no soportado. Solo se permiten archivos ZIP, DOCX, PDF, JPG o PNG.'));
+    }
+};
 
+export const uploadTaskAttachment = multer({
+    storage: taskStorage,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10 MB
+    },
+    fileFilter: taskFileFilter
+});

@@ -170,21 +170,19 @@ export const findAllByStudentEnrollment = async (studentEnrollmentId: number, te
 export const findAllBySessionId = async (sessionId: number) => {
     return await prisma.assistance.findMany({
         where: { idSession: sessionId },
-        include: {
-            session: {
-                include: {
-                    schedule: {
-                        include: {
-                            teacherAssignment: {
-                                include: {
-                                    subject: true
-                                }
-                            }
+        select: {
+            id: true,
+            status: true,
+            studentEnrollment: {
+                select: {
+                    student: {
+                        select: {
+                            name: true,
+                            surname: true,
                         }
                     }
                 }
-            },
-            studentEnrollment: { include: { student: true } }
+            }
         },
         orderBy: { createdAt: 'desc' }
     });

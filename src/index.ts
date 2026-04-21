@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const envPath = path.join(__dirname, '../.env');
 
 dotenv.config({ path: envPath });
-console.log('🔍 Cargando .env desde:', envPath);
+console.log('🔍 Cargando .env desde: ', envPath);
 
 // Después los demás imports
 import app from './app.js';

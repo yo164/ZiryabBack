@@ -270,6 +270,9 @@ model Task {
   startDate            DateTime  // Fecha/hora desde que se puede ver
   dueDate              DateTime  // Fecha/hora límite de entrega
 
+  isPublished          Boolean   @default(false)
+  allowLateSubmission  Boolean   @default(false)
+
   attachmentUrl        String?//url del fichero que sube el profesor, puede ser temario o contenido para una tarea
   
   schoolYear           String    // "2024-2025"
@@ -299,6 +302,7 @@ model StudentTask {
   idStudentEnrollment Int
   studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], onDelete: Cascade)
   
+  isEnabled           Boolean          @default(true)
   status              SubmissionStatus @default(PENDING)
   submissionDate      DateTime?        // Fecha/hora de entrega (null si no ha entregado)
   score               Decimal?         // Nota (null si no está calificada)

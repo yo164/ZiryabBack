@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 export const findAll = async () => {
   return prisma.studentTask.findMany({
     include: {
-      task: {
+     task: {
         include: {
+          taskGroup: true,
           teacherAssignment: {
             include: {
-              teacher: true,
               subject: true,
               group: true,
             },
@@ -34,9 +34,9 @@ export const findById = async (id: number) => {
     include: {
       task: {
         include: {
+          taskGroup: true,
           teacherAssignment: {
             include: {
-              teacher: true,
               subject: true,
               group: true,
             },
@@ -74,6 +74,7 @@ export const findByStudent = async (idStudentEnrollment: number) => {
     include: {
       task: {
         include: {
+          taskGroup: true,
           teacherAssignment: {
             include: {
               subject: true,
@@ -132,5 +133,58 @@ export const remove = async (id: number) => {
 
   return prisma.studentTask.delete({
     where: { id },
+  });
+};
+
+export const create = async (data: {
+  idTask: number;
+  idStudentEnrollment: number;
+  status?: string;
+}) => {
+  const task = await prisma.task.findUnique({ where: { id: data.idTask } });
+  if (!task) throw new Error('Tarea no encontrada');
+
+  const enrollment = await prisma.studentOnSubjectOnGroup.findUnique({
+    where: { id: data.idStudentEnrollment }
+  });
+  if (!enrollment) throw new Error('Matrícula no encontrada');
+
+  return prisma.studentTask.create({
+    data: {
+      idTask: data.idTask,
+      idStudentEnrollment: data.idStudentEnrollment,
+      status: (data.status as any) ?? 'PENDING',
+      isEnabled: true,
+    },
+    include: {
+      task: true,
+      studentEnrollment: { include: { student: true } },
+    },
+  });
+};
+
+export const createBulk = async (data: {
+  idTask: number;
+  enrollmentIds: number[];
+}) => {
+  const task = await prisma.task.findUnique({ where: { id: data.idTask } });
+  if (!task) throw new Error('Tarea no encontrada');
+
+  await prisma.studentTask.createMany({
+    data: data.enrollmentIds.map(idStudentEnrollment => ({
+      idTask: data.idTask,
+      idStudentEnrollment,
+      status: 'PENDING' as any,
+      isEnabled: true,
+    })),
+    skipDuplicates: true,
+  });
+
+  // createMany no devuelve los registros, hacemos fetch
+  return prisma.studentTask.findMany({
+    where: { idTask: data.idTask },
+    include: {
+      studentEnrollment: { include: { student: true } },
+    },
   });
 };

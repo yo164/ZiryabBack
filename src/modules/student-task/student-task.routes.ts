@@ -42,6 +42,20 @@ router.get('/student/:idStudentEnrollment', studentTaskController.getStudentTask
 // ============================================
 
 /**
+ * @route   POST /api/student-tasks
+ * @desc    Crear una entrega individual
+ * @access  Teacher
+ */
+router.post('/', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.createStudentTask);
+
+/**
+ * @route   POST /api/student-tasks/bulk
+ * @desc    Crear entregas en masa para una tarea
+ * @access  Teacher
+ */
+router.post('/bulk', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.createBulkStudentTasks);
+
+/**
  * @route   PATCH /api/student-tasks/:id
  * @desc    Actualizar una entrega (estado, calificación, etc.)
  * @access  Teacher and Student

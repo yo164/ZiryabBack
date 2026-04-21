@@ -171,3 +171,25 @@ export const deleteStudentTask = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const createStudentTask = async (req: Request, res: Response) => {
+  try {
+    const data = await studentTaskService.create(req.body);
+    res.status(201).json({ success: true, message: 'Entrega creada', data });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const createBulkStudentTasks = async (req: Request, res: Response) => {
+  try {
+    const { idTask, enrollmentIds } = req.body;
+    if (!idTask || !Array.isArray(enrollmentIds) || enrollmentIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'idTask y enrollmentIds son requeridos' });
+    }
+    const data = await studentTaskService.createBulk({ idTask, enrollmentIds });
+    res.status(201).json({ success: true, count: data.length, data });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

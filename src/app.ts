@@ -19,6 +19,7 @@ import classSesionRoutes from './modules/classSession/classSession.routes.js'
 import assistanceRoutes from './modules/assistance/assistance.routes.js';
 import taskRoutes from './modules/task/task.routes.js';
 import studentTaskRoutes from './modules/student-task/student-task.routes.js';
+import usersRoutes from './modules/users/users.routes.js';
 
 
 
@@ -107,6 +108,7 @@ app.use('/api/tasks', taskRoutes);
 
 
 app.use('/api/student-tasks', studentTaskRoutes);
+app.use('/api/users', usersRoutes);
 
 
 

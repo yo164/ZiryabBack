@@ -91,7 +91,10 @@ export class AuthController {
         surname: surname || 'N/A',
         ndSurname,
         birthDate: birthDate || '2000-01-01',
-        dni: dni || `TEST-${Date.now()}`,
+        dni:
+          process.env.NODE_ENV === 'test'
+            ? `${dni || 'TEST'}-${Date.now()}-${Math.round(Math.random() * 1000)}`
+            : dni || `TEST-${Date.now()}`,
         role: (role || 'STUDENT'),
       });
 

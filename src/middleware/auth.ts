@@ -47,7 +47,7 @@ export function auth(req: Request, res: Response, next: NextFunction): void {
 
   if (!token) {
     res.status(401).json({
-      message: 'No autorizado. Falta el token.',
+      message: 'No autorizado',
     });
     return;
   }
@@ -95,7 +95,7 @@ export function auth(req: Request, res: Response, next: NextFunction): void {
   } catch (error) {
     // Token expirado, firma incorrecta, etc.
     res.status(401).json({
-      message: 'Token inválido o expirado.',
+      message: 'Token inválido',
       error: (error as Error).message,
     });
     return;

@@ -3588,6 +3588,43 @@ curl http://localhost:3000/api/users/me \
 
 ---
 
+##  Modelos de Datos: Tareas
+
+El sistema de gestión de tareas utiliza dos entidades principales en la base de datos para manejar tanto la definición de la tarea por parte del profesor como la entrega y calificación del alumno.
+
+### Enums
+- **`TaskType`**: Define la tipología de la tarea. Valores: `PRACTICE` (Práctica), `THEORY` (Teoría/Material), `EXAM` (Examen), `PROJECT` (Proyecto), `HOMEWORK` (Deberes).
+- **`SubmissionStatus`**: Define el estado de entrega del alumno. Valores: `PENDING` (Pendiente), `SUBMITTED` (Entregada), `LATE` (Entregada con retraso), `GRADED` (Calificada), `NOT_SUBMITTED` (No entregada fuera de plazo).
+
+### Modelo `Task`
+Representa una tarea creada por un profesor para una asignatura y grupo.
+- **Relaciones**:
+  - Pertenece a **`TeacherOnSubjectOnGroup`** (Asignación del profesor).
+  - Tiene una relación de uno-a-muchos con **`StudentTask`** (Entregas de los alumnos).
+- **Campos principales**: 
+  - `title`, `description`, `type`, `attachmentUrl` (Material/enunciado proporcionado por el profesor).
+  - Fechas temporales: `startDate` (Apertura de la tarea) y `dueDate` (Fecha límite de entrega).
+- **Índices (`@@index`)**:
+  - `[idTeacherAssignment, schoolYear]`: Para obtener rápidamente todas las tareas de una clase particular en un año lectivo.
+  - `[dueDate]`: Para facilitar consultas cronológicas, ordenamientos y eventos basados en la fecha límite de vencimiento.
+
+### Modelo `StudentTask`
+Representa la entrega individual de un alumno para una `Task` específica.
+- **Relaciones**:
+  - Pertenece a **`Task`**.
+  - Pertenece a **`StudentOnSubjectOnGroup`** (Matriculación del alumno).
+- **Campos principales**: 
+  - `status` (Por defecto `PENDING`).
+  - `submissionDate` (Fecha y hora exactas de envío, nulo si falta entrega).
+  - `attachmentUrl` (Url/enlace subido por el alumno).
+  - `score` y `feedback` (Información de la calificación por el docente).
+- **Índices y Constraints (`@@index` / `@@unique`)**:
+  - `@@unique([idTask, idStudentEnrollment])`: Restricción de unicidad para asegurar un único registro de tarea por alumno matriculado.
+  - `@@index([idStudentEnrollment, status])`: Optimiza las búsquedas para mostrar las tareas pendientes/completadas en el Dashboard del alumno.
+  - `@@index([idTask, status])`: Optimiza los reportes del profesor para ver los envíos agrupados por estado en una misma tarea.
+
+---
+
 ## 📝 Notas importantes
 
 ### Seguridad

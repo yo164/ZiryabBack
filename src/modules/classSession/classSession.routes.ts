@@ -12,42 +12,41 @@ const router = Router();
 /**
  * @route   GET /api/sessions
  * @desc    Obtener todas las sesiones de clase
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/', classSessionController.getAllSessions);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER']), classSessionController.getAllSessions);
 
 /**
  * @route   GET /api/sessions/active
  * @desc    Obtener o crear la sesión activa para un assignment en este momento
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/active', classSessionController.getActiveSession);
-
+router.get('/active', auth, authorize(['ADMIN', 'TEACHER']), classSessionController.getActiveSession);
 
 /**
  * @route   GET /api/sessions/:id
  * @desc    Obtener una sesión por ID
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/:id', classSessionController.getSessionById);
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), classSessionController.getSessionById);
 
 /**
  * @route   GET /api/sessions/schedule/:idSchedule
  * @desc    Obtener sesiones de un horario específico
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/schedule/:idSchedule', classSessionController.getSessionsBySchedule);
-
-/**
- * @route   GET /api/sessions/active
- * @desc    Obtener o crear la sesión activa para un assignment en este momento
- * @access  Public
- */
-router.get('/active', classSessionController.getActiveSession);
+router.get('/schedule/:idSchedule', auth, authorize(['ADMIN', 'TEACHER']), classSessionController.getSessionsBySchedule);
 
 // ============================================
 // RUTAS PROTEGIDAS (POST, PUT, DELETE - solo ADMIN y TEACHER)
 // ============================================
+
+/**
+ * @route   POST /api/sessions/start
+ * @desc    Obtener o crear la sesión de hoy para una asignatura y profesor concretos
+ * @access  Admin and Teacher
+ */
+router.post('/start', auth, authorize(['ADMIN', 'TEACHER']), classSessionController.startSessionForSubject);
 
 /**
  * @route   POST /api/sessions

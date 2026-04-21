@@ -2,8 +2,23 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const findAll = async () => {
+export const findAll = async (teacherId?: number, studentId?: number) => {
+  const whereClause: any = {};
+  if (teacherId) {
+    whereClause.task = {
+      teacherAssignment: {
+        idTeacher: teacherId,
+      },
+    };
+  }
+  if (studentId) {
+    whereClause.studentEnrollment = {
+      idStudent: studentId,
+    };
+  }
+
   return prisma.studentTask.findMany({
+    where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
     include: {
      task: {
         include: {
@@ -155,6 +170,22 @@ export const create = async (data: {
       idStudentEnrollment: data.idStudentEnrollment,
       status: (data.status as any) ?? 'PENDING',
       isEnabled: true,
+export const submit = async (id: number, data: { attachmentUrl?: string }) => {
+  const studentTask = await prisma.studentTask.findUnique({
+    where: { id },
+    include: { task: true },
+  });
+  if (!studentTask) throw new Error('Entrega de estudiante no encontrada');
+
+  const now = new Date();
+  const isLate = now > studentTask.task.dueDate;
+
+  return prisma.studentTask.update({
+    where: { id },
+    data: {
+      status: isLate ? 'LATE' : 'SUBMITTED',
+      submissionDate: now,
+      ...(data.attachmentUrl && { attachmentUrl: data.attachmentUrl }),
     },
     include: {
       task: true,
@@ -184,6 +215,41 @@ export const createBulk = async (data: {
   return prisma.studentTask.findMany({
     where: { idTask: data.idTask },
     include: {
+export const unsubmit = async (id: number) => {
+  const studentTask = await prisma.studentTask.findUnique({
+    where: { id },
+  });
+  if (!studentTask) throw new Error('Entrega de estudiante no encontrada');
+
+  return prisma.studentTask.update({
+    where: { id },
+    data: {
+      status: 'PENDING',
+      submissionDate: null,
+      attachmentUrl: null,
+    },
+    include: {
+      task: true,
+      studentEnrollment: { include: { student: true } },
+    },
+  });
+};
+
+export const grade = async (id: number, data: { score: number; feedback?: string }) => {
+  const studentTask = await prisma.studentTask.findUnique({
+    where: { id },
+  });
+  if (!studentTask) throw new Error('Entrega de estudiante no encontrada');
+
+  return prisma.studentTask.update({
+    where: { id },
+    data: {
+      status: 'GRADED',
+      score: data.score,
+      feedback: data.feedback || null,
+    },
+    include: {
+      task: true,
       studentEnrollment: { include: { student: true } },
     },
   });

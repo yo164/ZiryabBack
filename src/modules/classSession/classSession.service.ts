@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, DayOfWeek, SessionStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -102,7 +102,9 @@ export const findOrCreateActiveSession = async (
       idSchedule: schedule.id,
       date: fechaHoy,
       status: 'PROGRAMADA',
-    },
+    }
+    //rama de ángela
+    //data: { idSchedule: schedule.id, date: fechaHoy, status: 'SCHEDULED' },
   });
 };
 
@@ -125,7 +127,7 @@ export const create = async (data: {
     data: {
       idSchedule: data.idSchedule,
       date: new Date(data.date),
-      status: data.status || 'PROGRAMADA',
+      status: (data.status as SessionStatus) || 'SCHEDULED',
       apointments: data.apointments || null,
     },
     include: {
@@ -161,7 +163,7 @@ export const update = async (
     where: { id },
     data: {
       ...(data.date && { date: new Date(data.date) }),
-      ...(data.status && { status: data.status }),
+      ...(data.status && { status: data.status as SessionStatus }),
       ...(data.apointments !== undefined && { apointments: data.apointments }),
     },
     include: {
@@ -179,5 +181,53 @@ export const remove = async (id: number) => {
 
   return prisma.sessionClass.delete({
     where: { id },
+  });
+};
+
+export const findOrCreateSessionForSubjectAndTeacher = async (
+  idSubject: number,
+  idTeacher: number
+) => {
+  const assignment = await prisma.teacherOnSubjectOnGroup.findFirst({
+    where: { idSubject, idTeacher },
+    include: {
+      WeekSchedule: { take: 1 },
+    },
+  });
+
+  if (!assignment) {
+    throw new Error('No se encontró una asignación para ese profesor y asignatura');
+  }
+
+  let schedule = assignment.WeekSchedule[0];
+
+  // Si el profesor no tiene horario configurado, creamos uno genérico
+  // para poder registrar la asistencia sin depender del horario semanal
+  if (!schedule) {
+    schedule = await prisma.weekSchedule.create({
+      data: {
+        idTeacherAssignment: assignment.id,
+        weekDay: 'MONDAY',
+        startTime: '00:00',
+        finishTime: '23:59',
+      },
+    });
+  }
+
+  const today = new Date();
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  const existing = await prisma.sessionClass.findFirst({
+    where: { idSchedule: schedule.id, date: todayDate },
+  });
+
+  if (existing) return existing;
+
+  return prisma.sessionClass.create({
+    data: {
+      idSchedule: schedule.id,
+      date: todayDate,
+      status: 'SCHEDULED',
+    },
   });
 };

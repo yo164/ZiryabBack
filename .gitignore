@@ -16,3 +16,15 @@ logs/
 
 
 /src/generated/prisma
+
+# Docs
+jwt-migration.md
+assistances-implementation.md
+get-session-assistances.md
+put-assistance.md
+delete-assistance.md
+jwt-assistance-protection.md
+code-review-db.md
+code-review-back.md
+student-task-flow.md
+SECURITY_REVIEW.md

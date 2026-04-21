@@ -2655,37 +2655,37 @@ async function main() {
         // === GRUPO 1 (1 DAM MAÑANA) - LUNES 15 Sept ===
         // Los primeros 6 registros del weekSchedule (idSchedule 1-6) corresponden al lunes del grupo 1
         {
-          date: '2025-09-15',
+          date: new Date('2025-09-15T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 1 // Lunes 8:15-9:15, idTeacherAssignment: 1
         },
         {
-          date: '2025-09-15',
+          date: new Date('2025-09-15T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 2 // Lunes 9:15-10:15, idTeacherAssignment: 1
         },
         {
-          date: '2025-09-15',
+          date: new Date('2025-09-15T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 3 // Lunes 10:15-11:15, idTeacherAssignment: 2
         },
         {
-          date: '2025-09-15',
+          date: new Date('2025-09-15T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 4 // Lunes 11:45-12:45, idTeacherAssignment: 2
         },
         {
-          date: '2025-09-15',
+          date: new Date('2025-09-15T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 5 // Lunes 12:45-13:45, idTeacherAssignment: 3
         },
         {
-          date: '2025-09-15',
+          date: new Date('2025-09-15T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 6 // Lunes 13:45-14:45, idTeacherAssignment: 3
@@ -2694,37 +2694,37 @@ async function main() {
         // === GRUPO 1 (1 DAM MAÑANA) - MARTES 16 Sept ===
         // idSchedule 7-12
         {
-          date: '2025-09-16',
+          date: new Date('2025-09-16T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 7
         },
         {
-          date: '2025-09-16',
+          date: new Date('2025-09-16T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 8
         },
         {
-          date: '2025-09-16',
+          date: new Date('2025-09-16T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 9
         },
         {
-          date: '2025-09-16',
+          date: new Date('2025-09-16T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 10
         },
         {
-          date: '2025-09-16',
+          date: new Date('2025-09-16T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 11
         },
         {
-          date: '2025-09-16',
+          date: new Date('2025-09-16T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 12
@@ -2733,37 +2733,37 @@ async function main() {
         // === GRUPO 1 (1 DAM MAÑANA) - MIÉRCOLES 17 Sept ===
         // idSchedule 13-18
         {
-          date: '2025-09-17',
+          date: new Date('2025-09-17T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 13
         },
         {
-          date: '2025-09-17',
+          date: new Date('2025-09-17T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 14
         },
         {
-          date: '2025-09-17',
+          date: new Date('2025-09-17T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 15
         },
         {
-          date: '2025-09-17',
+          date: new Date('2025-09-17T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 16
         },
         {
-          date: '2025-09-17',
+          date: new Date('2025-09-17T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 17
         },
         {
-          date: '2025-09-17',
+          date: new Date('2025-09-17T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 18
@@ -2772,37 +2772,37 @@ async function main() {
         // === GRUPO 1 (1 DAM MAÑANA) - JUEVES 18 Sept ===
         // idSchedule 19-24
         {
-          date: '2025-09-18',
+          date: new Date('2025-09-18T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 19
         },
         {
-          date: '2025-09-18',
+          date: new Date('2025-09-18T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 20
         },
         {
-          date: '2025-09-18',
+          date: new Date('2025-09-18T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 21
         },
         {
-          date: '2025-09-18',
+          date: new Date('2025-09-18T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 22
         },
         {
-          date: '2025-09-18',
+          date: new Date('2025-09-18T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 23
         },
         {
-          date: '2025-09-18',
+          date: new Date('2025-09-18T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 24
@@ -2811,37 +2811,37 @@ async function main() {
         // === GRUPO 1 (1 DAM MAÑANA) - VIERNES 19 Sept ===
         // idSchedule 25-30
         {
-          date: '2025-09-19',
+          date: new Date('2025-09-19T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 25
         },
         {
-          date: '2025-09-19',
+          date: new Date('2025-09-19T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 26
         },
         {
-          date: '2025-09-19',
+          date: new Date('2025-09-19T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 27
         },
         {
-          date: '2025-09-19',
+          date: new Date('2025-09-19T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 28
         },
         {
-          date: '2025-09-19',
+          date: new Date('2025-09-19T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 29
         },
         {
-          date: '2025-09-19',
+          date: new Date('2025-09-19T00:00:00.000Z'),
           status: 'PROGRAMADA',
           apointments: '',
           idSchedule: 30

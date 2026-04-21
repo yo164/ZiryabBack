@@ -9,7 +9,7 @@ export class AuthController {
   static async register(req: Request, res: Response) {
     try {
       const {
-        firebaseUID,
+        token, // Usamos el token de Firebase en lugar de firebaseUID directamente
         email,
         name,
         surname,
@@ -24,11 +24,11 @@ export class AuthController {
       // ============================================
 
       // Campos obligatorios
-      if (!firebaseUID || !email || !name || !surname || !birthDate || !dni || !role) {
+      if (!token || !email || !name || !surname || !birthDate || !dni || !role) {
         return res.status(400).json({
           message: 'Faltan campos requeridos',
           required: [
-            'firebaseUID',
+            'token',
             'email',
             'name',
             'surname',
@@ -57,6 +57,9 @@ export class AuthController {
       // REGISTRAR
       // ============================================
 
+      // Verificar y obtener el firebaseUID de forma segura
+      const firebaseUID = await AuthService.verifyFirebaseToken(token);
+
       const user = await AuthService.registerUser({
         firebaseUID,
         email,
@@ -68,9 +71,18 @@ export class AuthController {
         role,
       });
 
+      const { token: userToken, ...userData } = user;
+
+      res.cookie('auth_token', userToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+
       return res.status(201).json({
         message: 'Usuario registrado correctamente',
-        data: user,
+        data: userData,
       });
     } catch (error) {
       return res.status(400).json({
@@ -86,21 +98,32 @@ export class AuthController {
    */
   static async login(req: Request, res: Response) {
     try {
-      const { firebaseUID } = req.body;
+      const { token } = req.body;
 
       // Validar
-      if (!firebaseUID) {
+      if (!token) {
         return res.status(400).json({
-          message: 'firebaseUID requerido',
+          message: 'Token requerido',
         });
       }
 
+      // Verificar y obtener el firebaseUID de forma segura
+      const firebaseUID = await AuthService.verifyFirebaseToken(token);
+
       // Login
       const user = await AuthService.loginUser(firebaseUID);
+      const { token: userToken, ...userData } = user;
+
+      res.cookie('auth_token', userToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000,
+      });
 
       return res.status(200).json({
         message: 'Login exitoso',
-        data: user,
+        data: userData,
       });
     } catch (error) {
       return res.status(400).json({
@@ -172,15 +195,14 @@ export class AuthController {
     }
   }
 
-    /**
-   * POST /api/auth/logout
-   * Cierra sesión del usuario
-   */
+  /**
+ * POST /api/auth/logout
+ * Cierra sesión del usuario
+ */
   static async logout(req: Request, res: Response) {
     try {
-      // Aquí podrías invalidar tokens si usaras una lista negra
-      // Por ahora, solo confirmamos el logout
-      
+      res.clearCookie('auth_token');
+
       return res.status(200).json({
         message: 'Logout exitoso',
       });

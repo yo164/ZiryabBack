@@ -9,21 +9,21 @@ const router = Router();
 /**
  * @route   GET /api/enrollments
  * @desc    Obtener todos los enrollments sin filtrar
- * @access  Public?? deberiamos poner acceso limitado pues no cualquiera podria poder acceder ya este tipo de gets.
+ * @access  Admin, Teacher
  */
-router.get('/', enrollmentController.getAllEnrollmentsRaw);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER']), enrollmentController.getAllEnrollmentsRaw);
+
 /**
  * @route   GET /api/enrollments/by-filters?idSubject=1&idGroup=1&schoolYear=2024-2025
  * @desc    Obtener todos los estudiantes relacionados con el grupo, asignatura y schoolYear de un profesor
- * @access  Public?? deberiamos poner acceso limitado pues no cualquiera podria poder acceder ya este tipo de gets.
+ * @access  Admin, Teacher
  */
-router.get('/by-filters', enrollmentController.getAllEnrollments);
+router.get('/by-filters', auth, authorize(['ADMIN', 'TEACHER']), enrollmentController.getAllEnrollments);
 
 /**
  * @route   GET /api/enrollments/teacher/:idTeacher?schoolYear=2024-2025
- * @desc    Obtener todos los assignments de un profesor para obtener su listado de asignaturas
- * @access  Limitado al profesor que inicia sesión
+ * @desc    Obtener todos los assignments de un profesor
+ * @access  Limitado a Admin y Profesores
  */
-// assignment.routes.ts
-router.get('/teacher/:idTeacher', enrollmentController.getAssignmentsByTeacher);
+router.get('/teacher/:idTeacher', auth, authorize(['ADMIN', 'TEACHER']), enrollmentController.getAssignmentsByTeacher);
 export default router;

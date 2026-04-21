@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { auth } from '../../middleware/auth.js';
 import { authorize } from '../../middleware/authorize.js';
+import { restrictToSelfOrRoles } from '../../middleware/restrictSelf.js';
 import * as studentsController from './students.controller.js';
 
 const router = Router();
@@ -12,23 +13,23 @@ const router = Router();
 /**
  * @route   GET /api/students
  * @desc    Obtener todos los estudiantes
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/', studentsController.getAllStudents);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER']), studentsController.getAllStudents);
 
 /**
  * @route   GET /api/students/:id
  * @desc    Obtener un estudiante por ID
- * @access  Public
+ * @access  Admin, Teacher, o el propio estudiante
  */
-router.get('/:id', studentsController.getStudentById);
+router.get('/:id', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER'], 'id'), studentsController.getStudentById);
 
 /**
  * @route   GET /api/students/:id/subjects
  * @desc    Obtener asignaturas de un estudiante
- * @access  Public
+ * @access  Admin, Teacher, o el propio estudiante
  */
-router.get('/:id/subjects', studentsController.getStudentSubjects);
+router.get('/:id/subjects', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER'], 'id'), studentsController.getStudentSubjects);
 
 // ============================================
 // RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)

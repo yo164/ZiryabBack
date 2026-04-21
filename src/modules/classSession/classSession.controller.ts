@@ -184,3 +184,28 @@ export const deleteSession = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const startSessionForSubject = async (req: Request, res: Response) => {
+  try {
+    const { idSubject, idTeacher } = req.body;
+
+    if (!idSubject || !idTeacher) {
+      return res.status(400).json({
+        success: false,
+        message: 'Se requieren idSubject e idTeacher',
+      });
+    }
+
+    const session = await classSessionService.findOrCreateSessionForSubjectAndTeacher(
+      Number(idSubject),
+      Number(idTeacher)
+    );
+
+    res.status(200).json({ success: true, data: session });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

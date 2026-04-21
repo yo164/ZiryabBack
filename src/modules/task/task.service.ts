@@ -158,6 +158,7 @@ export const create = async (data: CreateTaskData) => {
       idSubject: assignment.idSubject,
       idGroup: assignment.idGroup,
       schoolYear: data.schoolYear,
+      status: 'ENROLLED',
     },
   });
 

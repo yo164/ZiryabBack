@@ -1,8 +1,5 @@
-import { PrismaClient, TaskType } from '@prisma/client';
-
+import { TaskType } from '@prisma/client';
 import prisma from '../../config/prisma.js';
-
-const prisma = new PrismaClient();
 // ============================================
 // TIPOS
 // ============================================

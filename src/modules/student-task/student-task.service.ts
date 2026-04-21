@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../../config/prisma.js';
 
 export const findAll = async (teacherId?: number, studentId?: number) => {
   const whereClause: any = {};
@@ -170,6 +168,18 @@ export const create = async (data: {
       idStudentEnrollment: data.idStudentEnrollment,
       status: (data.status as any) ?? 'PENDING',
       isEnabled: true,
+    },
+    include: {
+      task: true,
+      studentEnrollment: {
+        include: {
+          student: true,
+        },
+      },
+    },
+  });
+};
+
 export const submit = async (id: number, data: { attachmentUrl?: string }) => {
   const studentTask = await prisma.studentTask.findUnique({
     where: { id },
@@ -215,6 +225,16 @@ export const createBulk = async (data: {
   return prisma.studentTask.findMany({
     where: { idTask: data.idTask },
     include: {
+      task: true,
+      studentEnrollment: {
+        include: {
+          student: true,
+        },
+      },
+    },
+  });
+};
+
 export const unsubmit = async (id: number) => {
   const studentTask = await prisma.studentTask.findUnique({
     where: { id },

@@ -157,30 +157,4 @@ router.delete('/:id', auth, authorize(['ADMIN', 'TEACHER']), taskController.dele
 // RUTAS DE CONSULTA — autenticado
 // ============================================
 
-/**
- * @route   GET /api/tasks/teacher-assignment/:idTeacherAssignment
- * @desc    Obtener todas las tareas de una asignación concreta
- * @access  Authenticated
- * @note    Debe ir ANTES de /:id para que Express no lo capture como id numérico
- */
-router.get(
-  '/teacher-assignment/:idTeacherAssignment',
-  auth,
-  taskController.getTasksByTeacherAssignment,
-);
-
-/**
- * @route   GET /api/tasks/:id
- * @desc    Obtener una tarea por ID
- * @access  Authenticated
- */
-router.get('/:id', auth, taskController.getTaskById);
-
-/**
- * @route   GET /api/tasks
- * @desc    Obtener todas las tareas
- * @access  Authenticated
- */
-router.get('/', auth, taskController.getAllTasks);
-
 export default router;

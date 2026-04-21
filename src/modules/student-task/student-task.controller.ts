@@ -200,6 +200,9 @@ export const createBulkStudentTasks = async (req: Request, res: Response) => {
     res.status(201).json({ success: true, count: data.length, data });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 export const submitStudentTask = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id || '0');

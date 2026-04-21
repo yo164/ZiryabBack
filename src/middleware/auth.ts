@@ -36,8 +36,14 @@ declare global {
  * Middleware que valida el JWT en cada petición protegida
  */
 export function auth(req: Request, res: Response, next: NextFunction): void {
-  // token de las cookies
-  const token = req.cookies.auth_token;
+  // Prioriza cookie, pero mantiene compatibilidad con clientes que envían Bearer token
+  const cookieToken = req.cookies.auth_token;
+  const authorizationHeader = req.headers.authorization;
+  const bearerToken =
+    authorizationHeader && authorizationHeader.startsWith('Bearer ')
+      ? authorizationHeader.substring('Bearer '.length).trim()
+      : undefined;
+  const token = cookieToken || bearerToken;
 
   if (!token) {
     res.status(401).json({

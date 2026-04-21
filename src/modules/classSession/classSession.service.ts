@@ -68,14 +68,26 @@ export const findBySchedule = async (idSchedule: number) => {
 
 export const findOrCreateActiveSession = async (
   idTeacherAssignment: number,
-  weekDay: number,
+  weekDay: number | string,
   horaActual: string,
   fechaHoy: Date
 ) => {
+  let mappedWeekDay: DayOfWeek | undefined;
+  if (typeof weekDay === 'string') {
+    mappedWeekDay = Object.values(DayOfWeek).find((value) => value === weekDay as DayOfWeek);
+  } else {
+    const weekDayValues = Object.values(DayOfWeek);
+    mappedWeekDay = weekDayValues[weekDay - 1];
+  }
+
+  if (!mappedWeekDay) {
+    throw new Error('Día de la semana inválido');
+  }
+
   const schedule = await prisma.weekSchedule.findFirst({
     where: {
       idTeacherAssignment,
-      weekDay,
+      weekDay: mappedWeekDay,
       startTime: { lte: horaActual },
       finishTime: { gte: horaActual },
     },
@@ -101,7 +113,7 @@ export const findOrCreateActiveSession = async (
     data: {
       idSchedule: schedule.id,
       date: fechaHoy,
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
     }
     //rama de ángela
     //data: { idSchedule: schedule.id, date: fechaHoy, status: 'SCHEDULED' },

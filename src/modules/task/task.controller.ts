@@ -7,7 +7,7 @@ const VALID_TASK_TYPES = Object.values(TaskType);
 const getRequester = (req: Request) => {
   const user = (req as any).user;
   return {
-    requesterId: user?.id as number,
+    requesterId: user?.sub as number,
     requesterRole: user?.role as string,
   };
 };
@@ -110,6 +110,11 @@ export const createTask = async (req: Request, res: Response) => {
       attachmentUrl,
       idTaskGroup,
     } = req.body;
+    const parsedTeacherAssignmentId = Number(idTeacherAssignment);
+    const parsedTaskGroupId = idTaskGroup !== undefined && idTaskGroup !== null && idTaskGroup !== ''
+      ? Number(idTaskGroup)
+      : undefined;
+    const finalAttachmentUrl = req.file ? `/uploads/tasks/${req.file.filename}` : attachmentUrl;
 
     const missing = ['idTeacherAssignment', 'title', 'type', 'startDate', 'dueDate', 'schoolYear']
       .filter((field) => req.body[field] === undefined || req.body[field] === null || req.body[field] === '');
@@ -136,33 +141,31 @@ export const createTask = async (req: Request, res: Response) => {
       });
     }
 
+    if (Number.isNaN(parsedTeacherAssignmentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'idTeacherAssignment inválido',
+      });
+    }
+
+    if (parsedTaskGroupId !== undefined && Number.isNaN(parsedTaskGroupId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'idTaskGroup inválido',
+      });
+    }
+
     const newTask = await taskService.create({
-      idTeacherAssignment: parseInt(idTeacherAssignment),
+      idTeacherAssignment: parsedTeacherAssignmentId,
       title,
       description,
       type,
       startDate,
       dueDate,
-      attachmentUrl,
+      attachmentUrl: finalAttachmentUrl,
       schoolYear,
-      ...(idTaskGroup && { idTaskGroup: parseInt(idTaskGroup) }),
+      ...(parsedTaskGroupId !== undefined && { idTaskGroup: parsedTaskGroupId }),
     });
-    // 1. Clona los datos que llegan (porque si vienen en FormData, todo es texto)
-    const taskData = { ...req.body };
-    
-    // 2. Si el profesor está creando esto, el ID viene como texto, lo forzamos a número para evitar errores en Prisma
-    if (taskData.idTeacherAssignment) {
-        taskData.idTeacherAssignment = Number(taskData.idTeacherAssignment);
-    }
-    
-    // 3. Si Multer ha procesado un fichero adjunto, guarda la ruta local generada
-    // Así Prisma sabrá exactamente dónde se guardó nuestro archivo en el servidor.
-    if (req.file) {
-      taskData.attachmentUrl = `/uploads/tasks/${req.file.filename}`;
-    }
-
-    // 4. Se lo pasamos al servicio para ejecutar el guardado en base de datos
-    const newTask = await taskService.create(taskData);
 
     res.status(201).json({
       success: true,
@@ -196,7 +199,8 @@ export const updateTask = async (req: Request, res: Response) => {
       });
     }
 
-    const { type, startDate, dueDate } = req.body;
+    const { type, startDate, dueDate, idTeacherAssignment, idTaskGroup } = req.body;
+    const updatePayload: Record<string, any> = { ...req.body };
 
     if (type !== undefined && !VALID_TASK_TYPES.includes(type)) {
       return res.status(400).json({
@@ -219,21 +223,38 @@ export const updateTask = async (req: Request, res: Response) => {
       });
     }
 
-    const { requesterId, requesterRole } = getRequester(req);
-    const updatedTask = await taskService.update(id, req.body, requesterId, requesterRole);
-    // 1. Clonar datos y forzar la conversión de idTeacherAssignment a número si ha llegado como texto (FormData)
-    const taskData = { ...req.body };
-    if (taskData.idTeacherAssignment) {
-        taskData.idTeacherAssignment = Number(taskData.idTeacherAssignment);
-    }
-    
-    // 2. Si el profesor modificó el archivo y subió uno nuevo, sobreescribimos la ruta en base de datos
-    if (req.file) {
-      taskData.attachmentUrl = `/uploads/tasks/${req.file.filename}`;
+    if (idTeacherAssignment !== undefined) {
+      const parsedTeacherAssignmentId = Number(idTeacherAssignment);
+      if (Number.isNaN(parsedTeacherAssignmentId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'idTeacherAssignment inválido',
+        });
+      }
+      updatePayload.idTeacherAssignment = parsedTeacherAssignmentId;
     }
 
-    // 3. Guardar cambios en base de datos
-    const updatedTask = await taskService.update(id, taskData);
+    if (idTaskGroup !== undefined) {
+      if (idTaskGroup === null || idTaskGroup === '') {
+        updatePayload.idTaskGroup = null;
+      } else {
+        const parsedTaskGroupId = Number(idTaskGroup);
+        if (Number.isNaN(parsedTaskGroupId)) {
+          return res.status(400).json({
+            success: false,
+            message: 'idTaskGroup inválido',
+          });
+        }
+        updatePayload.idTaskGroup = parsedTaskGroupId;
+      }
+    }
+
+    if (req.file) {
+      updatePayload.attachmentUrl = `/uploads/tasks/${req.file.filename}`;
+    }
+
+    const { requesterId, requesterRole } = getRequester(req);
+    const updatedTask = await taskService.update(id, updatePayload, requesterId, requesterRole);
 
     res.json({
       success: true,

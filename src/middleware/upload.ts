@@ -87,3 +87,27 @@ export const uploadTaskAttachment = multer({
     },
     fileFilter: taskFileFilter
 });
+
+const submissionUploadDir = 'uploads/submissions';
+if (!fs.existsSync(submissionUploadDir)) {
+    fs.mkdirSync(submissionUploadDir, { recursive: true });
+}
+
+const submissionStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, submissionUploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname);
+        cb(null, 'submission-' + uniqueSuffix + ext);
+    }
+});
+
+export const uploadSubmission = multer({
+    storage: submissionStorage,
+    limits: {
+        fileSize: 10 * 1024 * 1024
+    },
+    fileFilter: taskFileFilter
+});

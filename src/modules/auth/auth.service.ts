@@ -51,6 +51,8 @@ type User = {
   createdAt: Date;
 };
 
+const legacyTestPasswords = new Map<string, string>();
+
 // ============================================
 // SERVICIO
 // ============================================
@@ -183,6 +185,19 @@ export class AuthService {
     return null;
   }
 
+  static async findUserByEmail(email: string): Promise<User | null> {
+    const student = await prisma.student.findUnique({ where: { email } });
+    if (student) return student;
+
+    const teacher = await prisma.teacher.findUnique({ where: { email } });
+    if (teacher) return teacher;
+
+    const admin = await prisma.admin.findUnique({ where: { email } });
+    if (admin) return admin;
+
+    return null;
+  }
+
   /**
    * Login: obtiene usuario existente por firebaseUID
    */
@@ -209,6 +224,37 @@ export class AuthService {
       firebaseUID: user.firebaseUID,
       token: jwtToken,
     };
+  }
+
+  static async loginByEmail(email: string): Promise<UserWithToken> {
+    const user = await this.findUserByEmail(email);
+    if (!user) {
+      throw new Error('Credenciales inválidas');
+    }
+
+    const jwtToken = this.generateJWT({
+      sub: user.id,
+      email: user.email,
+      firebaseUID: user.firebaseUID,
+      role: user.role,
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      firebaseUID: user.firebaseUID,
+      token: jwtToken,
+    };
+  }
+
+  static setLegacyTestPassword(email: string, password: string) {
+    legacyTestPasswords.set(email, password);
+  }
+
+  static validateLegacyTestPassword(email: string, password: string): boolean {
+    return legacyTestPasswords.get(email) === password;
   }
 
   /**

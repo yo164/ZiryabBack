@@ -1,4 +1,5 @@
 import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { TaskType } from '@prisma/client';
 import prisma from '../../config/prisma.js';
 import * as taskService from './task.service.js';
 
@@ -54,7 +55,7 @@ describe('TaskService (Unit)', () => {
         const createTaskInput = {
             idTeacherAssignment: 10,
             title: 'Nueva Tarea',
-            type: 'HOMEWORK',
+            type: TaskType.HOMEWORK,
             startDate: '2025-01-01',
             dueDate: '2025-01-10',
             schoolYear: '2024-2025'
@@ -94,15 +95,21 @@ describe('TaskService (Unit)', () => {
         it('debe arrojar error si la tarea a actualizar no existe', async () => {
             (prisma.task.findUnique as jest.Mock).mockResolvedValue(null as never);
 
-            await expect(taskService.update(99, { title: 'No existe' })).rejects.toThrow('Tarea no encontrada');
+            await expect(taskService.update(99, { title: 'No existe' }, 1, 'ADMIN')).rejects.toThrow('Tarea no encontrada');
         });
 
         it('debe actualizar los datos correctamente si existe', async () => {
-            (prisma.task.findUnique as jest.Mock).mockResolvedValue({ id: 1, title: 'Old Title' } as never);
+            (prisma.task.findUnique as jest.Mock).mockResolvedValue({
+                id: 1,
+                title: 'Old Title',
+                startDate: new Date('2025-01-01'),
+                dueDate: new Date('2025-01-10'),
+                teacherAssignment: { teacher: { id: 1 } }
+            } as never);
             const mockUpdate = { id: 1, title: 'New Title' };
             (prisma.task.update as jest.Mock).mockResolvedValue(mockUpdate as never);
 
-            const result = await taskService.update(1, { title: 'New Title' });
+            const result = await taskService.update(1, { title: 'New Title' }, 1, 'TEACHER');
 
             expect(prisma.task.update).toHaveBeenCalledWith(expect.objectContaining({
                  where: { id: 1 },
@@ -116,14 +123,17 @@ describe('TaskService (Unit)', () => {
         it('debe fallar si la tarea a eliminar no existe', async () => {
             (prisma.task.findUnique as jest.Mock).mockResolvedValue(null as never);
 
-            await expect(taskService.remove(999)).rejects.toThrow('Tarea no encontrada');
+            await expect(taskService.remove(999, 1, 'ADMIN')).rejects.toThrow('Tarea no encontrada');
         });
 
         it('debe eliminar la tarea felizmente', async () => {
-            (prisma.task.findUnique as jest.Mock).mockResolvedValue({ id: 2 } as never);
+            (prisma.task.findUnique as jest.Mock).mockResolvedValue({
+                id: 2,
+                teacherAssignment: { teacher: { id: 1 } }
+            } as never);
             (prisma.task.delete as jest.Mock).mockResolvedValue({ id: 2, title: 'Deleted' } as never);
 
-            const result = await taskService.remove(2);
+            const result = await taskService.remove(2, 1, 'TEACHER');
 
             expect(prisma.task.delete).toHaveBeenCalledWith({ where: { id: 2 } });
             expect(result).toEqual({ id: 2, title: 'Deleted' });

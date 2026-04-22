@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import * as studentTaskService from './student-task.service.js';
+import { submitSchema } from './student-task.schema.js';
 
 export const getAllStudentTasks = async (req: Request, res: Response) => {
   try {
@@ -220,12 +221,22 @@ export const submitStudentTask = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: 'No puedes entregar una tarea de otro alumno' });
     }
 
-    const { attachmentUrl } = req.body;
+    const parsed = submitSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Body inválido',
+        errors: parsed.error.flatten(),
+      });
+    }
+
+    const { attachmentUrl } = parsed.data;
     const submittedTask = await studentTaskService.submit(id, { attachmentUrl });
 
     res.json({ success: true, message: 'Tarea entregada exitosamente', data: submittedTask });
   } catch (error: any) {
-    res.status(400).json({ success: false, message: 'Error al entregar tarea', error: error.message });
+    const status = typeof error?.status === 'number' ? error.status : 400;
+    res.status(status).json({ success: false, message: 'Error al entregar tarea', error: error.message });
   }
 };
 

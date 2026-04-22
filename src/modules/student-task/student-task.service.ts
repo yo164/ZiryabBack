@@ -187,8 +187,26 @@ export const submit = async (id: number, data: { attachmentUrl?: string }) => {
   });
   if (!studentTask) throw new Error('Entrega de estudiante no encontrada');
 
+  if (!studentTask.task.isPublished) {
+    throw Object.assign(new Error('La tarea no está publicada'), { status: 400 });
+  }
+
+  if (studentTask.status === 'GRADED') {
+    throw Object.assign(
+      new Error('La tarea ya está calificada y no puede re-entregarse'),
+      { status: 409 }
+    );
+  }
+
   const now = new Date();
   const isLate = now > studentTask.task.dueDate;
+
+  if (isLate && !studentTask.task.allowLateSubmission) {
+    throw Object.assign(
+      new Error('El plazo de entrega ha expirado y no se permiten entregas tardías'),
+      { status: 403 }
+    );
+  }
 
   return prisma.studentTask.update({
     where: { id },

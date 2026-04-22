@@ -72,7 +72,7 @@ describe('TaskService (Unit)', () => {
                 id: 10, idSubject: 1, idGroup: 2
             } as never);
 
-            const createdTask = { id: 100, ...createTaskInput };
+            const createdTask = { id: 100, ...createTaskInput, isPublished: true };
             (prisma.task.create as jest.Mock).mockResolvedValue(createdTask as never);
 
             const mockEnrollments = [{ id: 20 }, { id: 21 }];
@@ -87,6 +87,21 @@ describe('TaskService (Unit)', () => {
                     { idTask: 100, idStudentEnrollment: 21, status: 'PENDING' }
                 ]
             });
+            expect(result).toEqual(createdTask);
+        });
+
+        it('no debe crear studentTasks si la tarea se crea sin publicar', async () => {
+            (prisma.teacherOnSubjectOnGroup.findUnique as jest.Mock).mockResolvedValue({
+                id: 10, idSubject: 1, idGroup: 2
+            } as never);
+
+            const createdTask = { id: 101, ...createTaskInput, isPublished: false };
+            (prisma.task.create as jest.Mock).mockResolvedValue(createdTask as never);
+
+            const result = await taskService.create(createTaskInput);
+
+            expect(prisma.studentOnSubjectOnGroup.findMany).not.toHaveBeenCalled();
+            expect(prisma.studentTask.createMany).not.toHaveBeenCalled();
             expect(result).toEqual(createdTask);
         });
     });
@@ -104,6 +119,7 @@ describe('TaskService (Unit)', () => {
                 title: 'Old Title',
                 startDate: new Date('2025-01-01'),
                 dueDate: new Date('2025-01-10'),
+                isPublished: false,
                 teacherAssignment: { teacher: { id: 1 } }
             } as never);
             const mockUpdate = { id: 1, title: 'New Title' };
@@ -116,6 +132,39 @@ describe('TaskService (Unit)', () => {
                  data: { title: 'New Title' }
             }));
             expect(result).toEqual(mockUpdate);
+        });
+
+        it('debe crear studentTasks al pasar de no publicada a publicada', async () => {
+            (prisma.task.findUnique as jest.Mock).mockResolvedValue({
+                id: 1,
+                title: 'Task',
+                startDate: new Date('2025-01-01'),
+                dueDate: new Date('2025-01-10'),
+                isPublished: false,
+                idTeacherAssignment: 10,
+                schoolYear: '2024-2025',
+                teacherAssignment: { teacher: { id: 1 } }
+            } as never);
+
+            (prisma.task.update as jest.Mock).mockResolvedValue({
+                id: 1,
+                isPublished: true,
+                idTeacherAssignment: 10,
+                schoolYear: '2024-2025'
+            } as never);
+
+            (prisma.teacherOnSubjectOnGroup.findUnique as jest.Mock).mockResolvedValue({
+                id: 10, idSubject: 1, idGroup: 2
+            } as never);
+
+            (prisma.studentOnSubjectOnGroup.findMany as jest.Mock).mockResolvedValue([{ id: 20 }] as never);
+
+            await taskService.update(1, { isPublished: true }, 1, 'TEACHER');
+
+            expect(prisma.studentTask.createMany).toHaveBeenCalledWith({
+                data: [{ idTask: 1, idStudentEnrollment: 20, status: 'PENDING' }],
+                skipDuplicates: true,
+            });
         });
     });
 

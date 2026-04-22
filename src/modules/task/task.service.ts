@@ -14,6 +14,7 @@ export interface CreateTaskData {
   attachmentUrl?: string;
   schoolYear: string;
   idTaskGroup?: number;
+  isPublished?: boolean;
 }
 
 export interface UpdateTaskData {
@@ -24,6 +25,7 @@ export interface UpdateTaskData {
   dueDate?: string;
   attachmentUrl?: string | null;
   idTaskGroup?: number | null;
+  isPublished?: boolean;
 }
 
 // ============================================
@@ -136,6 +138,7 @@ export const create = async (data: CreateTaskData) => {
       dueDate: new Date(data.dueDate),
       attachmentUrl: data.attachmentUrl ?? null,
       schoolYear: data.schoolYear,
+      isPublished: data.isPublished ?? false,
       ...(data.idTaskGroup && { idTaskGroup: data.idTaskGroup }),
     },
     include: {
@@ -150,25 +153,26 @@ export const create = async (data: CreateTaskData) => {
     },
   });
 
-  // 4. Obtener todos los estudiantes enrollados en esa asignatura + grupo + schoolYear
-  const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
-    where: {
-      idSubject: assignment.idSubject,
-      idGroup: assignment.idGroup,
-      schoolYear: data.schoolYear,
-      status: 'ENROLLED',
-    },
-  });
-
-  // 5. Crear StudentTask para cada estudiante
-  if (enrollments.length > 0) {
-    await prisma.studentTask.createMany({
-      data: enrollments.map(enrollment => ({
-        idTask: task.id,
-        idStudentEnrollment: enrollment.id,
-        status: 'PENDING',
-      })),
+  // 4-5. Si se publica, generar StudentTask PENDING para matriculados.
+  if (task.isPublished) {
+    const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
+      where: {
+        idSubject: assignment.idSubject,
+        idGroup: assignment.idGroup,
+        schoolYear: data.schoolYear,
+        status: 'ENROLLED',
+      },
     });
+
+    if (enrollments.length > 0) {
+      await prisma.studentTask.createMany({
+        data: enrollments.map(enrollment => ({
+          idTask: task.id,
+          idStudentEnrollment: enrollment.id,
+          status: 'PENDING',
+        })),
+      });
+    }
   }
 
   return task;
@@ -214,7 +218,7 @@ export const update = async (
     throw new Error('La fecha de inicio debe ser anterior a la fecha límite de entrega');
   }
 
-  return prisma.task.update({
+  const updatedTask = await prisma.task.update({
     where: { id },
     data: {
       ...(data.title && { title: data.title }),
@@ -224,6 +228,7 @@ export const update = async (
       ...(data.dueDate && { dueDate: new Date(data.dueDate) }),
       ...(data.attachmentUrl !== undefined && { attachmentUrl: data.attachmentUrl }),
       ...(data.idTaskGroup !== undefined && { idTaskGroup: data.idTaskGroup }),
+      ...(data.isPublished !== undefined && { isPublished: data.isPublished }),
     },
     include: {
       teacherAssignment: true,
@@ -231,6 +236,38 @@ export const update = async (
       studentTasks: true,
     },
   });
+
+  const justPublished = task.isPublished === false && data.isPublished === true;
+
+  if (justPublished) {
+    const assignment = await prisma.teacherOnSubjectOnGroup.findUnique({
+      where: { id: updatedTask.idTeacherAssignment },
+    });
+
+    if (assignment) {
+      const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
+        where: {
+          idSubject: assignment.idSubject,
+          idGroup: assignment.idGroup,
+          schoolYear: updatedTask.schoolYear,
+          status: 'ENROLLED',
+        },
+      });
+
+      if (enrollments.length > 0) {
+        await prisma.studentTask.createMany({
+          data: enrollments.map((enrollment) => ({
+            idTask: updatedTask.id,
+            idStudentEnrollment: enrollment.id,
+            status: 'PENDING',
+          })),
+          skipDuplicates: true,
+        });
+      }
+    }
+  }
+
+  return updatedTask;
 };
 
 /**

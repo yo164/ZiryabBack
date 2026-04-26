@@ -20,7 +20,8 @@ model Student {
   //isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   
-  enrollments StudentOnSubjectOnGroup[]
+  enrollments   StudentOnSubjectOnGroup[]
+  notifications Notification[]
 }
 
 model Teacher {
@@ -36,7 +37,8 @@ model Teacher {
   //isActive   Boolean  @default(true)  // NUEVO: También para profesores (bajas, jubilaciones)
   createdAt  DateTime @default(now())
   
-  assignments TeacherOnSubjectOnGroup[]
+  assignments   TeacherOnSubjectOnGroup[]
+  notifications Notification[]
 }
 
 model Admin {
@@ -332,4 +334,62 @@ model StudentTask {
   @@unique([idTask, idStudentEnrollment])  // Un alumno solo puede tener una entrega por tarea
   @@index([idStudentEnrollment, status])
   @@index([idTask, status])
+}
+
+// -------------------------------------------------------------
+// ENUMS PARA NOTIFICACIONES
+// -------------------------------------------------------------
+
+enum NotificationEntityType {
+  TASK
+  STUDENT_TASK
+  ASSISTANCE
+  SYSTEM
+}
+
+enum NotificationAction {
+  // Eventos de Tareas
+  TASK_CREATED               // Nueva tarea asignada
+  TASK_DEADLINE_APPROACHING  // La tarea finaliza pronto
+  TASK_FINISHED              // El plazo de la tarea ha finalizado
+  
+  // Eventos de Entregas
+  TASK_GRADED                // Tu tarea ha sido calificada
+  TASK_SUBMITTED             // Un alumno ha entregado una tarea
+  
+  // Eventos de Asistencias y Justificantes
+  JUSTIFICATION_SUBMITTED    // Un alumno ha entregado justificante
+  JUSTIFICATION_REVIEWED     // El profesor ha revisado tu justificante
+}
+
+// -------------------------------------------------------------
+// MODELO NOTIFICATION
+// -------------------------------------------------------------
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  
+  idStudent   Int?
+  student     Student? @relation(fields: [idStudent], references: [id], onDelete: Cascade)
+  
+  idTeacher   Int?
+  teacher     Teacher? @relation(fields: [idTeacher], references: [id], onDelete: Cascade)
+
+  isRead      Boolean  @default(false)
+
+  entityType  NotificationEntityType
+  entityId    Int
+  action      NotificationAction
+
+  title       String?
+  body        String?
+
+  scheduledFor DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@index([idStudent, isRead])
+  @@index([idTeacher, isRead])
+  @@index([scheduledFor])
+  @@index([createdAt])
+  @@index([entityType, entityId])
 }

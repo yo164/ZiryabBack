@@ -1,4 +1,5 @@
 import prisma from '../../config/prisma.js';
+import { emitToUser } from './notifications.sse.js';
 
 export type CreateNotificationData = {
   recipientFirebaseUID: string;
@@ -60,7 +61,7 @@ export const markAsRead = async (id: number, recipientFirebaseUID: string) => {
 };
 
 export const create = async (data: CreateNotificationData) => {
-  return prisma.notification.create({
+  const created = await prisma.notification.create({
     data: {
       recipientFirebaseUID: data.recipientFirebaseUID,
       title: data.title,
@@ -68,4 +69,8 @@ export const create = async (data: CreateNotificationData) => {
       type: data.type?.trim() || 'INFO',
     },
   });
+
+  emitToUser(data.recipientFirebaseUID, created);
+
+  return created;
 };

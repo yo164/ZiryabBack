@@ -6,6 +6,24 @@ const router = Router();
 
 /**
  * @swagger
+ * /api/notifications/events:
+ *   get:
+ *     summary: Conexión SSE — notificaciones en tiempo real del usuario autenticado
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     produces:
+ *       - text/event-stream
+ *     responses:
+ *       200:
+ *         description: Flujo SSE (event connected, luego cada notificación nueva como event message con JSON)
+ *       401:
+ *         description: No autorizado
+ */
+router.get('/events', auth, notificationsController.subscribe);
+
+/**
+ * @swagger
  * /api/notifications:
  *   get:
  *     summary: Lista las notificaciones del usuario autenticado

@@ -31,6 +31,15 @@ import studentregsitrationRouter from './modules/student-registration/student-re
 const app = express();
 app.use(cookieParser());
 
+/** Orígenes permitidos en CSP `connect-src` (API + frontend para SPA y SSE desde otro puerto/host). */
+const frontendOrigin = (() => {
+  try {
+    return new URL(env.FRONTEND_URL).origin;
+  } catch {
+    return env.FRONTEND_URL.replace(/\/$/, '');
+  }
+})();
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -39,7 +48,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:"],
       fontSrc: ["'self'"],          
-      connectSrc: ["'self'"],        
+      connectSrc: ["'self'", frontendOrigin],
       frameAncestors: ["'none'"],    
       formAction: ["'self'"],        
       baseUri: ["'self'"],           

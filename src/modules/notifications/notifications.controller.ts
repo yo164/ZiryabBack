@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import * as notificationsService from './notifications.service.js';
+import { registerClient, removeClient } from './notifications.sse.js';
 
 const parsePositiveInt = (value: unknown, defaultValue: number): number | null => {
   if (value === undefined || value === null || value === '') return defaultValue;
@@ -10,6 +11,50 @@ const parsePositiveInt = (value: unknown, defaultValue: number): number | null =
 
 const getRequesterFirebaseUID = (req: Request): string | null => {
   return req.user?.firebaseUID ?? null;
+};
+
+/**
+ * SSE: mantiene abierta una conexión `text/event-stream` y envía ping periódico.
+ */
+export const subscribe = (req: Request, res: Response): void => {
+  const firebaseUID = getRequesterFirebaseUID(req);
+  if (!firebaseUID) {
+    res.status(401).json({ message: 'No autorizado' });
+    return;
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+
+  if (typeof (res as unknown as { flushHeaders?: () => void }).flushHeaders === 'function') {
+    (res as unknown as { flushHeaders: () => void }).flushHeaders();
+  }
+
+  registerClient(firebaseUID, res);
+
+  res.write('event: connected\ndata: {}\n\n');
+
+  const heartbeat = setInterval(() => {
+    if (res.writableEnded || !res.writable) return;
+    res.write(': ping\n\n');
+  }, 30_000);
+
+  const cleanup = (): void => {
+    clearInterval(heartbeat);
+    removeClient(firebaseUID, res);
+    if (!res.writableEnded && res.writable) {
+      try {
+        res.end();
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  req.on('close', cleanup);
+  req.on('aborted', cleanup);
 };
 
 export const getNotifications = async (req: Request, res: Response) => {

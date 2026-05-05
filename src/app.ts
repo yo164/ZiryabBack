@@ -20,6 +20,7 @@ import assistanceRoutes from './modules/assistance/assistance.routes.js';
 import taskRoutes from './modules/task/task.routes.js';
 import studentTaskRoutes from './modules/student-task/student-task.routes.js';
 import usersRoutes from './modules/users/users.routes.js';
+import notificationsRoutes from './modules/notifications/notifications.routes.js';
 
 
 
@@ -30,6 +31,15 @@ import studentregsitrationRouter from './modules/student-registration/student-re
 const app = express();
 app.use(cookieParser());
 
+/** Orígenes permitidos en CSP `connect-src` (API + frontend para SPA y SSE desde otro puerto/host). */
+const frontendOrigin = (() => {
+  try {
+    return new URL(env.FRONTEND_URL).origin;
+  } catch {
+    return env.FRONTEND_URL.replace(/\/$/, '');
+  }
+})();
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -38,7 +48,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:"],
       fontSrc: ["'self'"],          
-      connectSrc: ["'self'"],        
+      connectSrc: ["'self'", frontendOrigin],
       frameAncestors: ["'none'"],    
       formAction: ["'self'"],        
       baseUri: ["'self'"],           
@@ -109,6 +119,7 @@ app.use('/api/tasks', taskRoutes);
 
 app.use('/api/student-tasks', studentTaskRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 
 

@@ -249,12 +249,27 @@ export class AuthService {
     };
   }
 
+  /** Solo para login/register en tests Jest (NODE_ENV=test). */
   static setLegacyTestPassword(email: string, password: string) {
     legacyTestPasswords.set(email, password);
   }
 
+  /** Solo para login/register en tests Jest (NODE_ENV=test). */
   static validateLegacyTestPassword(email: string, password: string): boolean {
     return legacyTestPasswords.get(email) === password;
+  }
+
+  /**
+   * Comprueba email+contraseña contra Firebase Authentication (REST Identity Toolkit).
+   */
+  static async verifyEmailPassword(email: string, password: string): Promise<boolean> {
+    const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${env.FIREBASE_WEB_API_KEY}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, returnSecureToken: false }),
+    });
+    return res.ok;
   }
 
   /**

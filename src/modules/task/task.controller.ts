@@ -4,6 +4,16 @@ import * as taskService from './task.service.js';
 
 const VALID_TASK_TYPES = Object.values(TaskType);
 
+const parseBooleanInput = (value: unknown): boolean | undefined => {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    if (value.toLowerCase() === 'true') return true;
+    if (value.toLowerCase() === 'false') return false;
+  }
+  return undefined;
+};
+
 const getRequester = (req: Request) => {
   const user = (req as any).user;
   return {
@@ -109,12 +119,14 @@ export const createTask = async (req: Request, res: Response) => {
       description,
       attachmentUrl,
       idTaskGroup,
+      isPublished,
     } = req.body;
     const parsedTeacherAssignmentId = Number(idTeacherAssignment);
     const parsedTaskGroupId = idTaskGroup !== undefined && idTaskGroup !== null && idTaskGroup !== ''
       ? Number(idTaskGroup)
       : undefined;
     const finalAttachmentUrl = req.file ? `/uploads/tasks/${req.file.filename}` : attachmentUrl;
+    const parsedIsPublished = parseBooleanInput(isPublished);
 
     const missing = ['idTeacherAssignment', 'title', 'type', 'startDate', 'dueDate', 'schoolYear']
       .filter((field) => req.body[field] === undefined || req.body[field] === null || req.body[field] === '');
@@ -155,6 +167,13 @@ export const createTask = async (req: Request, res: Response) => {
       });
     }
 
+    if (isPublished !== undefined && parsedIsPublished === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'isPublished inválido. Use true o false',
+      });
+    }
+
     const newTask = await taskService.create({
       idTeacherAssignment: parsedTeacherAssignmentId,
       title,
@@ -165,6 +184,7 @@ export const createTask = async (req: Request, res: Response) => {
       attachmentUrl: finalAttachmentUrl,
       schoolYear,
       ...(parsedTaskGroupId !== undefined && { idTaskGroup: parsedTaskGroupId }),
+      ...(parsedIsPublished !== undefined && { isPublished: parsedIsPublished }),
     });
 
     res.status(201).json({
@@ -199,8 +219,9 @@ export const updateTask = async (req: Request, res: Response) => {
       });
     }
 
-    const { type, startDate, dueDate, idTeacherAssignment, idTaskGroup } = req.body;
+    const { type, startDate, dueDate, idTeacherAssignment, idTaskGroup, isPublished } = req.body;
     const updatePayload: Record<string, any> = { ...req.body };
+    const parsedIsPublished = parseBooleanInput(isPublished);
 
     if (type !== undefined && !VALID_TASK_TYPES.includes(type)) {
       return res.status(400).json({
@@ -247,6 +268,16 @@ export const updateTask = async (req: Request, res: Response) => {
         }
         updatePayload.idTaskGroup = parsedTaskGroupId;
       }
+    }
+
+    if (isPublished !== undefined) {
+      if (parsedIsPublished === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: 'isPublished inválido. Use true o false',
+        });
+      }
+      updatePayload.isPublished = parsedIsPublished;
     }
 
     if (req.file) {

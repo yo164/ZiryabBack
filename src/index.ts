@@ -19,8 +19,9 @@ prisma.$connect()
   .then(() => {
     logger.info('✅ Conectado a la base de datos');
     
-    const server = app.listen(env.PORT, () => {
-      logger.info(`🚀 API escuchando en http://localhost:${env.PORT}`);
+    // 0.0.0.0: acepta conexiones desde red local (teléfonos/emulador), no sólo localhost
+    const server = app.listen(env.PORT, '0.0.0.0', () => {
+      logger.info(`🚀 API escuchando en http://0.0.0.0:${env.PORT} (LAN incluida)`);
       logger.info(`📚 Entorno: ${env.NODE_ENV}`);
       logger.info(`📖 Documentación: http://localhost:${env.PORT}/api-docs`);
     });

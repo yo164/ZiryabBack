@@ -649,7 +649,6 @@ async function main() {
     });
 
   // Crear Grupos
-<<<<<<< HEAD
   const groups = await Promise.all([
     prisma.group.create({ data: { name: '1º Dam Mañana' } }),
     prisma.group.create({ data: { name: '1º Daw Tarde' } }),
@@ -660,8 +659,6 @@ async function main() {
     prisma.group.create({ data: { name: '1º IT'} }),
    
   ]);
-=======
->>>>>>> ramaAngelaBackV2
 
   console.log('Creando grupos...');
   const groups = await

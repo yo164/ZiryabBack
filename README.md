@@ -1,6 +1,6 @@
-# API Express + PostgreSQL - Manual Completo
+# Backend API (Node.js + Express + PostgreSQL)
 
-Este proyecto implementa una API REST con Node.js, Express y PostgreSQL siguiendo un desarrollo incremental versionado con Git tags. Cada versión añade funcionalidad nueva de forma progresiva.
+Este proyecto implementa la API REST backend para el ecosistema del proyecto, desarrollada con Node.js, Express y PostgreSQL (mediante Prisma ORM). Sigue un desarrollo en módulos y enfocado a proveer endpoints seguros.
 
 ## 📚 Índice
 
@@ -73,60 +73,65 @@ git log v0.2.0..v0.3.0 --oneline
 
 ---
 
-## 🚀 Inicio rápido
+## 🚀 Instalación y Uso (Inicio Rápido)
 
-### Clonar y usar la última versión
-```bash
-# Clonar proyecto
-git clone <repository>
-cd node-server
+### Requisitos previos
 
-# Instalar dependencias
-npm install
+- [Node.js](https://nodejs.org/) (≥ 18)
+- [Docker y Docker Compose](https://www.docker.com/) (para base de datos PostgreSQL local)
 
-# Configurar variables de entorno
-cp .env.example .env
-# Editar .env y configurar JWT_SECRET
+### Pasos de Instalación y Arrancado
 
-# Levantar PostgreSQL con Docker
-docker-compose up -d
+1. **Abre un terminal y sitúate en el directorio del proyecto backend**:
+   ```bash
+   cd node
+   ```
 
-# Ejecutar migraciones
-npx prisma migrate dev
+2. **Instalar las dependencias de Node.js**:
+   ```bash
+   npm install
+   ```
 
-# Compilar TypeScript
-npm run build
+3. **Configurar el entorno (`.env`)**:
+   Asegúrate de disponer de un archivo `.env` en la raíz (puedes crearlo a partir de un posible `.env.example`).
+   Debe contener variables clave como `DATABASE_URL` y variables de sesión/JWT o Firebase.
 
-# Iniciar servidor
-npm start
+4. **Levantar la Base de Datos PostgreSQL**:
+   Inicia el contenedor de Docker preparado para el proyecto.
+   ```bash
+   docker-compose up -d
+   ```
 
-# O en modo desarrollo
-npm run dev
+5. **Sincronizar y generar la Base de Datos (Prisma)**:
+   Aplica las migraciones pendientes en el esquema de base de datos.
+   ```bash
+   npx prisma migrate dev
+   ```
 
-# Ejecutar tests
-npm test
-```
+6. **Poblar la Base de Datos (Opcional)**:
+   Para cargar datos semilla o iniciales configurados (usuarios de prueba, etc.):
+   ```bash
+   npm run seed
+   ```
 
-### Probar la API
-```bash
-# Health check
-curl http://localhost:3000/health
-
-# Documentación Swagger
-open http://localhost:3000/api-docs
-
-# Registro
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","name":"Test User","password":"password123"}'
-
-# Login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password123"}'
-```
+7. **Iniciar el Servidor en modo Desarrollo**:
+   ```bash
+   npm run dev
+   ```
+   El servidor arrancará (normalmente en `http://localhost:3000`) y usará `nodemon` para reiniciar automáticamente si detecta cambios en los archivos `.ts`.
 
 ---
+
+### Probar la API de forma rápida
+
+**Comprobación de que el servidor está online (Health Check):**
+```bash
+curl http://localhost:3000/health
+```
+
+**Documentación Swagger (Interfaz Gráfica):**
+Una vez iniciado el servidor, puedes probar, explorar y descubrir todos los endpoints disponibles accediendo a:
+[http://localhost:3000/api-docs](http://localhost:3000/api-docs) en tu navegador web.
 
 ## 🗂️ Versiones del proyecto
 
@@ -3585,6 +3590,43 @@ TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
 curl http://localhost:3000/api/users/me \
   -H "Authorization: Bearer $TOKEN"
 ```
+
+---
+
+##  Modelos de Datos: Tareas
+
+El sistema de gestión de tareas utiliza dos entidades principales en la base de datos para manejar tanto la definición de la tarea por parte del profesor como la entrega y calificación del alumno.
+
+### Enums
+- **`TaskType`**: Define la tipología de la tarea. Valores: `PRACTICE` (Práctica), `THEORY` (Teoría/Material), `EXAM` (Examen), `PROJECT` (Proyecto), `HOMEWORK` (Deberes).
+- **`SubmissionStatus`**: Define el estado de entrega del alumno. Valores: `PENDING` (Pendiente), `SUBMITTED` (Entregada), `LATE` (Entregada con retraso), `GRADED` (Calificada), `NOT_SUBMITTED` (No entregada fuera de plazo).
+
+### Modelo `Task`
+Representa una tarea creada por un profesor para una asignatura y grupo.
+- **Relaciones**:
+  - Pertenece a **`TeacherOnSubjectOnGroup`** (Asignación del profesor).
+  - Tiene una relación de uno-a-muchos con **`StudentTask`** (Entregas de los alumnos).
+- **Campos principales**: 
+  - `title`, `description`, `type`, `attachmentUrl` (Material/enunciado proporcionado por el profesor).
+  - Fechas temporales: `startDate` (Apertura de la tarea) y `dueDate` (Fecha límite de entrega).
+- **Índices (`@@index`)**:
+  - `[idTeacherAssignment, schoolYear]`: Para obtener rápidamente todas las tareas de una clase particular en un año lectivo.
+  - `[dueDate]`: Para facilitar consultas cronológicas, ordenamientos y eventos basados en la fecha límite de vencimiento.
+
+### Modelo `StudentTask`
+Representa la entrega individual de un alumno para una `Task` específica.
+- **Relaciones**:
+  - Pertenece a **`Task`**.
+  - Pertenece a **`StudentOnSubjectOnGroup`** (Matriculación del alumno).
+- **Campos principales**: 
+  - `status` (Por defecto `PENDING`).
+  - `submissionDate` (Fecha y hora exactas de envío, nulo si falta entrega).
+  - `attachmentUrl` (Url/enlace subido por el alumno).
+  - `score` y `feedback` (Información de la calificación por el docente).
+- **Índices y Constraints (`@@index` / `@@unique`)**:
+  - `@@unique([idTask, idStudentEnrollment])`: Restricción de unicidad para asegurar un único registro de tarea por alumno matriculado.
+  - `@@index([idStudentEnrollment, status])`: Optimiza las búsquedas para mostrar las tareas pendientes/completadas en el Dashboard del alumno.
+  - `@@index([idTask, status])`: Optimiza los reportes del profesor para ver los envíos agrupados por estado en una misma tarea.
 
 ---
 

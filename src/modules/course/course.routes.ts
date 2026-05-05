@@ -12,16 +12,16 @@ const router = Router();
 /**
  * @route   GET /api/courses
  * @desc    Obtener todos los cursos
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/', courseController.getAllCourses);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), courseController.getAllCourses);
 
 /**
  * @route   GET /api/courses/:id
  * @desc    Obtener un curso por ID
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/:id', courseController.getCourseById);
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), courseController.getCourseById);
 
 // ============================================
 // RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)

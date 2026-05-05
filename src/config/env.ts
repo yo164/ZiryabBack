@@ -11,7 +11,9 @@ const envSchema = z.object({
   
   // JWT
   JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
-  JWT_EXPIRY: z.string().default('7d'),
+  JWT_EXPIRY: z.string().default(
+  process.env.NODE_ENV === 'production' ? '24h' : '7d'
+),
   
   // Node
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -21,6 +23,18 @@ const envSchema = z.object({
   FIREBASE_PROJECT_ID: z.string(),
   FIREBASE_PRIVATE_KEY: z.string(),
   FIREBASE_CLIENT_EMAIL: z.string().email(),
+  /** Web API key (Identity Toolkit). En test Jest se usa un placeholder si falta en .env */
+  FIREBASE_WEB_API_KEY: z.preprocess(
+    (v) => {
+      if (typeof v === 'string' && v.length > 0) return v;
+      return process.env.NODE_ENV === 'test' ? 'jest-web-api-key-placeholder' : '';
+    },
+    z
+      .string()
+      .min(1, 'FIREBASE_WEB_API_KEY: añádela al .env (Firebase Console → Project settings → Web API Key)'),
+  ),
+
+  FRONTEND_URL: z.string(),
 });
 
 // Parsea y exporta

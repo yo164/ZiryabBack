@@ -13,15 +13,21 @@ export const findById = async (id: number) => {
     return await prisma.teacher.findUnique({
         where: { id },
         include: {
-            subject: { 
-                include: {
-                    subject: {
-                        include: {
-                            course: true 
+           assignments: {
+            include: {
+                subject:{
+                    select:{
+                        name : true,
+                        grade: true,
+                        course: {
+                            select: {
+                                name: true
+                            }
                         }
                     }
-                },
-            },
+                }
+            }
+           }
         },
     });
 };
@@ -96,20 +102,15 @@ export const remove = async (id: number) => {
 };
 
 export const findSubjectsByTeacherId = async (teacherId: number) => {
-    const result = await prisma.teacherOnSubject.findMany({
-        where: { idTeacher: teacherId }, 
+    return await prisma.teacherOnSubjectOnGroup.findMany({
+        where: { idTeacher: teacherId },
         include: {
             subject: {
                 include: {
-                    course: true,
-                },
+                    course: true
+                }
             },
-        },
+            group: true
+        }
     });
-
-    return result.map((item) => ({
-        subject: item.subject,
-        course: item.subject.course
-    }));
-}; 
-
+};

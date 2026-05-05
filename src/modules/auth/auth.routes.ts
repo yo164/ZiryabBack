@@ -12,13 +12,13 @@ const router = Router();
  * POST /api/auth/register
  * Registra un nuevo usuario
  */
-router.post('/register', AuthController.register);
+router.post('/register', AuthController.register);//añadir rateLimiter para prod
 
 /**
  * POST /api/auth/login
  * Login de un usuario existente
  */
-router.post('/login', AuthController.login);
+router.post('/login', AuthController.login);//añadir rateLimiter para prod
 
 /**
  * GET /api/auth/me

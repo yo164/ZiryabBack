@@ -36,22 +36,18 @@ declare global {
  * Middleware que valida el JWT en cada petición protegida
  */
 export function auth(req: Request, res: Response, next: NextFunction): void {
-  // 1. Leer el header Authorization
-  const authHeader = req.headers.authorization;
+  // Prioriza cookie, pero mantiene compatibilidad con clientes que envían Bearer token
+  const cookieToken = req.cookies.auth_token;
+  const authorizationHeader = req.headers.authorization;
+  const bearerToken =
+    authorizationHeader && authorizationHeader.startsWith('Bearer ')
+      ? authorizationHeader.substring('Bearer '.length).trim()
+      : undefined;
+  const token = cookieToken || bearerToken;
 
-  if (!authHeader?.startsWith('Bearer ')) {
+  if (!token) {
     res.status(401).json({
-      message: 'No autorizado. Falta el token.',
-    });
-    return;
-  }
-
-  // 2. Extraer el token de forma segura
-  const token = authHeader.split(' ')[1];
-
-  if (!token || token === '') {
-    res.status(401).json({
-      message: 'No autorizado. Token vacío.',
+      message: 'No autorizado',
     });
     return;
   }
@@ -99,7 +95,7 @@ export function auth(req: Request, res: Response, next: NextFunction): void {
   } catch (error) {
     // Token expirado, firma incorrecta, etc.
     res.status(401).json({
-      message: 'Token inválido o expirado.',
+      message: 'Token inválido',
       error: (error as Error).message,
     });
     return;

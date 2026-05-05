@@ -7,6 +7,7 @@ export const findAll = async () => {
         },
     });
 };
+//nuevos cambios para git
 
 export const findById = async (id: number) => {
     return await prisma.admin.findUnique({
@@ -21,6 +22,7 @@ export const create = async (data: {
     ndSurname?: string;
     birthDate: string | Date;
     dni: string;
+    firebaseUID: string;
 }) => {
     return await prisma.admin.create({
         data: {

@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { authorize } from '../../middleware/authorize.js';
+import { auth } from '../../middleware/auth.js';
 import * as teachersController from './teachers.controller.js';
 
 const router = Router();
@@ -6,44 +8,51 @@ const router = Router();
 /**
  * @route   GET /api/teachers
  * @desc    Obtener todas los profesores
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/', teachersController.getAllTeachers);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getAllTeachers);
+
+/**
+ * @route   GET /api/teachers/:id/subjects
+ * @desc    Obtener asignaturas de un profesor por ID
+ * @access  Admin, Teacher
+ */
+router.get('/:id/subjects', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getTeacherSubjects);
 
 /**
  * @route   GET /api/teachers/:id
  * @desc    Obtener un profesor por ID
- * @access  Public
+ * @access  Admin, Teacher
  */
-router.get('/:id', teachersController.getTeacherById);
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getTeacherById);
 
 /**
  * @route   POST /api/teachers
  * @desc    Crear un nuevo profesor
- * @access  Public
+ * @access  Admin
  */
-router.post('/', teachersController.createTeacher);
+router.post('/', auth, authorize(['ADMIN']), teachersController.createTeacher);
 
 /**
  * @route   PUT /api/teachers/:id
  * @desc    Actualizar un profesor completo
- * @access  Public
+ * @access  Admin
  */
-//router.put('/:id', teachersController.updateTeacher);
+//router.put('/:id', auth, authorize(['ADMIN']), teachersController.updateTeacher);
 
 /**
  * @route   PATCH /api/teachers/:id
  * @desc    Actualizar parcialmente un profesor
- * @access  Public
+ * @access  Admin
  */
-router.patch('/:id', teachersController.patchTeacher);
+router.patch('/:id', auth, authorize(['ADMIN']), teachersController.patchTeacher);
 
 /**
  * @route   DELETE /api/teachers/:id
  * @desc    Eliminar un profesor
- * @access  Public
+ * @access  Admin
  */
-router.delete('/:id', teachersController.deleteTeacher);
+router.delete('/:id', auth, authorize(['ADMIN']), teachersController.deleteTeacher);
 
 /**
  * @route   GET /api/subjects/:id/teachers

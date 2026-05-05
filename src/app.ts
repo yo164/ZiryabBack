@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
+import cookieParser from 'cookie-parser';
 import { errorHandler } from './middleware/error.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
 import { requestLogger } from './middleware/requestLogger.js';
@@ -12,24 +13,61 @@ import studentsRoutes from './modules/students/students.routes.js';
 import subjectsRoutes from './modules/subjects/subjects.routes.js';
 import teachersRoutes from './modules/teachers/teachers.routes.js';
 import adminsRoutes from './modules/admin/admins.routes.js';
+import enrollmentRoutes from './modules/enrollments/enrollments.routes.js';
+import horariosRoutes from './modules/weekSchedule/weekSchedule.routes.js';
+import classSesionRoutes from './modules/classSession/classSession.routes.js'
+import assistanceRoutes from './modules/assistance/assistance.routes.js';
+import taskRoutes from './modules/task/task.routes.js';
+import studentTaskRoutes from './modules/student-task/student-task.routes.js';
+import usersRoutes from './modules/users/users.routes.js';
+import notificationsRoutes from './modules/notifications/notifications.routes.js';
+
+
 
 import courseRouter from './modules/course/course.routes.js';
 import groupRouter from './modules/group/group.routes.js';
 import studentregsitrationRouter from './modules/student-registration/student-registration.routes.js'
-
+//SACO UNA RAMA PARA IR HACIENDO PEQUEÑOS CAMBIOS EN LA BASE DE DATOS DE CARA A LA FUTURA ASIGNACIÓN DE UN PROFESOR A UNA ASIGNATURA IMPARTIDA EN UN GRUPO
 const app = express();
+app.use(cookieParser());
+
+/** Orígenes permitidos en CSP `connect-src` (API + frontend para SPA y SSE desde otro puerto/host). */
+const frontendOrigin = (() => {
+  try {
+    return new URL(env.FRONTEND_URL).origin;
+  } catch {
+    return env.FRONTEND_URL.replace(/\/$/, '');
+  }
+})();
 
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      fontSrc: ["'self'"],          
+      connectSrc: ["'self'", frontendOrigin],
+      frameAncestors: ["'none'"],    
+      formAction: ["'self'"],        
+      baseUri: ["'self'"],           
+      objectSrc: ["'none'"],         
+      upgradeInsecureRequests: [],   
+    },
+  },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }, 
 }));
 app.use(cors({
-  origin: 'http://localhost:4200', // Tu frontend Angular
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  origin: env.FRONTEND_URL, 
+  methods: env.NODE_ENV === 'production' 
+    ? ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    : ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200
 }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '100kb' }));
 app.use(requestLogger);
 
 if (env.NODE_ENV !== 'test') {
@@ -54,6 +92,9 @@ app.get('/', (_req, res) => {
   });
 });
 
+// Rutas estáticas para uploads
+app.use('/uploads', express.static('uploads'));
+
 // Documentación Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -67,7 +108,40 @@ app.use('/api/courses', courseRouter);
 app.use('/api/groups', groupRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/studentregistration', studentregsitrationRouter);
+app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/horarios-semanales', horariosRoutes);
+app.use('/api/sessions', classSesionRoutes);
+app.use('/api/assistances', assistanceRoutes)
 
+
+app.use('/api/tasks', taskRoutes);
+
+
+app.use('/api/student-tasks', studentTaskRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/notifications', notificationsRoutes);
+
+
+
+/*
+**URLs para probar en Bruno:**
+GET http://localhost:3000/api/tasks
+GET http://localhost:3000/api/tasks/1
+GET http://localhost:3000/api/tasks/teacher-assignment/1
+*/
+
+
+
+
+
+/*
+**URLs para probar en Bruno:**
+
+GET http://localhost:3000/api/student-tasks
+GET http://localhost:3000/api/student-tasks/1
+GET http://localhost:3000/api/student-tasks/task/1
+GET http://localhost:3000/api/student-tasks/student/1
+*/
 // Rutas de auth comentadas para pruebas
 // app.use('/api/auth', authRoutes);
 

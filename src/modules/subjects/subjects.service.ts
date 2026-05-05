@@ -13,12 +13,12 @@ export const findById = async (id: number) => {
     where: { id },
     include: {
       course: true,
-      teacher: {
+       teacherAssignments: {
         include: {
           teacher: true,
         },
       },
-      student: {
+      studentEnrollments: {
         include: {
           student: true,
           group: true,
@@ -31,6 +31,7 @@ export const findById = async (id: number) => {
 export const create = async (data: {
   name: string;
   idCourse: number;
+  grade: string;
 }) => {
   return await prisma.subject.create({
     data,
@@ -95,7 +96,7 @@ export const remove = async (id: number) => {
 };
 
 export const findTeachersBySubjectId = async (subjectId: number) => {
-  const result = await prisma.teacherOnSubject.findMany({
+  const result = await prisma.teacherOnSubjectOnGroup.findMany({
     where: { idSubject: subjectId },
     include: {
       teacher: true,
@@ -106,7 +107,7 @@ export const findTeachersBySubjectId = async (subjectId: number) => {
 };
 
 export const findStudentsBySubjectId = async (subjectId: number) => {
-  const result = await prisma.studentOnSubjectonGroup.findMany({
+  const result = await prisma.studentOnSubjectOnGroup.findMany({
     where: { idSubject: subjectId },
     include: {
       student: true,
@@ -115,6 +116,7 @@ export const findStudentsBySubjectId = async (subjectId: number) => {
   });
 
   return result.map((item) => ({
+    enrollmentId: item.id,   // id del StudentOnSubjectOnGroup  (idStudentEnrollment)
     ...item.student,
     group: item.group,
     schoolYear: item.schoolYear,

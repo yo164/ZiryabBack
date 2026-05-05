@@ -1,108 +1,83 @@
 import request from 'supertest';
-import app from '../app';
+import app from '../app.js';
+import { jest } from '@jest/globals';
+import { AuthService } from '../modules/auth/auth.service.js';
 
 describe('Auth Endpoints', () => {
-  const testUser = {
+  const firebaseToken = 'firebase-token-mock';
+  const firebaseUID = `uid_${Date.now()}`;
+  const registerPayload = {
+    token: firebaseToken,
     email: `test${Date.now()}@example.com`,
-    name: 'Test User',
-    password: 'password123',
+    name: 'Test',
+    surname: 'User',
+    birthDate: '2000-01-01',
+    dni: `DNI${Date.now()}`.slice(0, 9),
+    role: 'STUDENT',
   };
+
+  beforeAll(() => {
+    jest.spyOn(AuthService, 'verifyFirebaseToken').mockResolvedValue(firebaseUID);
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
 
   describe('POST /api/auth/register', () => {
     it('debe registrar un nuevo usuario', async () => {
       const res = await request(app)
         .post('/api/auth/register')
-        .send(testUser);
+        .send(registerPayload);
 
       expect(res.status).toBe(201);
-      expect(res.body).toHaveProperty('user');
-      expect(res.body).toHaveProperty('token');
-      expect(res.body.user.email).toBe(testUser.email);
-      expect(res.body.user.name).toBe(testUser.name);
-      expect(res.body.user).not.toHaveProperty('passwordHash');
+      expect(res.body).toHaveProperty('data');
+      expect(res.body.data.email).toBe(registerPayload.email);
+      expect(res.body.data.name).toBe(registerPayload.name);
     });
 
-    it('debe fallar con email duplicado', async () => {
-      await request(app).post('/api/auth/register').send(testUser);
-
+    it('debe fallar con campos obligatorios ausentes', async () => {
       const res = await request(app)
         .post('/api/auth/register')
-        .send(testUser);
+        .send({ email: 'incompleto@example.com' });
 
-      expect(res.status).toBe(409);
-      expect(res.body.message).toBe('Email ya registrado');
+      expect(res.status).toBe(400);
     });
 
     it('debe fallar con email inválido', async () => {
       const res = await request(app)
         .post('/api/auth/register')
-        .send({ ...testUser, email: 'invalid-email' });
+        .send({ ...registerPayload, email: 'invalid-email', dni: `X${Date.now()}`.slice(0, 9) });
 
       expect(res.status).toBe(400);
     });
 
-    it('debe fallar con contraseña corta', async () => {
+    it('debe fallar con rol inválido', async () => {
       const res = await request(app)
         .post('/api/auth/register')
-        .send({ ...testUser, email: 'new@example.com', password: '123' });
-
-      expect(res.status).toBe(400);
-    });
-
-    it('debe fallar con nombre corto', async () => {
-      const res = await request(app)
-        .post('/api/auth/register')
-        .send({ ...testUser, email: 'new@example.com', name: 'A' });
+        .send({ ...registerPayload, role: 'INVALID_ROLE', dni: `Y${Date.now()}`.slice(0, 9) });
 
       expect(res.status).toBe(400);
     });
   });
 
   describe('POST /api/auth/login', () => {
-    const loginUser = {
-      email: `login${Date.now()}@example.com`,
-      name: 'Login User',
-      password: 'password123',
-    };
-
-    beforeAll(async () => {
-      await request(app).post('/api/auth/register').send(loginUser);
-    });
-
     it('debe hacer login correctamente', async () => {
       const res = await request(app)
         .post('/api/auth/login')
-        .send({ email: loginUser.email, password: loginUser.password });
+        .send({ token: firebaseToken });
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('user');
-      expect(res.body).toHaveProperty('token');
-      expect(res.body.user.email).toBe(loginUser.email);
+      expect(res.body).toHaveProperty('data');
+      expect(res.body.data.firebaseUID).toBe(firebaseUID);
     });
 
-    it('debe fallar con contraseña incorrecta', async () => {
-      const failUser = {
-        email: `fail${Date.now()}@example.com`,
-        name: 'Fail User',
-        password: 'correctpass123',
-      };
-      await request(app).post('/api/auth/register').send(failUser);
-
+    it('debe fallar si no se envía token', async () => {
       const res = await request(app)
         .post('/api/auth/login')
-        .send({ email: failUser.email, password: 'wrongpassword' });
+        .send({});
 
-      expect(res.status).toBe(401);
-      expect(res.body.message).toBe('Credenciales inválidas');
-    });
-
-    it('debe fallar con email inexistente', async () => {
-      const res = await request(app)
-        .post('/api/auth/login')
-        .send({ email: `noexiste${Date.now()}@example.com`, password: 'password123' });
-
-      expect(res.status).toBe(401);
-      expect(res.body.message).toBe('Credenciales inválidas');
+      expect(res.status).toBe(400);
     });
   });
 });

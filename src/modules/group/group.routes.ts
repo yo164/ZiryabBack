@@ -12,16 +12,16 @@ const router = Router();
 /**
  * @route   GET /api/groups
  * @desc    Obtener todos los grupos
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/', groupController.getAllGroups);
+router.get('/', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), groupController.getAllGroups);
 
 /**
  * @route   GET /api/groups/:id
  * @desc    Obtener un grupo por ID
- * @access  Public
+ * @access  Admin, Teacher, Student
  */
-router.get('/:id', groupController.getGroupById);
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), groupController.getGroupById);
 
 // ============================================
 // RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)

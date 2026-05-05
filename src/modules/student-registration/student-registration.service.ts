@@ -38,7 +38,7 @@ export const create = async (data: {
   const results = [];
 
   for (const reg of data.registrations) {
-    const created = await prisma.studentOnSubjectonGroup.create({ data: reg });
+    const created = await prisma.studentOnSubjectOnGroup.create({ data: reg });
     results.push(created);
   }
 

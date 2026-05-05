@@ -12,12 +12,12 @@ export const findById = async (id: number) => {
     return await prisma.student.findUnique({
         where: { id },
         include: {
-            subject: {
+            enrollments:{
                 include: {
                     subject: true,
-                    group: true,
-                },
-            },
+                    group: true
+                }
+            }
         },
     });
 };
@@ -99,7 +99,7 @@ export const remove = async (id: number) => {
 };
 
 export const findSubjectsByStudentId = async (studentId: number) => {
-    const result = await prisma.studentOnSubjectonGroup.findMany({
+    const result = await prisma.studentOnSubjectOnGroup.findMany({
         where: { idStudent: studentId },
         include: {
             subject: {

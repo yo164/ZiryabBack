@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import * as studentTaskService from './student-task.service.js';
-import { submitSchema } from './student-task.schema.js';
+import { submitByEnrollmentSchema, submitSchema } from './student-task.schema.js';
 
 export const getAllStudentTasks = async (req: Request, res: Response) => {
   try {
@@ -72,7 +72,10 @@ export const getStudentTasksByTask = async (req: Request, res: Response) => {
       });
     }
 
-    const studentTasks = await studentTaskService.findByTask(idTask);
+    const studentTasks =
+      req.user?.role === 'STUDENT' && typeof req.user.sub === 'number'
+        ? await studentTaskService.findByTaskForStudent(idTask, req.user.sub)
+        : await studentTaskService.findByTask(idTask);
 
     res.json({
       success: true,
@@ -97,6 +100,19 @@ export const getStudentTasksByStudent = async (req: Request, res: Response) => {
         success: false,
         message: 'ID de enrollment inválido',
       });
+    }
+
+    if (req.user?.role === 'STUDENT' && typeof req.user.sub === 'number') {
+      const ok = await studentTaskService.enrollmentBelongsToStudent(
+        idStudentEnrollment,
+        req.user.sub,
+      );
+      if (!ok) {
+        return res.status(403).json({
+          success: false,
+          message: 'No autorizado a consultar esta matrícula',
+        });
+      }
     }
 
     const studentTasks = await studentTaskService.findByStudent(idStudentEnrollment);
@@ -237,6 +253,49 @@ export const submitStudentTask = async (req: Request, res: Response) => {
   } catch (error: any) {
     const status = typeof error?.status === 'number' ? error.status : 400;
     res.status(status).json({ success: false, message: 'Error al entregar tarea', error: error.message });
+  }
+};
+
+export const submitStudentTaskByEnrollment = async (req: Request, res: Response) => {
+  try {
+    const parsed = submitByEnrollmentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Body inválido',
+        errors: parsed.error.flatten(),
+      });
+    }
+
+    const { idTask, idStudentEnrollment, attachmentUrl } = parsed.data;
+
+    if (req.user?.role === 'STUDENT' && typeof req.user.sub === 'number') {
+      const ok = await studentTaskService.enrollmentBelongsToStudent(
+        idStudentEnrollment,
+        req.user.sub,
+      );
+      if (!ok) {
+        return res.status(403).json({
+          success: false,
+          message: 'No puedes entregar una tarea para una matrícula ajena',
+        });
+      }
+    }
+
+    const submittedTask = await studentTaskService.submitByEnrollment({
+      idTask,
+      idStudentEnrollment,
+      attachmentUrl,
+    });
+
+    res.json({ success: true, message: 'Tarea entregada exitosamente', data: submittedTask });
+  } catch (error: any) {
+    const status = typeof error?.status === 'number' ? error.status : 400;
+    res.status(status).json({
+      success: false,
+      message: 'Error al entregar tarea',
+      error: error.message,
+    });
   }
 };
 

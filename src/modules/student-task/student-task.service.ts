@@ -69,6 +69,17 @@ export const findByTask = async (idTask: number) => {
   return prisma.studentTask.findMany({
     where: { idTask },
     include: {
+      task: {
+        include: {
+          taskGroup: true,
+          teacherAssignment: {
+            include: {
+              subject: true,
+              group: true,
+            },
+          },
+        },
+      },
       studentEnrollment: {
         include: {
           student: true,
@@ -79,6 +90,50 @@ export const findByTask = async (idTask: number) => {
       submissionDate: 'desc',
     },
   });
+};
+
+/** Solo entregas de alumnos concretos (evita filtrar en memoria datos de otros). */
+export const findByTaskForStudent = async (idTask: number, studentId: number) => {
+  return prisma.studentTask.findMany({
+    where: {
+      idTask,
+      studentEnrollment: {
+        idStudent: studentId,
+      },
+    },
+    include: {
+      studentEnrollment: {
+        include: {
+          student: true,
+        },
+      },
+      task: {
+        include: {
+          taskGroup: true,
+          teacherAssignment: {
+            include: {
+              subject: true,
+              group: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      submissionDate: 'desc',
+    },
+  });
+};
+
+export const enrollmentBelongsToStudent = async (
+  enrollmentId: number,
+  studentId: number,
+): Promise<boolean> => {
+  const row = await prisma.studentOnSubjectOnGroup.findUnique({
+    where: { id: enrollmentId },
+    select: { idStudent: true },
+  });
+  return row !== null && row.idStudent === studentId;
 };
 
 export const findByStudent = async (idStudentEnrollment: number) => {
@@ -220,6 +275,35 @@ export const submit = async (id: number, data: { attachmentUrl?: string }) => {
       studentEnrollment: { include: { student: true } },
     },
   });
+};
+
+/**
+ * Marca como entregada la StudentTask correspondiente a (idTask, idStudentEnrollment).
+ * Si todavía no existe la fila StudentTask, la crea y la entrega en una sola operación.
+ * Reutiliza la lógica de validación del submit por id.
+ */
+export const submitByEnrollment = async (data: {
+  idTask: number;
+  idStudentEnrollment: number;
+  attachmentUrl?: string;
+}) => {
+  const existing = await prisma.studentTask.findFirst({
+    where: {
+      idTask: data.idTask,
+      idStudentEnrollment: data.idStudentEnrollment,
+    },
+  });
+
+  if (existing) {
+    return submit(existing.id, { attachmentUrl: data.attachmentUrl });
+  }
+
+  // Si no había StudentTask aún (alumno sin asignación previa), la creamos PENDING y la entregamos
+  const created = await create({
+    idTask: data.idTask,
+    idStudentEnrollment: data.idStudentEnrollment,
+  });
+  return submit(created.id, { attachmentUrl: data.attachmentUrl });
 };
 
 export const createBulk = async (data: {

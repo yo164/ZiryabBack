@@ -65,7 +65,7 @@ router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTask
  *       200:
  *         description: Lista de entregas
  */
-router.get('/task/:idTask', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.getStudentTasksByTask);
+router.get('/task/:idTask', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.getStudentTasksByTask);
 
 /**
  * @swagger
@@ -86,7 +86,12 @@ router.get('/task/:idTask', auth, authorize(['ADMIN', 'TEACHER']), studentTaskCo
  *       200:
  *         description: Lista de entregas
  */
-router.get('/student/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.getStudentTasksByStudent);
+router.get(
+  '/student/:idStudentEnrollment',
+  auth,
+  authorize(['ADMIN', 'TEACHER', 'STUDENT']),
+  studentTaskController.getStudentTasksByStudent,
+);
 
 // ============================================
 // RUTAS PROTEGIDAS (PUT, PATCH, DELETE, POST)
@@ -112,6 +117,35 @@ router.post('/bulk', auth, authorize(['ADMIN', 'TEACHER']), studentTaskControlle
  * @access  Student
  */
 router.post('/upload-submission', auth, authorize(['STUDENT']), uploadSubmission.single('file'), studentTaskController.uploadFile);
+
+/**
+ * @swagger
+ * /api/student-tasks/submit:
+ *   post:
+ *     summary: Entregar una tarea por par (idTask, idStudentEnrollment)
+ *     description: Variante alternativa al PUT /:id/submit pensada para clientes que no almacenan el id de la StudentTask.
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [idTask, idStudentEnrollment]
+ *             properties:
+ *               idTask:
+ *                 type: integer
+ *               idStudentEnrollment:
+ *                 type: integer
+ *               attachmentUrl:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tarea entregada
+ */
+router.post('/submit', auth, authorize(['STUDENT']), studentTaskController.submitStudentTaskByEnrollment);
 
 /**
  * @openapi

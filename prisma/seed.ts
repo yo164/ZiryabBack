@@ -423,10 +423,9 @@ async function main() {
     
   ]);
 
-  console.log('Creando Ciclos...');
-  const courses = await
-    prisma.course.createMany({
-      data: [
+  console.log('Creando Asignaturas...');
+  const subjects = await
+    prisma.subject.createMany({
       data: [
         {
           name: 'Programación',
@@ -659,21 +658,6 @@ async function main() {
     prisma.group.create({ data: { name: '1º IT'} }),
    
   ]);
-
-  console.log('Creando grupos...');
-  const groups = await
-    prisma.group.createMany({
-      data: [
-        {
-          name: 'Mañana',
-          capacity: 20
-        },
-        {
-          name: 'Tarde',
-          capacity: 20
-        }
-      ]
-    });
 
   // Crear relaciones Profesor-Asignatura-Grupo
 
@@ -1856,776 +1840,776 @@ async function main() {
         //un lunes 
         {
           idTeacherAssignment: 1,
-          weekDay: 1,
+          weekDay: 'MONDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 1,
+          weekDay: 'MONDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 2,
-          weekDay: 1,
+          weekDay: 'MONDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 2,
-          weekDay: 1,
+          weekDay: 'MONDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 1,
+          weekDay: 'MONDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 1,
+          weekDay: 'MONDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         //un martes
         {
           idTeacherAssignment: 2,
-          weekDay: 2,
+          weekDay: 'TUESDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 2,
-          weekDay: 2,
+          weekDay: 'TUESDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 2,
-          weekDay: 2,
+          weekDay: 'TUESDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 6,
-          weekDay: 2,
+          weekDay: 'TUESDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 6,
-          weekDay: 2,
+          weekDay: 'TUESDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 6,
-          weekDay: 2,
+          weekDay: 'TUESDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         //un miercoles
         {
           idTeacherAssignment: 2,
-          weekDay: 3,
+          weekDay: 'WEDNESDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 4,
-          weekDay: 3,
+          weekDay: 'WEDNESDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 3,
+          weekDay: 'WEDNESDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 3,
+          weekDay: 'WEDNESDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 3,
+          weekDay: 'WEDNESDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 8,
-          weekDay: 3,
+          weekDay: 'WEDNESDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         //un jueves
         {
           idTeacherAssignment: 7,
-          weekDay: 4,
+          weekDay: 'THURSDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 4,
-          weekDay: 4,
+          weekDay: 'THURSDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 4,
-          weekDay: 4,
+          weekDay: 'THURSDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 5,
-          weekDay: 4,
+          weekDay: 'THURSDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 5,
-          weekDay: 4,
+          weekDay: 'THURSDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 5,
-          weekDay: 4,
+          weekDay: 'THURSDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         //un viernes
         {
           idTeacherAssignment: 1,
-          weekDay: 5,
+          weekDay: 'FRIDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 5,
+          weekDay: 'FRIDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 5,
+          weekDay: 'FRIDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 5,
+          weekDay: 'FRIDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 5,
+          weekDay: 'FRIDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 5,
+          weekDay: 'FRIDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         // DAM TARDE - Grupo 2
-{ idTeacherAssignment: 32, weekDay: 1, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 32, weekDay: 1, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 1, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 1, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 37, weekDay: 1, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 39, weekDay: 1, startTime: '20:30', finishTime: '21:30' },
+{ idTeacherAssignment: 32, weekDay: 'MONDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 32, weekDay: 'MONDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, weekDay: 'MONDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, weekDay: 'MONDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 37, weekDay: 'MONDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 39, weekDay: 'MONDAY', startTime: '20:30', finishTime: '21:30' },
 
-{ idTeacherAssignment: 32, weekDay: 2, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 33, weekDay: 2, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 2, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 2, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 35, weekDay: 2, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 38, weekDay: 2, startTime: '20:30', finishTime: '21:30' },
+{ idTeacherAssignment: 32, weekDay: 'TUESDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 33, weekDay: 'TUESDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, weekDay: 'TUESDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, weekDay: 'TUESDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 35, weekDay: 'TUESDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 38, weekDay: 'TUESDAY', startTime: '20:30', finishTime: '21:30' },
 
-{ idTeacherAssignment: 32, weekDay: 3, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 32, weekDay: 3, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 3, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 3, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 35, weekDay: 3, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 36, weekDay: 3, startTime: '20:30', finishTime: '21:30' },
+{ idTeacherAssignment: 32, weekDay: 'WEDNESDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 32, weekDay: 'WEDNESDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, weekDay: 'WEDNESDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, weekDay: 'WEDNESDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 35, weekDay: 'WEDNESDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 36, weekDay: 'WEDNESDAY', startTime: '20:30', finishTime: '21:30' },
 
-{ idTeacherAssignment: 32, weekDay: 4, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 33, weekDay: 4, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 34, weekDay: 4, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 35, weekDay: 4, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 36, weekDay: 4, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 37, weekDay: 4, startTime: '20:30', finishTime: '21:30' },
+{ idTeacherAssignment: 32, weekDay: 'THURSDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 33, weekDay: 'THURSDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 34, weekDay: 'THURSDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 35, weekDay: 'THURSDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 36, weekDay: 'THURSDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 37, weekDay: 'THURSDAY', startTime: '20:30', finishTime: '21:30' },
 
-{ idTeacherAssignment: 32, weekDay: 5, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 32, weekDay: 5, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 5, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 5, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 36, weekDay: 5, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 37, weekDay: 5, startTime: '20:30', finishTime: '21:30' }/*,
+{ idTeacherAssignment: 32, weekDay: 'FRIDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 32, weekDay: 'FRIDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, weekDay: 'FRIDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, weekDay: 'FRIDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 36, weekDay: 'FRIDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 37, weekDay: 'FRIDAY', startTime: '20:30', finishTime: '21:30' }/*,
 
           //ahora el horario de otra clase (por ejemplo 1 daw mañana)
           {
             idTeacherAssignment: 1,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 1,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 3,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 3,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un martes
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           //un miercoles
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un jueves
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un viernes
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //ahora el horario semanal que corresponderá a otra clase ejemplo(1 asir mañana)
           {
             idTeacherAssignment: 1,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 1,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 3,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 3,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un martes
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           //un miercoles
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un jueves
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un viernes
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //ahora el horario semanal que corresponderá a otra clase 1smr mañana
           {
             idTeacherAssignment: 1,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 1,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 3,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 3,
-            weekDay: 1,
+            weekDay: 'MONDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un martes
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 2,
+            weekDay: 'TUESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           //un miercoles
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 3,
+            weekDay: 'WEDNESDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un jueves
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 4,
+            weekDay: 'THURSDAY',
             startTime: '13:45',
             finishTime: '14:45',
           },
           //un viernes
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '8:15',
             finishTime: '9:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '9:15',
             finishTime: '10:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '10:15',
             finishTime: '11:15',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '11:45',
             finishTime: '12:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '12:45',
             finishTime: '13:45',
           },
           {
             idTeacherAssignment: 2,
-            weekDay: 5,
+            weekDay: 'FRIDAY',
             startTime: '13:45',
             finishTime: '14:45',
           }*/
@@ -2644,37 +2628,37 @@ async function main() {
         // Los primeros 6 registros del weekSchedule (idSchedule 1-6) corresponden al lunes del grupo 1
         {
           date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 1 // Lunes 8:15-9:15, idTeacherAssignment: 1
         },
         {
           date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 2 // Lunes 9:15-10:15, idTeacherAssignment: 1
         },
         {
           date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 3 // Lunes 10:15-11:15, idTeacherAssignment: 2
         },
         {
           date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 4 // Lunes 11:45-12:45, idTeacherAssignment: 2
         },
         {
           date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 5 // Lunes 12:45-13:45, idTeacherAssignment: 3
         },
         {
           date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 6 // Lunes 13:45-14:45, idTeacherAssignment: 3
         },
@@ -2683,37 +2667,37 @@ async function main() {
         // idSchedule 7-12
         {
           date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 7
         },
         {
           date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 8
         },
         {
           date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 9
         },
         {
           date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 10
         },
         {
           date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 11
         },
         {
           date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 12
         },
@@ -2722,37 +2706,37 @@ async function main() {
         // idSchedule 13-18
         {
           date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 13
         },
         {
           date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 14
         },
         {
           date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 15
         },
         {
           date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 16
         },
         {
           date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 17
         },
         {
           date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 18
         },
@@ -2761,37 +2745,37 @@ async function main() {
         // idSchedule 19-24
         {
           date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 19
         },
         {
           date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 20
         },
         {
           date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 21
         },
         {
           date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 22
         },
         {
           date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 23
         },
         {
           date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 24
         },
@@ -2800,37 +2784,37 @@ async function main() {
         // idSchedule 25-30
         {
           date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 25
         },
         {
           date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 26
         },
         {
           date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 27
         },
         {
           date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 28
         },
         {
           date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 29
         },
         {
           date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
+          status: 'SCHEDULED',
           apointments: '',
           idSchedule: 30
         }/*,
@@ -2839,37 +2823,37 @@ async function main() {
     // idSchedule 31-36
     {
       date: '2025-09-15T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 31
     },
     {
       date: '2025-09-15T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 32
     },
     {
       date: '2025-09-15T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 33
     },
     {
       date: '2025-09-15T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 34
     },
     {
       date: '2025-09-15T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 35
     },
     {
       date: '2025-09-15T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 36
     },
@@ -2878,37 +2862,37 @@ async function main() {
     // idSchedule 37-42
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 37
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 38
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 39
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 40
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 41
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 42
     },
@@ -2917,37 +2901,37 @@ async function main() {
     // idSchedule 43-48
     {
       date: '2025-09-17T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 43
     },
     {
       date: '2025-09-17T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 44
     },
     {
       date: '2025-09-17T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 45
     },
     {
       date: '2025-09-17T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 46
     },
     {
       date: '2025-09-17T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 47
     },
     {
       date: '2025-09-17T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 48
     },
@@ -2956,37 +2940,37 @@ async function main() {
     // idSchedule 49-54
     {
       date: '2025-09-18T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 49
     },
     {
       date: '2025-09-18T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 50
     },
     {
       date: '2025-09-18T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 51
     },
     {
       date: '2025-09-18T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 52
     },
     {
       date: '2025-09-18T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 53
     },
     {
       date: '2025-09-18T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 54
     },
@@ -2995,37 +2979,37 @@ async function main() {
     // idSchedule 55-60
     {
       date: '2025-09-19T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 55
     },
     {
       date: '2025-09-19T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 56
     },
     {
       date: '2025-09-19T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 57
     },
     {
       date: '2025-09-19T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 58
     },
     {
       date: '2025-09-19T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 59
     },
     {
       date: '2025-09-19T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 60
     },
@@ -3034,37 +3018,37 @@ async function main() {
     // idSchedule 61-66
     {
       date: '2025-09-15T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 61
     },
     {
       date: '2025-09-15T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 62
     },
     {
       date: '2025-09-15T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 63
     },
     {
       date: '2025-09-15T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 64
     },
     {
       date: '2025-09-15T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 65
     },
     {
       date: '2025-09-15T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 66
     },
@@ -3073,37 +3057,37 @@ async function main() {
     // idSchedule 67-72
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 67
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 68
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 69
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 70
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 71
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 72
     },
@@ -3112,37 +3096,37 @@ async function main() {
     // idSchedule 73-78
     {
       date: '2025-09-17T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 73
     },
     {
       date: '2025-09-17T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 74
     },
     {
       date: '2025-09-17T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 75
     },
     {
       date: '2025-09-17T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 76
     },
     {
       date: '2025-09-17T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 77
     },
     {
       date: '2025-09-17T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 78
     },
@@ -3151,37 +3135,37 @@ async function main() {
     // idSchedule 79-84
     {
       date: '2025-09-18T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 79
     },
     {
       date: '2025-09-18T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 80
     },
     {
       date: '2025-09-18T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 81
     },
     {
       date: '2025-09-18T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 82
     },
     {
       date: '2025-09-18T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 83
     },
     {
       date: '2025-09-18T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 84
     },
@@ -3190,37 +3174,37 @@ async function main() {
     // idSchedule 85-90
     {
       date: '2025-09-19T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 85
     },
     {
       date: '2025-09-19T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 86
     },
     {
       date: '2025-09-19T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 87
     },
     {
       date: '2025-09-19T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 88
     },
     {
       date: '2025-09-19T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 89
     },
     {
       date: '2025-09-19T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 90
     },
@@ -3229,37 +3213,37 @@ async function main() {
     // idSchedule 91-96
     {
       date: '2025-09-15T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 91
     },
     {
       date: '2025-09-15T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 92
     },
     {
       date: '2025-09-15T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 93
     },
     {
       date: '2025-09-15T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 94
     },
     {
       date: '2025-09-15T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 95
     },
     {
       date: '2025-09-15T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 96
     },
@@ -3268,37 +3252,37 @@ async function main() {
     // idSchedule 97-102
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 97
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 98
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 99
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 100
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 101
     },
     {
       date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 102
     },
@@ -3307,37 +3291,37 @@ async function main() {
     // idSchedule 103-108
     {
       date: '2025-09-17T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 103
     },
     {
       date: '2025-09-17T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 104
     },
     {
       date: '2025-09-17T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 105
     },
     {
       date: '2025-09-17T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 106
     },
     {
       date: '2025-09-17T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 107
     },
     {
       date: '2025-09-17T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 108
     },
@@ -3346,37 +3330,37 @@ async function main() {
     // idSchedule 109-114
     {
       date: '2025-09-18T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 109
     },
     {
       date: '2025-09-18T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 110
     },
     {
       date: '2025-09-18T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 111
     },
     {
       date: '2025-09-18T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 112
     },
     {
       date: '2025-09-18T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 113
     },
     {
       date: '2025-09-18T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 114
     },
@@ -3385,37 +3369,37 @@ async function main() {
     // idSchedule 115-120
     {
       date: '2025-09-19T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 115
     },
     {
       date: '2025-09-19T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 116
     },
     {
       date: '2025-09-19T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 117
     },
     {
       date: '2025-09-19T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 118
     },
     {
       date: '2025-09-19T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 119
     },
     {
       date: '2025-09-19T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 120
     },
@@ -3425,37 +3409,37 @@ async function main() {
     // === GRUPO 1 (1 DAM MAÑANA) - LUNES 22 Sept ===
     {
       date: '2025-09-22T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 1
     },
     {
       date: '2025-09-22T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 2
     },
     {
       date: '2025-09-22T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 3
     },
     {
       date: '2025-09-22T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 4
     },
     {
       date: '2025-09-22T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 5
     },
     {
       date: '2025-09-22T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 6
     },
@@ -3463,37 +3447,37 @@ async function main() {
     // === GRUPO 1 (1 DAM MAÑANA) - MARTES 23 Sept ===
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 7
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 8
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 9
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 10
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 11
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 12
     },
@@ -3501,37 +3485,37 @@ async function main() {
     // === GRUPO 1 (1 DAM MAÑANA) - MIÉRCOLES 24 Sept ===
     {
       date: '2025-09-24T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 13
     },
     {
       date: '2025-09-24T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 14
     },
     {
       date: '2025-09-24T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 15
     },
     {
       date: '2025-09-24T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 16
     },
     {
       date: '2025-09-24T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 17
     },
     {
       date: '2025-09-24T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 18
     },
@@ -3539,37 +3523,37 @@ async function main() {
     // === GRUPO 1 (1 DAM MAÑANA) - JUEVES 25 Sept ===
     {
       date: '2025-09-25T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 19
     },
     {
       date: '2025-09-25T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 20
     },
     {
       date: '2025-09-25T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 21
     },
     {
       date: '2025-09-25T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 22
     },
     {
       date: '2025-09-25T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 23
     },
     {
       date: '2025-09-25T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 24
     },
@@ -3577,37 +3561,37 @@ async function main() {
     // === GRUPO 1 (1 DAM MAÑANA) - VIERNES 26 Sept ===
     {
       date: '2025-09-26T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 25
     },
     {
       date: '2025-09-26T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 26
     },
     {
       date: '2025-09-26T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 27
     },
     {
       date: '2025-09-26T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 28
     },
     {
       date: '2025-09-26T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 29
     },
     {
       date: '2025-09-26T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 30
     },
@@ -3615,37 +3599,37 @@ async function main() {
     // === GRUPO 2 (1 DAW MAÑANA) - LUNES 22 Sept ===
     {
       date: '2025-09-22T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 31
     },
     {
       date: '2025-09-22T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 32
     },
     {
       date: '2025-09-22T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 33
     },
     {
       date: '2025-09-22T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 34
     },
     {
       date: '2025-09-22T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 35
     },
     {
       date: '2025-09-22T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 36
     },
@@ -3653,37 +3637,37 @@ async function main() {
     // === GRUPO 2 (1 DAW MAÑANA) - MARTES 23 Sept ===
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 37
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 38
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 39
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 40
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 41
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 42
     },
@@ -3691,37 +3675,37 @@ async function main() {
     // === GRUPO 2 (1 DAW MAÑANA) - MIÉRCOLES 24 Sept ===
     {
       date: '2025-09-24T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 43
     },
     {
       date: '2025-09-24T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 44
     },
     {
       date: '2025-09-24T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 45
     },
     {
       date: '2025-09-24T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 46
     },
     {
       date: '2025-09-24T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 47
     },
     {
       date: '2025-09-24T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 48
     },
@@ -3729,37 +3713,37 @@ async function main() {
     // === GRUPO 2 (1 DAW MAÑANA) - JUEVES 25 Sept ===
     {
       date: '2025-09-25T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 49
     },
     {
       date: '2025-09-25T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 50
     },
     {
       date: '2025-09-25T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 51
     },
     {
       date: '2025-09-25T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 52
     },
     {
       date: '2025-09-25T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 53
     },
     {
       date: '2025-09-25T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 54
     },
@@ -3767,37 +3751,37 @@ async function main() {
     // === GRUPO 2 (1 DAW MAÑANA) - VIERNES 26 Sept ===
     {
       date: '2025-09-26T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 55
     },
     {
       date: '2025-09-26T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 56
     },
     {
       date: '2025-09-26T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 57
     },
     {
       date: '2025-09-26T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 58
     },
     {
       date: '2025-09-26T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 59
     },
     {
       date: '2025-09-26T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 60
     },
@@ -3805,37 +3789,37 @@ async function main() {
     // === GRUPO 3 (1 ASIR MAÑANA) - LUNES 22 Sept ===
     {
       date: '2025-09-22T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 61
     },
     {
       date: '2025-09-22T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 62
     },
     {
       date: '2025-09-22T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 63
     },
     {
       date: '2025-09-22T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 64
     },
     {
       date: '2025-09-22T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 65
     },
     {
       date: '2025-09-22T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 66
     },
@@ -3843,37 +3827,37 @@ async function main() {
     // === GRUPO 3 (1 ASIR MAÑANA) - MARTES 23 Sept ===
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 67
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 68
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 69
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 70
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 71
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 72
     },
@@ -3881,37 +3865,37 @@ async function main() {
     // === GRUPO 3 (1 ASIR MAÑANA) - MIÉRCOLES 24 Sept ===
     {
       date: '2025-09-24T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 73
     },
     {
       date: '2025-09-24T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 74
     },
     {
       date: '2025-09-24T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 75
     },
     {
       date: '2025-09-24T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 76
     },
     {
       date: '2025-09-24T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 77
     },
     {
       date: '2025-09-24T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 78
     },
@@ -3919,37 +3903,37 @@ async function main() {
     // === GRUPO 3 (1 ASIR MAÑANA) - JUEVES 25 Sept ===
     {
       date: '2025-09-25T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 79
     },
     {
       date: '2025-09-25T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 80
     },
     {
       date: '2025-09-25T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 81
     },
     {
       date: '2025-09-25T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 82
     },
     {
       date: '2025-09-25T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 83
     },
     {
       date: '2025-09-25T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 84
     },
@@ -3957,37 +3941,37 @@ async function main() {
     // === GRUPO 3 (1 ASIR MAÑANA) - VIERNES 26 Sept ===
     {
       date: '2025-09-26T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 85
     },
     {
       date: '2025-09-26T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 86
     },
     {
       date: '2025-09-26T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 87
     },
     {
       date: '2025-09-26T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 88
     },
     {
       date: '2025-09-26T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 89
     },
     {
       date: '2025-09-26T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 90
     },
@@ -3995,37 +3979,37 @@ async function main() {
     // === GRUPO 4 (1 SMR MAÑANA) - LUNES 22 Sept ===
     {
       date: '2025-09-22T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 91
     },
     {
       date: '2025-09-22T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 92
     },
     {
       date: '2025-09-22T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 93
     },
     {
       date: '2025-09-22T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 94
     },
     {
       date: '2025-09-22T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 95
     },
     {
       date: '2025-09-22T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 96
     },
@@ -4033,37 +4017,37 @@ async function main() {
     // === GRUPO 4 (1 SMR MAÑANA) - MARTES 23 Sept ===
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 97
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 98
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 99
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 100
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 101
     },
     {
       date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 102
     },
@@ -4071,37 +4055,37 @@ async function main() {
     // === GRUPO 4 (1 SMR MAÑANA) - MIÉRCOLES 24 Sept ===
     {
       date: '2025-09-24T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 103
     },
     {
       date: '2025-09-24T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 104
     },
     {
       date: '2025-09-24T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 105
     },
     {
       date: '2025-09-24T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 106
     },
     {
       date: '2025-09-24T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 107
     },
     {
       date: '2025-09-24T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 108
     },
@@ -4109,37 +4093,37 @@ async function main() {
     // === GRUPO 4 (1 SMR MAÑANA) - JUEVES 25 Sept ===
     {
       date: '2025-09-25T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 109
     },
     {
       date: '2025-09-25T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 110
     },
     {
       date: '2025-09-25T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 111
     },
     {
       date: '2025-09-25T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 112
     },
     {
       date: '2025-09-25T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 113
     },
     {
       date: '2025-09-25T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 114
     },
@@ -4147,37 +4131,37 @@ async function main() {
     // === GRUPO 4 (1 SMR MAÑANA) - VIERNES 26 Sept ===
     {
       date: '2025-09-26T08:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 115
     },
     {
       date: '2025-09-26T09:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 116
     },
     {
       date: '2025-09-26T10:15:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 117
     },
     {
       date: '2025-09-26T11:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 118
     },
     {
       date: '2025-09-26T12:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 119
     },
     {
       date: '2025-09-26T13:45:00.000Z',
-      status: 'PROGRAMADA',
+      status: 'SCHEDULED',
       apointments: '',
       idSchedule: 120
     }*/
@@ -4197,10 +4181,10 @@ async function main() {
         // Sesión 1 primera hora del primer dia
         { status: 'PRESENT', idSession: 1, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 1, idStudentEnrollment: 9 },
-        { status: 'MISSING', idSession: 1, idStudentEnrollment: 17 },
+        { status: 'ABSENT', idSession: 1, idStudentEnrollment: 17 },
 
         // Sesión 2
-        { status: 'LAG', idSession: 2, idStudentEnrollment: 1 },
+        { status: 'LATE', idSession: 2, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 2, idStudentEnrollment: 9 },
         { status: 'PRESENT', idSession: 2, idStudentEnrollment: 17 },
 
@@ -4211,13 +4195,13 @@ async function main() {
 
         // Sesión 4
         { status: 'PRESENT', idSession: 4, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 4, idStudentEnrollment: 10 },
+        { status: 'ABSENT', idSession: 4, idStudentEnrollment: 10 },
         { status: 'PRESENT', idSession: 4, idStudentEnrollment: 18 },
 
         // Sesión 5
         { status: 'PRESENT', idSession: 5, idStudentEnrollment: 3 },
         { status: 'PRESENT', idSession: 5, idStudentEnrollment: 11 },
-        { status: 'LAG', idSession: 5, idStudentEnrollment: 19 },
+        { status: 'LATE', idSession: 5, idStudentEnrollment: 19 },
 
         // Sesión 6
         { status: 'PRESENT', idSession: 6, idStudentEnrollment: 3 },
@@ -4231,13 +4215,13 @@ async function main() {
 
         // Sesión 8
         { status: 'PRESENT', idSession: 8, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 8, idStudentEnrollment: 10 },
+        { status: 'ABSENT', idSession: 8, idStudentEnrollment: 10 },
         { status: 'PRESENT', idSession: 8, idStudentEnrollment: 18 },
 
         // Sesión 9
         { status: 'PRESENT', idSession: 9, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 9, idStudentEnrollment: 10 },
-        { status: 'LAG', idSession: 9, idStudentEnrollment: 18 },
+        { status: 'LATE', idSession: 9, idStudentEnrollment: 18 },
 
         // Sesión 10
         { status: 'PRESENT', idSession: 10, idStudentEnrollment: 6 },
@@ -4250,7 +4234,7 @@ async function main() {
         { status: 'PRESENT', idSession: 11, idStudentEnrollment: 22 },
 
         // Sesión 12
-        { status: 'LAG', idSession: 12, idStudentEnrollment: 6 },
+        { status: 'LATE', idSession: 12, idStudentEnrollment: 6 },
         { status: 'PRESENT', idSession: 12, idStudentEnrollment: 14 },
         { status: 'PRESENT', idSession: 12, idStudentEnrollment: 22 },
 
@@ -4261,7 +4245,7 @@ async function main() {
 
         // Sesión 14
         { status: 'PRESENT', idSession: 14, idStudentEnrollment: 4 },
-        { status: 'MISSING', idSession: 14, idStudentEnrollment: 12 },
+        { status: 'ABSENT', idSession: 14, idStudentEnrollment: 12 },
         { status: 'PRESENT', idSession: 14, idStudentEnrollment: 20 },
 
         // Sesión 15
@@ -4272,7 +4256,7 @@ async function main() {
         // Sesión 16
         { status: 'PRESENT', idSession: 16, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 16, idStudentEnrollment: 9 },
-        { status: 'LAG', idSession: 16, idStudentEnrollment: 17 },
+        { status: 'LATE', idSession: 16, idStudentEnrollment: 17 },
 
         // Sesión 17
         { status: 'PRESENT', idSession: 17, idStudentEnrollment: 1 },
@@ -4290,7 +4274,7 @@ async function main() {
         { status: 'PRESENT', idSession: 19, idStudentEnrollment: 3 },
 
         // Sesión 20
-        { status: 'MISSING', idSession: 20, idStudentEnrollment: 1 },
+        { status: 'ABSENT', idSession: 20, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 20, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 20, idStudentEnrollment: 3 },
 
@@ -4301,7 +4285,7 @@ async function main() {
 
         // Sesión 22
         { status: 'PRESENT', idSession: 22, idStudentEnrollment: 1 },
-        { status: 'LAG', idSession: 22, idStudentEnrollment: 2 },
+        { status: 'LATE', idSession: 22, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 22, idStudentEnrollment: 3 },
 
         // Sesión 23
@@ -4317,7 +4301,7 @@ async function main() {
         // Sesión 25
         { status: 'PRESENT', idSession: 25, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 25, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 25, idStudentEnrollment: 3 },
+        { status: 'ABSENT', idSession: 25, idStudentEnrollment: 3 },
 
         // Sesión 26
         { status: 'PRESENT', idSession: 26, idStudentEnrollment: 1 },
@@ -4326,7 +4310,7 @@ async function main() {
 
         // Sesión 27
         { status: 'PRESENT', idSession: 27, idStudentEnrollment: 1 },
-        { status: 'LAG', idSession: 27, idStudentEnrollment: 2 },
+        { status: 'LATE', idSession: 27, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 27, idStudentEnrollment: 3 },
 
         // Sesión 28
@@ -4350,10 +4334,10 @@ async function main() {
         // Sesión 31
         { status: 'PRESENT', idSession: 31, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 31, idStudentEnrollment: 65 },
-        { status: 'MISSING', idSession: 31, idStudentEnrollment: 73 },
+        { status: 'ABSENT', idSession: 31, idStudentEnrollment: 73 },
        
         // Sesión 32
-        { status: 'LAG', idSession: 32, idStudentEnrollment: 57 },
+        { status: 'LATE', idSession: 32, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 32, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 32, idStudentEnrollment: 73 },
        
@@ -4364,13 +4348,13 @@ async function main() {
        
         // Sesión 34
         { status: 'PRESENT', idSession: 34, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 34, idStudentEnrollment: 65 },
+        { status: 'ABSENT', idSession: 34, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 34, idStudentEnrollment: 73 },
        
         // Sesión 35
         { status: 'PRESENT', idSession: 35, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 35, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 35, idStudentEnrollment: 73 },
+        { status: 'LATE', idSession: 35, idStudentEnrollment: 73 },
        
         // Sesión 36
         { status: 'PRESENT', idSession: 36, idStudentEnrollment: 57 },
@@ -4384,13 +4368,13 @@ async function main() {
        
         // Sesión 38
         { status: 'PRESENT', idSession: 38, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 38, idStudentEnrollment: 65 },
+        { status: 'ABSENT', idSession: 38, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 38, idStudentEnrollment: 73 },
        
         // Sesión 39
         { status: 'PRESENT', idSession: 39, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 39, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 39, idStudentEnrollment: 73 },
+        { status: 'LATE', idSession: 39, idStudentEnrollment: 73 },
        
         // Sesión 40
         { status: 'PRESENT', idSession: 40, idStudentEnrollment: 57 },
@@ -4403,7 +4387,7 @@ async function main() {
         { status: 'PRESENT', idSession: 41, idStudentEnrollment: 73 },
        
         // Sesión 42
-        { status: 'LAG', idSession: 42, idStudentEnrollment: 57 },
+        { status: 'LATE', idSession: 42, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 42, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 42, idStudentEnrollment: 73 },
        
@@ -4414,7 +4398,7 @@ async function main() {
        
         // Sesión 44
         { status: 'PRESENT', idSession: 44, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 44, idStudentEnrollment: 65 },
+        { status: 'ABSENT', idSession: 44, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 44, idStudentEnrollment: 73 },
        
         // Sesión 45
@@ -4425,7 +4409,7 @@ async function main() {
         // Sesión 46
         { status: 'PRESENT', idSession: 46, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 46, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 46, idStudentEnrollment: 73 },
+        { status: 'LATE', idSession: 46, idStudentEnrollment: 73 },
        
         // Sesión 47
         { status: 'PRESENT', idSession: 47, idStudentEnrollment: 57 },
@@ -4443,7 +4427,7 @@ async function main() {
         { status: 'PRESENT', idSession: 49, idStudentEnrollment: 73 },
        
         // Sesión 50
-        { status: 'MISSING', idSession: 50, idStudentEnrollment: 57 },
+        { status: 'ABSENT', idSession: 50, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 50, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 50, idStudentEnrollment: 73 },
        
@@ -4454,7 +4438,7 @@ async function main() {
        
         // Sesión 52
         { status: 'PRESENT', idSession: 52, idStudentEnrollment: 57 },
-        { status: 'LAG', idSession: 52, idStudentEnrollment: 65 },
+        { status: 'LATE', idSession: 52, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 52, idStudentEnrollment: 73 },
        
         // Sesión 53
@@ -4470,7 +4454,7 @@ async function main() {
         // Sesión 55
         { status: 'PRESENT', idSession: 55, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 55, idStudentEnrollment: 65 },
-        { status: 'MISSING', idSession: 55, idStudentEnrollment: 73 },
+        { status: 'ABSENT', idSession: 55, idStudentEnrollment: 73 },
        
         // Sesión 56
         { status: 'PRESENT', idSession: 56, idStudentEnrollment: 57 },
@@ -4479,7 +4463,7 @@ async function main() {
        
         // Sesión 57
         { status: 'PRESENT', idSession: 57, idStudentEnrollment: 57 },
-        { status: 'LAG', idSession: 57, idStudentEnrollment: 65 },
+        { status: 'LATE', idSession: 57, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 57, idStudentEnrollment: 73 },
        
         // Sesión 58
@@ -4502,10 +4486,10 @@ async function main() {
         // Sesión 61
         { status: 'PRESENT', idSession: 61, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 61, idStudentEnrollment: 113 },
-        { status: 'MISSING', idSession: 61, idStudentEnrollment: 121 },
+        { status: 'ABSENT', idSession: 61, idStudentEnrollment: 121 },
        
         // Sesión 62
-        { status: 'LAG', idSession: 62, idStudentEnrollment: 105 },
+        { status: 'LATE', idSession: 62, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 62, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 62, idStudentEnrollment: 121 },
        
@@ -4516,13 +4500,13 @@ async function main() {
        
         // Sesión 64
         { status: 'PRESENT', idSession: 64, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 64, idStudentEnrollment: 113 },
+        { status: 'ABSENT', idSession: 64, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 64, idStudentEnrollment: 121 },
        
         // Sesión 65
         { status: 'PRESENT', idSession: 65, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 65, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 65, idStudentEnrollment: 121 },
+        { status: 'LATE', idSession: 65, idStudentEnrollment: 121 },
        
         // Sesión 66
         { status: 'PRESENT', idSession: 66, idStudentEnrollment: 105 },
@@ -4536,13 +4520,13 @@ async function main() {
        
         // Sesión 68
         { status: 'PRESENT', idSession: 68, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 68, idStudentEnrollment: 113 },
+        { status: 'ABSENT', idSession: 68, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 68, idStudentEnrollment: 121 },
        
         // Sesión 69
         { status: 'PRESENT', idSession: 69, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 69, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 69, idStudentEnrollment: 121 },
+        { status: 'LATE', idSession: 69, idStudentEnrollment: 121 },
        
         // Sesión 70
         { status: 'PRESENT', idSession: 70, idStudentEnrollment: 105 },
@@ -4555,7 +4539,7 @@ async function main() {
         { status: 'PRESENT', idSession: 71, idStudentEnrollment: 121 },
        
         // Sesión 72
-        { status: 'LAG', idSession: 72, idStudentEnrollment: 105 },
+        { status: 'LATE', idSession: 72, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 72, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 72, idStudentEnrollment: 121 },
        
@@ -4566,7 +4550,7 @@ async function main() {
        
         // Sesión 74
         { status: 'PRESENT', idSession: 74, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 74, idStudentEnrollment: 113 },
+        { status: 'ABSENT', idSession: 74, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 74, idStudentEnrollment: 121 },
        
         // Sesión 75
@@ -4577,7 +4561,7 @@ async function main() {
         // Sesión 76
         { status: 'PRESENT', idSession: 76, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 76, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 76, idStudentEnrollment: 121 },
+        { status: 'LATE', idSession: 76, idStudentEnrollment: 121 },
        
         // Sesión 77
         { status: 'PRESENT', idSession: 77, idStudentEnrollment: 105 },
@@ -4595,7 +4579,7 @@ async function main() {
         { status: 'PRESENT', idSession: 79, idStudentEnrollment: 121 },
        
         // Sesión 80
-        { status: 'MISSING', idSession: 80, idStudentEnrollment: 105 },
+        { status: 'ABSENT', idSession: 80, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 80, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 80, idStudentEnrollment: 121 },
        
@@ -4606,7 +4590,7 @@ async function main() {
        
         // Sesión 82
         { status: 'PRESENT', idSession: 82, idStudentEnrollment: 105 },
-        { status: 'LAG', idSession: 82, idStudentEnrollment: 113 },
+        { status: 'LATE', idSession: 82, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 82, idStudentEnrollment: 121 },
        
         // Sesión 83
@@ -4622,7 +4606,7 @@ async function main() {
         // Sesión 85
         { status: 'PRESENT', idSession: 85, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 85, idStudentEnrollment: 113 },
-        { status: 'MISSING', idSession: 85, idStudentEnrollment: 121 },
+        { status: 'ABSENT', idSession: 85, idStudentEnrollment: 121 },
        
         // Sesión 86
         { status: 'PRESENT', idSession: 86, idStudentEnrollment: 105 },
@@ -4631,7 +4615,7 @@ async function main() {
        
         // Sesión 87
         { status: 'PRESENT', idSession: 87, idStudentEnrollment: 105 },
-        { status: 'LAG', idSession: 87, idStudentEnrollment: 113 },
+        { status: 'LATE', idSession: 87, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 87, idStudentEnrollment: 121 },
        
         // Sesión 88
@@ -4654,10 +4638,10 @@ async function main() {
         // Sesión 121
         { status: 'PRESENT', idSession: 121, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 121, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 121, idStudentEnrollment: 3 },
+        { status: 'ABSENT', idSession: 121, idStudentEnrollment: 3 },
        
         // Sesión 122
-        { status: 'LAG', idSession: 122, idStudentEnrollment: 1 },
+        { status: 'LATE', idSession: 122, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 122, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 122, idStudentEnrollment: 3 },
        
@@ -4668,13 +4652,13 @@ async function main() {
        
         // Sesión 124
         { status: 'PRESENT', idSession: 124, idStudentEnrollment: 1 },
-        { status: 'MISSING', idSession: 124, idStudentEnrollment: 2 },
+        { status: 'ABSENT', idSession: 124, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 124, idStudentEnrollment: 3 },
        
         // Sesión 125
         { status: 'PRESENT', idSession: 125, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 125, idStudentEnrollment: 2 },
-        { status: 'LAG', idSession: 125, idStudentEnrollment: 3 },
+        { status: 'LATE', idSession: 125, idStudentEnrollment: 3 },
        
         // Sesión 126
         { status: 'PRESENT', idSession: 126, idStudentEnrollment: 1 },
@@ -4688,13 +4672,13 @@ async function main() {
        
         // Sesión 128
         { status: 'PRESENT', idSession: 128, idStudentEnrollment: 1 },
-        { status: 'MISSING', idSession: 128, idStudentEnrollment: 2 },
+        { status: 'ABSENT', idSession: 128, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 128, idStudentEnrollment: 3 },
        
         // Sesión 129
         { status: 'PRESENT', idSession: 129, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 129, idStudentEnrollment: 2 },
-        { status: 'LAG', idSession: 129, idStudentEnrollment: 3 },
+        { status: 'LATE', idSession: 129, idStudentEnrollment: 3 },
        
         // Sesión 130
         { status: 'PRESENT', idSession: 130, idStudentEnrollment: 1 },
@@ -4707,7 +4691,7 @@ async function main() {
         { status: 'PRESENT', idSession: 131, idStudentEnrollment: 3 },
        
         // Sesión 132
-        { status: 'LAG', idSession: 132, idStudentEnrollment: 1 },
+        { status: 'LATE', idSession: 132, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 132, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 132, idStudentEnrollment: 3 },
        
@@ -4718,7 +4702,7 @@ async function main() {
        
         // Sesión 134
         { status: 'PRESENT', idSession: 134, idStudentEnrollment: 1 },
-        { status: 'MISSING', idSession: 134, idStudentEnrollment: 2 },
+        { status: 'ABSENT', idSession: 134, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 134, idStudentEnrollment: 3 },
        
         // Sesión 135
@@ -4729,7 +4713,7 @@ async function main() {
         // Sesión 136
         { status: 'PRESENT', idSession: 136, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 136, idStudentEnrollment: 2 },
-        { status: 'LAG', idSession: 136, idStudentEnrollment: 3 },
+        { status: 'LATE', idSession: 136, idStudentEnrollment: 3 },
        
         // Sesión 137
         { status: 'PRESENT', idSession: 137, idStudentEnrollment: 1 },
@@ -4747,7 +4731,7 @@ async function main() {
         { status: 'PRESENT', idSession: 139, idStudentEnrollment: 3 },
        
         // Sesión 140
-        { status: 'MISSING', idSession: 140, idStudentEnrollment: 1 },
+        { status: 'ABSENT', idSession: 140, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 140, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 140, idStudentEnrollment: 3 },
        
@@ -4758,7 +4742,7 @@ async function main() {
        
         // Sesión 142
         { status: 'PRESENT', idSession: 142, idStudentEnrollment: 1 },
-        { status: 'LAG', idSession: 142, idStudentEnrollment: 2 },
+        { status: 'LATE', idSession: 142, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 142, idStudentEnrollment: 3 },
        
         // Sesión 143
@@ -4774,7 +4758,7 @@ async function main() {
         // Sesión 145
         { status: 'PRESENT', idSession: 145, idStudentEnrollment: 1 },
         { status: 'PRESENT', idSession: 145, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 145, idStudentEnrollment: 3 },
+        { status: 'ABSENT', idSession: 145, idStudentEnrollment: 3 },
        
         // Sesión 146
         { status: 'PRESENT', idSession: 146, idStudentEnrollment: 1 },
@@ -4783,7 +4767,7 @@ async function main() {
        
         // Sesión 147
         { status: 'PRESENT', idSession: 147, idStudentEnrollment: 1 },
-        { status: 'LAG', idSession: 147, idStudentEnrollment: 2 },
+        { status: 'LATE', idSession: 147, idStudentEnrollment: 2 },
         { status: 'PRESENT', idSession: 147, idStudentEnrollment: 3 },
        
         // Sesión 148
@@ -4806,10 +4790,10 @@ async function main() {
         // Sesión 151
         { status: 'PRESENT', idSession: 151, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 151, idStudentEnrollment: 65 },
-        { status: 'MISSING', idSession: 151, idStudentEnrollment: 73 },
+        { status: 'ABSENT', idSession: 151, idStudentEnrollment: 73 },
        
         // Sesión 152
-        { status: 'LAG', idSession: 152, idStudentEnrollment: 57 },
+        { status: 'LATE', idSession: 152, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 152, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 152, idStudentEnrollment: 73 },
        
@@ -4820,13 +4804,13 @@ async function main() {
        
         // Sesión 154
         { status: 'PRESENT', idSession: 154, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 154, idStudentEnrollment: 65 },
+        { status: 'ABSENT', idSession: 154, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 154, idStudentEnrollment: 73 },
        
         // Sesión 155
         { status: 'PRESENT', idSession: 155, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 155, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 155, idStudentEnrollment: 73 },
+        { status: 'LATE', idSession: 155, idStudentEnrollment: 73 },
        
         // Sesión 156
         { status: 'PRESENT', idSession: 156, idStudentEnrollment: 57 },
@@ -4840,13 +4824,13 @@ async function main() {
        
         // Sesión 158
         { status: 'PRESENT', idSession: 158, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 158, idStudentEnrollment: 65 },
+        { status: 'ABSENT', idSession: 158, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 158, idStudentEnrollment: 73 },
        
         // Sesión 159
         { status: 'PRESENT', idSession: 159, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 159, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 159, idStudentEnrollment: 73 },
+        { status: 'LATE', idSession: 159, idStudentEnrollment: 73 },
        
         // Sesión 160
         { status: 'PRESENT', idSession: 160, idStudentEnrollment: 57 },
@@ -4859,7 +4843,7 @@ async function main() {
         { status: 'PRESENT', idSession: 161, idStudentEnrollment: 73 },
        
         // Sesión 162
-        { status: 'LAG', idSession: 162, idStudentEnrollment: 57 },
+        { status: 'LATE', idSession: 162, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 162, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 162, idStudentEnrollment: 73 },
        
@@ -4870,7 +4854,7 @@ async function main() {
        
         // Sesión 164
         { status: 'PRESENT', idSession: 164, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 164, idStudentEnrollment: 65 },
+        { status: 'ABSENT', idSession: 164, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 164, idStudentEnrollment: 73 },
        
         // Sesión 165
@@ -4881,7 +4865,7 @@ async function main() {
         // Sesión 166
         { status: 'PRESENT', idSession: 166, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 166, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 166, idStudentEnrollment: 73 },
+        { status: 'LATE', idSession: 166, idStudentEnrollment: 73 },
        
         // Sesión 167
         { status: 'PRESENT', idSession: 167, idStudentEnrollment: 57 },
@@ -4899,7 +4883,7 @@ async function main() {
         { status: 'PRESENT', idSession: 169, idStudentEnrollment: 73 },
        
         // Sesión 170
-        { status: 'MISSING', idSession: 170, idStudentEnrollment: 57 },
+        { status: 'ABSENT', idSession: 170, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 170, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 170, idStudentEnrollment: 73 },
        
@@ -4910,7 +4894,7 @@ async function main() {
        
         // Sesión 172
         { status: 'PRESENT', idSession: 172, idStudentEnrollment: 57 },
-        { status: 'LAG', idSession: 172, idStudentEnrollment: 65 },
+        { status: 'LATE', idSession: 172, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 172, idStudentEnrollment: 73 },
        
         // Sesión 173
@@ -4926,7 +4910,7 @@ async function main() {
         // Sesión 175
         { status: 'PRESENT', idSession: 175, idStudentEnrollment: 57 },
         { status: 'PRESENT', idSession: 175, idStudentEnrollment: 65 },
-        { status: 'MISSING', idSession: 175, idStudentEnrollment: 73 },
+        { status: 'ABSENT', idSession: 175, idStudentEnrollment: 73 },
        
         // Sesión 176
         { status: 'PRESENT', idSession: 176, idStudentEnrollment: 57 },
@@ -4935,7 +4919,7 @@ async function main() {
        
         // Sesión 177
         { status: 'PRESENT', idSession: 177, idStudentEnrollment: 57 },
-        { status: 'LAG', idSession: 177, idStudentEnrollment: 65 },
+        { status: 'LATE', idSession: 177, idStudentEnrollment: 65 },
         { status: 'PRESENT', idSession: 177, idStudentEnrollment: 73 },
        
         // Sesión 178
@@ -4958,10 +4942,10 @@ async function main() {
         // Sesión 181
         { status: 'PRESENT', idSession: 181, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 181, idStudentEnrollment: 113 },
-        { status: 'MISSING', idSession: 181, idStudentEnrollment: 121 },
+        { status: 'ABSENT', idSession: 181, idStudentEnrollment: 121 },
        
         // Sesión 182
-        { status: 'LAG', idSession: 182, idStudentEnrollment: 105 },
+        { status: 'LATE', idSession: 182, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 182, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 182, idStudentEnrollment: 121 },
        
@@ -4972,13 +4956,13 @@ async function main() {
        
         // Sesión 184
         { status: 'PRESENT', idSession: 184, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 184, idStudentEnrollment: 113 },
+        { status: 'ABSENT', idSession: 184, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 184, idStudentEnrollment: 121 },
        
         // Sesión 185
         { status: 'PRESENT', idSession: 185, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 185, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 185, idStudentEnrollment: 121 },
+        { status: 'LATE', idSession: 185, idStudentEnrollment: 121 },
        
         // Sesión 186
         { status: 'PRESENT', idSession: 186, idStudentEnrollment: 105 },
@@ -4992,13 +4976,13 @@ async function main() {
        
         // Sesión 188
         { status: 'PRESENT', idSession: 188, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 188, idStudentEnrollment: 113 },
+        { status: 'ABSENT', idSession: 188, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 188, idStudentEnrollment: 121 },
        
         // Sesión 189
         { status: 'PRESENT', idSession: 189, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 189, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 189, idStudentEnrollment: 121 },
+        { status: 'LATE', idSession: 189, idStudentEnrollment: 121 },
        
         // Sesión 190
         { status: 'PRESENT', idSession: 190, idStudentEnrollment: 105 },
@@ -5011,7 +4995,7 @@ async function main() {
         { status: 'PRESENT', idSession: 191, idStudentEnrollment: 121 },
        
         // Sesión 192
-        { status: 'LAG', idSession: 192, idStudentEnrollment: 105 },
+        { status: 'LATE', idSession: 192, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 192, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 192, idStudentEnrollment: 121 },
        
@@ -5022,7 +5006,7 @@ async function main() {
        
         // Sesión 194
         { status: 'PRESENT', idSession: 194, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 194, idStudentEnrollment: 113 },
+        { status: 'ABSENT', idSession: 194, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 194, idStudentEnrollment: 121 },
        
         // Sesión 195
@@ -5033,7 +5017,7 @@ async function main() {
         // Sesión 196
         { status: 'PRESENT', idSession: 196, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 196, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 196, idStudentEnrollment: 121 },
+        { status: 'LATE', idSession: 196, idStudentEnrollment: 121 },
        
         // Sesión 197
         { status: 'PRESENT', idSession: 197, idStudentEnrollment: 105 },
@@ -5051,7 +5035,7 @@ async function main() {
         { status: 'PRESENT', idSession: 199, idStudentEnrollment: 121 },
        
         // Sesión 200
-        { status: 'MISSING', idSession: 200, idStudentEnrollment: 105 },
+        { status: 'ABSENT', idSession: 200, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 200, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 200, idStudentEnrollment: 121 },
        
@@ -5062,7 +5046,7 @@ async function main() {
        
         // Sesión 202
         { status: 'PRESENT', idSession: 202, idStudentEnrollment: 105 },
-        { status: 'LAG', idSession: 202, idStudentEnrollment: 113 },
+        { status: 'LATE', idSession: 202, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 202, idStudentEnrollment: 121 },
        
         // Sesión 203
@@ -5078,7 +5062,7 @@ async function main() {
         // Sesión 205
         { status: 'PRESENT', idSession: 205, idStudentEnrollment: 105 },
         { status: 'PRESENT', idSession: 205, idStudentEnrollment: 113 },
-        { status: 'MISSING', idSession: 205, idStudentEnrollment: 121 },
+        { status: 'ABSENT', idSession: 205, idStudentEnrollment: 121 },
        
         // Sesión 206
         { status: 'PRESENT', idSession: 206, idStudentEnrollment: 105 },
@@ -5087,7 +5071,7 @@ async function main() {
        
         // Sesión 207
         { status: 'PRESENT', idSession: 207, idStudentEnrollment: 105 },
-        { status: 'LAG', idSession: 207, idStudentEnrollment: 113 },
+        { status: 'LATE', idSession: 207, idStudentEnrollment: 113 },
         { status: 'PRESENT', idSession: 207, idStudentEnrollment: 121 },
        
         // Sesión 208
@@ -5124,14 +5108,86 @@ async function main() {
   // ===========================
   const theoryTasks = await prisma.task.createMany({
     data: [
-      { idTeacherAssignment: 1, title: 'Temario - Programación', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 2, title: 'Temario - Base de Datos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 3, title: 'Temario - Sistemas Informáticos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 4, title: 'Temario - Lenguaje de Marcas', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 5, title: 'Temario - Entornos de Desarrollo', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 6, title: 'Temario - IPE', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 7, title: 'Temario - Digitalización', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 8, title: 'Temario - Sostenibilidad', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
+      {
+        idTeacherAssignment: 1,
+        title: 'Práctica POO - Programación',
+        description:
+          'Implementa una clase Cuenta bancaria con métodos depositar, retirar y consultarSaldo. Sube un .zip con el proyecto Java y un README breve explicando las decisiones de diseño.',
+        type: 'THEORY',
+        startDate: now,
+        dueDate: new Date('2025-06-30'),
+        schoolYear: '2024-2025',
+      },
+      {
+        idTeacherAssignment: 2,
+        title: 'Diseño ER - Base de Datos',
+        description:
+          'Diseña el modelo entidad-relación de una biblioteca (libros, socios, préstamos). Entrega un PDF con el diagrama y el script SQL de creación de tablas.',
+        type: 'THEORY',
+        startDate: now,
+        dueDate: new Date('2025-06-30'),
+        schoolYear: '2024-2025',
+      },
+      {
+        idTeacherAssignment: 3,
+        title: 'Esquema de red - Sistemas Informáticos',
+        description:
+          'Documenta la red local de un aula con 20 equipos: dispositivos, direccionamiento IP y servicios. Sube el documento en formato PDF.',
+        type: 'THEORY',
+        startDate: now,
+        dueDate: new Date('2025-06-30'),
+        schoolYear: '2024-2025',
+      },
+      {
+        idTeacherAssignment: 4,
+        title: 'XML y XPath - Lenguaje de Marcas',
+        description:
+          'Crea un fichero XML que represente el catálogo de una tienda y escribe 5 consultas XPath que respondan a preguntas concretas (productos por precio, por categoría, etc.).',
+        type: 'THEORY',
+        startDate: now,
+        dueDate: new Date('2025-06-30'),
+        schoolYear: '2024-2025',
+      },
+      {
+        idTeacherAssignment: 5,
+        title: 'Repositorio Git - Entornos de Desarrollo',
+        description:
+          'Configura un repositorio Git con README, .gitignore y al menos 3 commits significativos. Adjunta el enlace al repositorio público.',
+        type: 'THEORY',
+        startDate: now,
+        dueDate: new Date('2025-06-30'),
+        schoolYear: '2024-2025',
+      },
+      {
+        idTeacherAssignment: 6,
+        title: 'Carta de motivación - IPE',
+        description:
+          'Redacta una carta de motivación dirigida a una empresa del sector tecnológico. Mínimo 300 palabras. Sube el documento en PDF.',
+        type: 'THEORY',
+        startDate: now,
+        dueDate: new Date('2025-06-30'),
+        schoolYear: '2024-2025',
+      },
+      {
+        idTeacherAssignment: 7,
+        title: 'Caso práctico - Digitalización',
+        description:
+          'Selecciona una pyme real y propón un plan de digitalización (CRM, web, factura electrónica). Entrega informe en PDF de 4-6 páginas.',
+        type: 'THEORY',
+        startDate: now,
+        dueDate: new Date('2025-06-30'),
+        schoolYear: '2024-2025',
+      },
+      {
+        idTeacherAssignment: 8,
+        title: 'Análisis de impacto - Sostenibilidad',
+        description:
+          'Analiza el ciclo de vida de un dispositivo electrónico y propón medidas para reducir su huella de carbono. Documento en PDF, máx. 3 páginas.',
+        type: 'THEORY',
+        startDate: now,
+        dueDate: new Date('2025-06-30'),
+        schoolYear: '2024-2025',
+      },
     ],
   });
 
@@ -5163,6 +5219,14 @@ async function main() {
   // Asumiendo: Tasks IDs 1-16, Enrollments IDs 1-24
   // Ajusta los IDs de enrollments según tu BD
   // ===========================
+
+  console.log('Publicando todas las tareas y permitiendo entregas tardías...');
+  await prisma.task.updateMany({
+    data: {
+      isPublished: true,
+      allowLateSubmission: true,
+    },
+  });
 
   console.log('Creando studentTasks...');
   const studentTasks = await prisma.studentTask.createMany({
@@ -5257,12 +5321,53 @@ async function main() {
 
 
 
+  // ===========================
+  // 4. ESTUDIANTE DE PRUEBA (TFG)
+  // Se añade al final para no alterar los IDs estables del resto del seed.
+  // El firebaseUID debe coincidir con el UID del usuario creado en Firebase Console.
+  // ===========================
+  console.log('Creando estudiante de prueba...');
+  const estudianteTest = await prisma.student.create({
+    data: {
+      email: 'estudiantetest@ziryab.es',
+      name: 'Test',
+      surname: 'Tester',
+      birthDate: new Date('2000-01-01'),
+      dni: '99999999Z',
+      firebaseUID: '1egI5tY4aOSdCcF828sOd7nr0tZ2',
+    },
+  });
+
+  console.log('Creando matrículas del estudiante de prueba (8 asignaturas DAM)...');
+  const enrollmentsTest = await Promise.all(
+    [1, 2, 3, 4, 5, 6, 7, 8].map((idSubject) =>
+      prisma.studentOnSubjectOnGroup.create({
+        data: {
+          idStudent: estudianteTest.id,
+          idGroup: 1,
+          idSubject,
+          schoolYear: acaYear,
+        },
+      }),
+    ),
+  );
+
+  console.log('Creando studentTasks del estudiante de prueba (16 tareas: 8 theory + 8 exam)...');
+  await prisma.studentTask.createMany({
+    data: enrollmentsTest.flatMap((enrollment) => [
+      { idTask: enrollment.idSubject, idStudentEnrollment: enrollment.id, status: 'PENDING' },
+      { idTask: enrollment.idSubject + 8, idStudentEnrollment: enrollment.id, status: 'PENDING' },
+    ]),
+  });
+
+  console.log(`✅ Estudiante de prueba creado: ${estudianteTest.email} (id=${estudianteTest.id}) con ${enrollmentsTest.length} matrículas y 16 studentTasks`);
+
   console.log('✅ Seed completado exitosamente!');
   console.log(`📚 ${students.count} estudiantes creados`);
   console.log(`👨‍🏫 ${teachers.count} profesores creados`);
-  console.log(`🎓 ${courses.count} cursos creados`);
+  console.log(`🎓 ${courses.length} cursos creados`);
   console.log(`📖 ${subjects.count} asignaturas creadas`);
-  console.log(`👥 ${groups.count} grupos creados`);
+  console.log(`👥 ${groups.length} grupos creados`);
   console.log(`👥 ${enrollments.count} enrollments creados`);
   console.log(`👥 ${assignments.count} assignments creados`);
   console.log(`👥 ${weekSchedule.count} weekSchedules creados`);

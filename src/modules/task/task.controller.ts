@@ -120,6 +120,7 @@ export const createTask = async (req: Request, res: Response) => {
       attachmentUrl,
       idTaskGroup,
       isPublished,
+      allowLateSubmission,
     } = req.body;
     const parsedTeacherAssignmentId = Number(idTeacherAssignment);
     const parsedTaskGroupId = idTaskGroup !== undefined && idTaskGroup !== null && idTaskGroup !== ''
@@ -127,11 +128,14 @@ export const createTask = async (req: Request, res: Response) => {
       : undefined;
     const finalAttachmentUrl = req.file ? `/uploads/tasks/${req.file.filename}` : attachmentUrl;
     const parsedIsPublished = parseBooleanInput(isPublished);
+    const parsedAllowLateSubmission = parseBooleanInput(allowLateSubmission);
 
     const missing = ['idTeacherAssignment', 'title', 'type', 'startDate', 'dueDate', 'schoolYear']
       .filter((field) => req.body[field] === undefined || req.body[field] === null || req.body[field] === '');
 
     if (missing.length > 0) {
+      console.log('400 Bad Request - Faltan campos:', missing);
+      console.log('Body recibido:', req.body);
       return res.status(400).json({
         success: false,
         message: 'Faltan campos obligatorios',
@@ -140,6 +144,7 @@ export const createTask = async (req: Request, res: Response) => {
     }
 
     if (!VALID_TASK_TYPES.includes(type)) {
+      console.log('400 Bad Request - Tipo inválido:', type);
       return res.status(400).json({
         success: false,
         message: `Tipo de tarea inválido. Valores permitidos: ${VALID_TASK_TYPES.join(', ')}`,
@@ -147,6 +152,7 @@ export const createTask = async (req: Request, res: Response) => {
     }
 
     if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(dueDate))) {
+      console.log('400 Bad Request - Fechas inválidas:', { startDate, dueDate });
       return res.status(400).json({
         success: false,
         message: 'Formato de fecha inválido. Use ISO 8601 (YYYY-MM-DDTHH:mm:ssZ)',
@@ -173,6 +179,13 @@ export const createTask = async (req: Request, res: Response) => {
         message: 'isPublished inválido. Use true o false',
       });
     }
+    
+    if (allowLateSubmission !== undefined && parsedAllowLateSubmission === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: 'allowLateSubmission inválido. Use true o false',
+        });
+      }
 
     const newTask = await taskService.create({
       idTeacherAssignment: parsedTeacherAssignmentId,
@@ -185,6 +198,7 @@ export const createTask = async (req: Request, res: Response) => {
       schoolYear,
       ...(parsedTaskGroupId !== undefined && { idTaskGroup: parsedTaskGroupId }),
       ...(parsedIsPublished !== undefined && { isPublished: parsedIsPublished }),
+      ...(parsedAllowLateSubmission !== undefined && { allowLateSubmission: parsedAllowLateSubmission }),
     });
 
     res.status(201).json({
@@ -219,9 +233,10 @@ export const updateTask = async (req: Request, res: Response) => {
       });
     }
 
-    const { type, startDate, dueDate, idTeacherAssignment, idTaskGroup, isPublished } = req.body;
+    const { type, startDate, dueDate, idTeacherAssignment, idTaskGroup, isPublished, allowLateSubmission } = req.body;
     const updatePayload: Record<string, any> = { ...req.body };
     const parsedIsPublished = parseBooleanInput(isPublished);
+    const parsedAllowLateSubmission = parseBooleanInput(allowLateSubmission);
 
     if (type !== undefined && !VALID_TASK_TYPES.includes(type)) {
       return res.status(400).json({
@@ -279,6 +294,16 @@ export const updateTask = async (req: Request, res: Response) => {
       }
       updatePayload.isPublished = parsedIsPublished;
     }
+
+    if (allowLateSubmission !== undefined) {
+        if (parsedAllowLateSubmission === undefined) {
+          return res.status(400).json({
+            success: false,
+            message: 'allowLateSubmission inválido. Use true o false',
+          });
+        }
+        updatePayload.allowLateSubmission = parsedAllowLateSubmission;
+      }
 
     if (req.file) {
       updatePayload.attachmentUrl = `/uploads/tasks/${req.file.filename}`;

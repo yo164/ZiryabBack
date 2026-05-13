@@ -59,7 +59,7 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }, 
 }));
 app.use(cors({
-  origin: env.FRONTEND_URL, 
+  origin: env.NODE_ENV === 'production' ? env.FRONTEND_URL : true, 
   methods: env.NODE_ENV === 'production' 
     ? ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
     : ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -67,6 +67,7 @@ app.use(cors({
   credentials: true,
   optionsSuccessStatus: 200
 }));
+
 app.use(express.json({ limit: '100kb' }));
 app.use(requestLogger);
 

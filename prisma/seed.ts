@@ -789,7 +789,8 @@ async function main() {
           idSubject: 8,
           schoolYear: acaYear
         },
-        //Estudiante 2 en DAM grupo mañana
+        // Estudiante 2 — 1º DAM mañana (grupo 1, asignaturas 1–8): mismas matrículas que el estudiante 1.
+        // Los WeekSchedule del seed usan idTeacherAssignment 1–8 (profesor–asignatura–grupo 1) para ese aula.
         {
           idStudent: 2,
           idGroup: 1,

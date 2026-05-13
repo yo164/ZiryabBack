@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import * as notificationsService from './notifications.service.js';
 import { registerClient, removeClient } from './notifications.sse.js';
+import { logger } from '../../utils/logger.js';
 
 const parsePositiveInt = (value: unknown, defaultValue: number): number | null => {
   if (value === undefined || value === null || value === '') return defaultValue;
@@ -79,7 +80,9 @@ export const getNotifications = async (req: Request, res: Response) => {
       data: result.notifications,
       pagination: result.pagination,
     });
-  } catch {
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    logger.error('Error al obtener notificaciones', { message: err.message, stack: err.stack });
     return res.status(500).json({ message: 'Error al obtener notificaciones' });
   }
 };

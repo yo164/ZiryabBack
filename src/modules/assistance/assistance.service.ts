@@ -21,6 +21,8 @@ export const findAllByStudentId = async (studentId: number, teacherId?: number) 
         select: {
             id: true,
             status: true,
+            justificationUri: true,
+            justificationStatus: true,
             session: {
                 select: {
                     id: true,
@@ -235,7 +237,19 @@ export const findAllByTeacher = async (teacherId: number) => {
             }
         },
         include: {
-            session: true,
+            session: {
+                include: {
+                    schedule: {
+                        include: {
+                            teacherAssignment: {
+                                include: {
+                                    subject: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             studentEnrollment: { include: { student: true } }
         },
         orderBy: { createdAt: 'desc' }

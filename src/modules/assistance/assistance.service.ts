@@ -223,9 +223,7 @@ export const createMany = async (assistances: {
                 },
                 update: {
                     status: ast.status,
-                    // Si el profesor vuelve a poner falta, reseteamos el estado de justificación si no es EXCUSED
-                    // para que el alumno tenga que volver a justificar si cambia de opinión.
-                    // O mejor, lo dejamos como está pero el status ahora será ABSENT.
+                    createdAt: new Date(), // actualizamos la fecha de creacion al sobreescribir
                 },
                 create: {
                     idSession: ast.idSession,

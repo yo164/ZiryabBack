@@ -200,47 +200,82 @@ export const findOrCreateSessionForSubjectAndTeacher = async (
   idSubject: number,
   idTeacher: number
 ) => {
-  const assignment = await prisma.teacherOnSubjectOnGroup.findFirst({
+  const now = new Date();
+  const currentHour = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+  const todayDay = days[now.getDay()] as DayOfWeek;
+
+  const assignments = await prisma.teacherOnSubjectOnGroup.findMany({
     where: { idSubject, idTeacher },
-    include: {
-      WeekSchedule: { take: 1 },
-    },
+    include: { WeekSchedule: true },
   });
 
-  if (!assignment) {
+  if (assignments.length === 0) {
     throw new Error('No se encontró una asignación para ese profesor y asignatura');
   }
 
-  let schedule = assignment.WeekSchedule[0];
+  let selectedSchedule = null;
 
-  // Si el profesor no tiene horario configurado, creamos uno genérico
-  // para poder registrar la asistencia sin depender del horario semanal
-  if (!schedule) {
-    const now = new Date();
-    const currentStartTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    
-    schedule = await prisma.weekSchedule.create({
-      data: {
-        idTeacherAssignment: assignment.id,
-        weekDay: 'MONDAY',
-        startTime: currentStartTime,
-        finishTime: '23:59',
-      },
-    });
+  //  horario de la clase 
+  for (const assignment of assignments) {
+    const match = assignment.WeekSchedule.find(s => 
+      s.weekDay === todayDay && 
+      s.startTime <= currentHour && 
+      s.finishTime >= currentHour
+    );
+    if (match) {
+      selectedSchedule = match;
+      break;
+    }
   }
 
-  const today = new Date();
-  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  // buscamos si hay alguna programada para hoy 
+  if (!selectedSchedule) {
+    for (const assignment of assignments) {
+      const todayMatch = assignment.WeekSchedule.find(s => s.weekDay === todayDay);
+      if (todayMatch) {
+        selectedSchedule = todayMatch;
+        break;
+      }
+    }
+  }
+
+  // genérico con la hora actual
+  if (!selectedSchedule) {
+    const assignmentId = assignments[0].id;
+    const currentStartTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    selectedSchedule = await prisma.weekSchedule.findFirst({
+      where: { 
+        idTeacherAssignment: assignmentId, 
+        weekDay: todayDay,
+        startTime: { contains: ':' } // Filtro genérico
+      }
+    });
+
+    if (!selectedSchedule) {
+      selectedSchedule = await prisma.weekSchedule.create({
+        data: {
+          idTeacherAssignment: assignmentId,
+          weekDay: todayDay,
+          startTime: currentStartTime,
+          finishTime: '23:59',
+        },
+      });
+    }
+  }
+
+  const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const existing = await prisma.sessionClass.findFirst({
-    where: { idSchedule: schedule.id, date: todayDate },
+    where: { idSchedule: selectedSchedule.id, date: todayDate },
   });
 
   if (existing) return existing;
 
   return prisma.sessionClass.create({
     data: {
-      idSchedule: schedule.id,
+      idSchedule: selectedSchedule.id,
       date: todayDate,
       status: 'SCHEDULED',
     },

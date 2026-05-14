@@ -212,10 +212,29 @@ export const createMany = async (assistances: {
     idStudentEnrollment: number;
     status: AssistanceStatus;
 }[]) => {
-    return await prisma.assistance.createMany({
-        data: assistances,
-        skipDuplicates: true
-    });
+    return await prisma.$transaction(
+        assistances.map((ast) =>
+            prisma.assistance.upsert({
+                where: {
+                    idSession_idStudentEnrollment: {
+                        idSession: ast.idSession,
+                        idStudentEnrollment: ast.idStudentEnrollment,
+                    },
+                },
+                update: {
+                    status: ast.status,
+                    // Si el profesor vuelve a poner falta, reseteamos el estado de justificación si no es EXCUSED
+                    // para que el alumno tenga que volver a justificar si cambia de opinión.
+                    // O mejor, lo dejamos como está pero el status ahora será ABSENT.
+                },
+                create: {
+                    idSession: ast.idSession,
+                    idStudentEnrollment: ast.idStudentEnrollment,
+                    status: ast.status,
+                },
+            })
+        )
+    );
 };
 
 

@@ -216,11 +216,14 @@ export const findOrCreateSessionForSubjectAndTeacher = async (
   // Si el profesor no tiene horario configurado, creamos uno genérico
   // para poder registrar la asistencia sin depender del horario semanal
   if (!schedule) {
+    const now = new Date();
+    const currentStartTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
     schedule = await prisma.weekSchedule.create({
       data: {
         idTeacherAssignment: assignment.id,
         weekDay: 'MONDAY',
-        startTime: '00:00',
+        startTime: currentStartTime,
         finishTime: '23:59',
       },
     });

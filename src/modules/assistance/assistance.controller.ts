@@ -190,7 +190,7 @@ export const createBulk = async (req: Request, res: Response) => {
         }
 
         const result = await assistanceService.createMany(assistances);
-        res.status(201).json({ success: true, count: result.count });
+        res.status(201).json({ success: true, count: result.length });
     } catch (error: any) {
         if (error.code === 'P2003') {
             return res.status(404).json({

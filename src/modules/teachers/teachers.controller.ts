@@ -282,3 +282,16 @@ export const getTeacherSubjects = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const getMyStudentsAbsences = async (req: Request, res: Response) => {
+    try {
+        if (req.user?.role !== 'TEACHER') {
+            return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
+        
+        const data = await teachersService.findStudentsAbsencesByTeacher(req.user.sub);
+        res.json({ success: true, data });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: 'Error al obtener alumnos', error: error.message });
+    }
+};

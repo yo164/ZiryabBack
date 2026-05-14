@@ -66,7 +66,10 @@ export const updateStatusById = async (id: number, status: AssistanceStatus) => 
 export const updateJustificationUrl = async (id: number, justificationUri: string) => {
     return await prisma.assistance.update({
         where: { id },
-        data: { justificationUri }
+        data: { 
+            justificationUri,
+            justificationStatus: 'PENDING'
+        }
     });
 };
 

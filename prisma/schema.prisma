@@ -199,9 +199,9 @@ model WeekSchedule {
 }
 // Estados de una sesión de clase
 enum SessionStatus {
-  SCHEDULED
-  COMPLETED
-  CANCELLED
+  PROGRAMADA
+  REALIZADA
+  CANCELADA
 }
 
 //una clase propiamente hablando
@@ -211,7 +211,7 @@ model SessionClass {
   schedule     WeekSchedule @relation(fields: [idSchedule], references: [id], onDelete: Cascade)//horario
   
   date        DateTime //fecha
-  status      SessionStatus   @default(SCHEDULED) // PROGRAMADA, REALIZADA, CANCELADA estado
+  status      SessionStatus   @default(PROGRAMADA) // PROGRAMADA, REALIZADA, CANCELADA estado
   apointments String?//detalles, observaciones
   
   createdAt   DateTime @default(now())
@@ -224,8 +224,8 @@ model SessionClass {
 // Estados de asistencia
 enum AssistanceStatus {
   PRESENT
-  ABSENT
-  LATE
+  MISSING
+  LAG
   EXCUSED
 }
 

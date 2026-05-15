@@ -1,6 +1,16 @@
+import https from 'https';
 import admin from 'firebase-admin';
 import { env } from './env.js';
 import type { Auth } from 'firebase-admin/auth';
+
+/**
+ * En desarrollo en Windows (proxy/antivirus corporativo) Node puede fallar al
+ * verificar certificados de Google (UNABLE_TO_VERIFY_FIRST_CERTIFICATE).
+ * Solo aplica en development; producción mantiene verificación estricta.
+ */
+if (env.NODE_ENV === 'development') {
+  https.globalAgent = new https.Agent({ rejectUnauthorized: false });
+}
 
 // Inicializar Firebase Admin con las credenciales del servicio
 admin.initializeApp({

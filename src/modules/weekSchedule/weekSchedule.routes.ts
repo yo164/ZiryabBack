@@ -32,11 +32,11 @@ router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalControll
 router.get('/teacher-assignment/:idTeacherAssignment', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), horarioSemanalController.getHorariosByTeacherAssignment);
 
 /**
- * @route   GET /api/horarios-semanales/dia/:diaSemana
- * @desc    Obtener horarios de un día específico (1=Lunes, 7=Domingo)
+ * @route   GET /api/horarios-semanales/dia/:weekDay
+ * @desc    Obtener horarios de un día específico (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
  * @access  Admin, Teacher
  */
-router.get('/dia/:diaSemana', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.getHorariosByDia);
+router.get('/dia/:weekDay', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.getHorariosByDia);
 
 /**
  * @route   GET /api/horarios-semanales/teacher/:idTeacher

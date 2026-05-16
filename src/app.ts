@@ -14,6 +14,7 @@ import subjectsRoutes from './modules/subjects/subjects.routes.js';
 import teachersRoutes from './modules/teachers/teachers.routes.js';
 import adminsRoutes from './modules/admin/admins.routes.js';
 import enrollmentRoutes from './modules/enrollments/enrollments.routes.js';
+import assignmentsRoutes from './modules/assignments/assignments.routes.js';
 import horariosRoutes from './modules/weekSchedule/weekSchedule.routes.js';
 import classSesionRoutes from './modules/classSession/classSession.routes.js'
 import assistanceRoutes from './modules/assistance/assistance.routes.js';
@@ -88,6 +89,7 @@ app.get('/', (_req, res) => {
       students: '/api/students',
       subjects: '/api/subjects',
       tasks: '/api/tasks',
+      assignments: '/api/assignments',
     },
   });
 });
@@ -109,6 +111,7 @@ app.use('/api/groups', groupRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/studentregistration', studentregsitrationRouter);
 app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/assignments', assignmentsRoutes);
 app.use('/api/horarios-semanales', horariosRoutes);
 app.use('/api/sessions', classSesionRoutes);
 app.use('/api/assistances', assistanceRoutes)

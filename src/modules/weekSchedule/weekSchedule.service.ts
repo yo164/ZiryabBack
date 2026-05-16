@@ -1,19 +1,7 @@
 import prisma from '../../config/prisma.js';
 import { DayOfWeek } from '@prisma/client';
 
-// Convertir de número (1-7) al Enum DayOfWeek para Prisma
-const mapNumberToDayOfWeek = (day: number): DayOfWeek => {
-  const map: Record<number, DayOfWeek> = {
-    1: DayOfWeek.MONDAY,
-    2: DayOfWeek.TUESDAY,
-    3: DayOfWeek.WEDNESDAY,
-    4: DayOfWeek.THURSDAY,
-    5: DayOfWeek.FRIDAY,
-    6: DayOfWeek.SATURDAY,
-    7: DayOfWeek.SUNDAY,
-  };
-  return map[day] || DayOfWeek.MONDAY;
-};
+const VALID_DAYS = new Set<string>(Object.values(DayOfWeek));
 
 export const findAll = async () => {
   return prisma.weekSchedule.findMany({
@@ -99,9 +87,9 @@ export const findByTeacherId = async(idTeacher: number) => {
 
   });
 };
-export const findByDiaSemana = async (diaSemana: number) => {
+export const findByWeekDay = async (weekDay: DayOfWeek) => {
   return prisma.weekSchedule.findMany({
-    where: { weekDay: mapNumberToDayOfWeek(diaSemana) },
+    where: { weekDay },
     include: {
       teacherAssignment: {
         include: {
@@ -153,16 +141,14 @@ export const findByStudentId = async (idStudent: number) => {
 
 export const create = async (data: {
   idTeacherAssignment: number;
-  weekDay: number;
+  weekDay: string;
   startTime: string;
   finishTime: string;
 }) => {
-  // Validar que weekDay esté entre 1 y 7
-  if (data.weekDay < 1 || data.weekDay > 7) {
-    throw new Error('El día de la semana debe estar entre 1 (Lunes) y 7 (Domingo)');
+  if (!VALID_DAYS.has(data.weekDay)) {
+    throw new Error(`Día inválido: ${data.weekDay}. Valores válidos: ${[...VALID_DAYS].join(', ')}`);
   }
 
-  // Verificar que la asignación de profesor existe
   const assignmentExists = await prisma.teacherOnSubjectOnGroup.findUnique({
     where: { id: data.idTeacherAssignment },
   });
@@ -174,7 +160,7 @@ export const create = async (data: {
   return prisma.weekSchedule.create({
     data: {
       idTeacherAssignment: data.idTeacherAssignment,
-      weekDay: mapNumberToDayOfWeek(data.weekDay),
+      weekDay: data.weekDay as DayOfWeek,
       startTime: data.startTime,
       finishTime: data.finishTime,
     },
@@ -197,9 +183,9 @@ export const update = async (
   id: number,
   data: {
     idTeacherAssignment?: number;
-    diaSemana?: number;
-    horaInicio?: string;
-    horaFin?: string;
+    weekDay?: string;
+    startTime?: string;
+    finishTime?: string;
   }
 ) => {
   const exists = await prisma.weekSchedule.findUnique({ where: { id } });
@@ -207,17 +193,17 @@ export const update = async (
     throw new Error('Horario no encontrado');
   }
 
-  if (data.diaSemana && (data.diaSemana < 1 || data.diaSemana > 7)) {
-    throw new Error('El día de la semana debe estar entre 1 (Lunes) y 7 (Domingo)');
+  if (data.weekDay && !VALID_DAYS.has(data.weekDay)) {
+    throw new Error(`Día inválido: ${data.weekDay}. Valores válidos: ${[...VALID_DAYS].join(', ')}`);
   }
 
   return prisma.weekSchedule.update({
     where: { id },
     data: {
       ...(data.idTeacherAssignment && { idTeacherAssignment: data.idTeacherAssignment }),
-      ...(data.diaSemana && { weekDay: mapNumberToDayOfWeek(data.diaSemana) }),
-      ...(data.horaInicio && { startTime: data.horaInicio }),
-      ...(data.horaFin && { finishTime: data.horaFin }),
+      ...(data.weekDay && { weekDay: data.weekDay as DayOfWeek }),
+      ...(data.startTime && { startTime: data.startTime }),
+      ...(data.finishTime && { finishTime: data.finishTime }),
     },
     include: {
       teacherAssignment: {
@@ -235,9 +221,9 @@ export const patch = async (
   id: number,
   data: Partial<{
     idTeacherAssignment: number;
-    diaSemana: number;
-    horaInicio: string;
-    horaFin: string;
+    weekDay: string;
+    startTime: string;
+    finishTime: string;
   }>
 ) => {
   const exists = await prisma.weekSchedule.findUnique({ where: { id } });
@@ -245,17 +231,17 @@ export const patch = async (
     throw new Error('Horario no encontrado');
   }
 
-  if (data.diaSemana && (data.diaSemana < 1 || data.diaSemana > 7)) {
-    throw new Error('El día de la semana debe estar entre 1 (Lunes) y 7 (Domingo)');
+  if (data.weekDay && !VALID_DAYS.has(data.weekDay)) {
+    throw new Error(`Día inválido: ${data.weekDay}. Valores válidos: ${[...VALID_DAYS].join(', ')}`);
   }
 
   return prisma.weekSchedule.update({
     where: { id },
     data: {
       ...(data.idTeacherAssignment && { idTeacherAssignment: data.idTeacherAssignment }),
-      ...(data.diaSemana && { weekDay: mapNumberToDayOfWeek(data.diaSemana) }),
-      ...(data.horaInicio && { startTime: data.horaInicio }),
-      ...(data.horaFin && { finishTime: data.horaFin }),
+      ...(data.weekDay && { weekDay: data.weekDay as DayOfWeek }),
+      ...(data.startTime && { startTime: data.startTime }),
+      ...(data.finishTime && { finishTime: data.finishTime }),
     },
     include: {
       teacherAssignment: {

@@ -80,16 +80,16 @@ export const getHorariosByTeacherAssignment = async (req: Request, res: Response
 
 export const getHorariosByDia = async (req: Request, res: Response) => {
   try {
-    const diaSemana = parseInt(req.params.diaSemana || '0');
+    const weekDay = req.params.weekDay?.toUpperCase();
 
-    if (isNaN(diaSemana) || diaSemana < 1 || diaSemana > 7) {
+    if (!weekDay) {
       return res.status(400).json({
         success: false,
-        message: 'Día de la semana inválido (debe ser entre 1 y 7)',
+        message: 'Día de la semana requerido',
       });
     }
 
-    const horarios = await horarioSemanalService.findByDiaSemana(diaSemana);
+    const horarios = await horarioSemanalService.findByWeekDay(weekDay as any);
 
     res.json({
       success: true,

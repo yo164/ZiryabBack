@@ -11,7 +11,6 @@ export const findClassesByAggregation = async (
   schoolYear?: string,
   onlyWithoutSchedule?: boolean
 ) => {
-  // Obtener todos los assignments
   const assignments = await prisma.teacherOnSubjectOnGroup.findMany({
     where: schoolYear ? { schoolYear } : undefined,
     include: {
@@ -21,21 +20,30 @@ export const findClassesByAggregation = async (
         },
       },
       group: true,
-      weekSchedules: true, // Para contar si hay WeekSchedule
+      WeekSchedule: true,
     },
   });
 
-  // Agrupar por (courseId, grade, groupId, schoolYear)
-  const classMap = new Map<string, any>();
+  const classMap = new Map<string, {
+    courseId: number;
+    courseName: string;
+    grade: string;
+    groupId: number;
+    groupName: string;
+    schoolYear: string;
+    subjectIds: Set<number>;
+    hasWeekSchedule: boolean;
+  }>();
 
   for (const assignment of assignments) {
-    const key = `${assignment.subject.course.id}_${assignment.subject.grade}_${assignment.idGroup}_${assignment.schoolYear}`;
+    const course = assignment.subject.course;
+    const key = `${course.id}_${assignment.subject.grade}_${assignment.idGroup}_${assignment.schoolYear}`;
 
     if (!classMap.has(key)) {
       classMap.set(key, {
-        courseId: assignment.subject.course.id,
-        courseName: assignment.subject.course.name,
-        grade: assignment.subject.grade.toString(),
+        courseId: course.id,
+        courseName: course.name,
+        grade: String(assignment.subject.grade),
         groupId: assignment.idGroup,
         groupName: assignment.group.name,
         schoolYear: assignment.schoolYear,
@@ -44,33 +52,26 @@ export const findClassesByAggregation = async (
       });
     }
 
-    const classData = classMap.get(key);
+    const classData = classMap.get(key)!;
     classData.subjectIds.add(assignment.idSubject);
-    if (assignment.weekSchedules && assignment.weekSchedules.length > 0) {
+
+    if (assignment.WeekSchedule.length > 0) {
       classData.hasWeekSchedule = true;
     }
   }
 
-  // Convertir a array y formatear
-  let classes = Array.from(classMap.values()).map((cls: any) => ({
+  let classes = Array.from(classMap.values()).map((cls) => ({
     label: `${cls.grade}º ${cls.courseName} — ${cls.groupName}`,
     grade: cls.grade,
-    course: {
-      id: cls.courseId,
-      name: cls.courseName,
-    },
-    group: {
-      id: cls.groupId,
-      name: cls.groupName,
-    },
+    course: { id: cls.courseId, name: cls.courseName },
+    group: { id: cls.groupId, name: cls.groupName },
     schoolYear: cls.schoolYear,
     subjectCount: cls.subjectIds.size,
     hasWeekSchedule: cls.hasWeekSchedule,
   }));
 
-  // Filtrar si onlyWithoutSchedule
   if (onlyWithoutSchedule) {
-    classes = classes.filter((cls: any) => !cls.hasWeekSchedule);
+    classes = classes.filter((cls) => !cls.hasWeekSchedule);
   }
 
   return classes;

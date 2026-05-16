@@ -1,6 +1,33 @@
 import type { Request, Response } from 'express';
 import * as horarioSemanalService from './weekSchedule.service.js';
 
+/**
+ * GET /api/horarios-semanales/classes — selector de clases (CURSO-70)
+ */
+export const getClasses = async (req: Request, res: Response) => {
+  try {
+    const schoolYear = (req.query.schoolYear as string) || undefined;
+    const onlyWithoutSchedule = req.query.onlyWithoutSchedule === 'true';
+
+    const classes = await horarioSemanalService.findClassesByAggregation(
+      schoolYear,
+      onlyWithoutSchedule
+    );
+
+    res.json({
+      success: true,
+      data: classes,
+      count: classes.length,
+    });
+  } catch (error: unknown) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener clases',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
+
 export const getAllHorarios = async (req: Request, res: Response) => {
   try {
     const horarios = await horarioSemanalService.findAll();

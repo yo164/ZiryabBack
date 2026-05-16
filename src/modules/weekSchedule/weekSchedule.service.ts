@@ -3,6 +3,79 @@ import { DayOfWeek } from '@prisma/client';
 
 const VALID_DAYS = new Set<string>(Object.values(DayOfWeek));
 
+/**
+ * Agregación de clases para el selector del builder de horarios (CURSO-70)
+ * Agrupa por (courseId, grade, groupId, schoolYear) y cuenta asignaturas
+ */
+export const findClassesByAggregation = async (
+  schoolYear?: string,
+  onlyWithoutSchedule?: boolean
+) => {
+  // Obtener todos los assignments
+  const assignments = await prisma.teacherOnSubjectOnGroup.findMany({
+    where: schoolYear ? { schoolYear } : undefined,
+    include: {
+      subject: {
+        include: {
+          course: true,
+        },
+      },
+      group: true,
+      weekSchedules: true, // Para contar si hay WeekSchedule
+    },
+  });
+
+  // Agrupar por (courseId, grade, groupId, schoolYear)
+  const classMap = new Map<string, any>();
+
+  for (const assignment of assignments) {
+    const key = `${assignment.subject.course.id}_${assignment.subject.grade}_${assignment.idGroup}_${assignment.schoolYear}`;
+
+    if (!classMap.has(key)) {
+      classMap.set(key, {
+        courseId: assignment.subject.course.id,
+        courseName: assignment.subject.course.name,
+        grade: assignment.subject.grade.toString(),
+        groupId: assignment.idGroup,
+        groupName: assignment.group.name,
+        schoolYear: assignment.schoolYear,
+        subjectIds: new Set<number>(),
+        hasWeekSchedule: false,
+      });
+    }
+
+    const classData = classMap.get(key);
+    classData.subjectIds.add(assignment.idSubject);
+    if (assignment.weekSchedules && assignment.weekSchedules.length > 0) {
+      classData.hasWeekSchedule = true;
+    }
+  }
+
+  // Convertir a array y formatear
+  let classes = Array.from(classMap.values()).map((cls: any) => ({
+    label: `${cls.grade}º ${cls.courseName} — ${cls.groupName}`,
+    grade: cls.grade,
+    course: {
+      id: cls.courseId,
+      name: cls.courseName,
+    },
+    group: {
+      id: cls.groupId,
+      name: cls.groupName,
+    },
+    schoolYear: cls.schoolYear,
+    subjectCount: cls.subjectIds.size,
+    hasWeekSchedule: cls.hasWeekSchedule,
+  }));
+
+  // Filtrar si onlyWithoutSchedule
+  if (onlyWithoutSchedule) {
+    classes = classes.filter((cls: any) => !cls.hasWeekSchedule);
+  }
+
+  return classes;
+};
+
 export const findAll = async () => {
   return prisma.weekSchedule.findMany({
     include: {

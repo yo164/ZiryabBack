@@ -18,6 +18,13 @@ const router = Router();
 router.get('/', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.getAllHorarios);
 
 /**
+ * @route   GET /api/horarios-semanales/classes
+ * @desc    Selector de clases (agregación de asignaciones) — CURSO-70
+ * @access  Admin, Teacher
+ */
+router.get('/classes', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.getClasses);
+
+/**
  * @route   GET /api/horarios-semanales/:id
  * @desc    Obtener un horario por ID
  * @access  Admin, Teacher

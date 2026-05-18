@@ -4,6 +4,249 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+/** Textos de tareas THEORY/PRACTICE según el nombre real de la asignatura. */
+function normalizeSubjectName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+type SubjectTaskCopy = {
+  theoryTitle: string;
+  theoryDescription: string;
+  practiceTitle: string;
+  practiceDescription: string;
+};
+
+function subjectTaskCopy(subjectName: string): SubjectTaskCopy {
+  const n = normalizeSubjectName(subjectName);
+
+  if (n.includes("ipe")) {
+    return {
+      theoryTitle: `Material IPE — ${subjectName}`,
+      theoryDescription:
+        "Orientación laboral, empleabilidad y competencias transversales del módulo (no contenido técnico de otras asignaturas).",
+      practiceTitle: `Actividad IPE — ${subjectName}`,
+      practiceDescription:
+        "Elaborar un CV adaptado al sector del ciclo y un informe breve con ofertas de empleo reales consultadas.",
+    };
+  }
+
+  if (n.includes("sostenibilidad")) {
+    return {
+      theoryTitle: `Temario sostenibilidad — ${subjectName}`,
+      theoryDescription:
+        "Criterios de sostenibilidad, economía circular y impacto ambiental en el ámbito productivo.",
+      practiceTitle: `Caso práctico — ${subjectName}`,
+      practiceDescription:
+        "Analizar un caso real de empresa del sector aplicando medidas de sostenibilidad (informe corto).",
+    };
+  }
+
+  if (n.includes("digitalizacion")) {
+    return {
+      theoryTitle: `Recursos digitalización — ${subjectName}`,
+      theoryDescription:
+        "Transformación digital, herramientas colaborativas y buenas prácticas en entornos productivos.",
+      practiceTitle: `Ejercicio digitalización — ${subjectName}`,
+      practiceDescription:
+        "Documentar una pequeña mejora digital aplicable al taller o empresa de referencia del ciclo.",
+    };
+  }
+
+  if (n.includes("ingles")) {
+    return {
+      theoryTitle: `English materials — ${subjectName}`,
+      theoryDescription:
+        "Vocabulary and reading comprehension for professional English in IT/telecom contexts.",
+      practiceTitle: `Writing task — ${subjectName}`,
+      practiceDescription:
+        "Write a short professional email or technical description in English (150–200 words).",
+    };
+  }
+
+  if (n.includes("proyecto intermodular") || n === "optativa") {
+    return {
+      theoryTitle: `Guía del proyecto — ${subjectName}`,
+      theoryDescription:
+        "Criterios de evaluación, entregables y calendario del proyecto intermodular u optativa.",
+      practiceTitle: `Avance de proyecto — ${subjectName}`,
+      practiceDescription:
+        "Entregar memoria parcial o prototipo según las fases definidas por el tutor del proyecto.",
+    };
+  }
+
+  if (
+    n.includes("base de datos") ||
+    n.includes("bases de datos") ||
+    n.includes("gestion de bases") ||
+    n.includes("gestores de bases de datos") ||
+    n.includes("acceso a datos")
+  ) {
+    return {
+      theoryTitle: `Apuntes BBDD — ${subjectName}`,
+      theoryDescription:
+        "Modelo relacional, SQL, normalización y operaciones con el gestor visto en el módulo.",
+      practiceTitle: `Práctica SQL — ${subjectName}`,
+      practiceDescription:
+        "Diseñar el esquema solicitado y entregar el script SQL con consultas de ejemplo comentadas.",
+    };
+  }
+
+  if (
+    n.includes("desarrollo web") ||
+    n.includes("despliegue de aplicaciones web") ||
+    n.includes("diseño de interfaces") ||
+    n.includes("desarrollo de interfaces") ||
+    n.includes("aplicaciones web") ||
+    n.includes("implantacion de aplicaciones web") ||
+    n.includes("lenguaje de marcas")
+  ) {
+    return {
+      theoryTitle: `Documentación web — ${subjectName}`,
+      theoryDescription:
+        "Apuntes de HTML, CSS, JavaScript o tecnologías del stack web del módulo.",
+      practiceTitle: `Entrega web — ${subjectName}`,
+      practiceDescription:
+        "Completar la página o componente indicado en clase y publicar la URL o el repositorio.",
+    };
+  }
+
+  if (n.includes("entornos de desarrollo")) {
+    return {
+      theoryTitle: `IDE y herramientas — ${subjectName}`,
+      theoryDescription:
+        "Configuración del entorno, depuración, control de versiones y flujo de trabajo del desarrollador.",
+      practiceTitle: `Práctica entorno — ${subjectName}`,
+      practiceDescription:
+        "Configurar el proyecto base en el IDE y entregar capturas del depurador o del repositorio Git.",
+    };
+  }
+
+  if (
+    n.includes("programacion") ||
+    n.includes("servicios y procesos") ||
+    n.includes("multimedia y dispositivos")
+  ) {
+    return {
+      theoryTitle: `Apuntes programación — ${subjectName}`,
+      theoryDescription:
+        "Sintaxis, estructuras de control, POO y patrones básicos del lenguaje usado en el módulo.",
+      practiceTitle: `Ejercicios de código — ${subjectName}`,
+      practiceDescription:
+        "Implementar los ejercicios propuestos y subir el proyecto o ficheros fuente indicados.",
+    };
+  }
+
+  if (
+    n.includes("sistemas informaticos") ||
+    n.includes("sistemas operativos") ||
+    n.includes("implantacion de sistemas") ||
+    n.includes("administracion de sistemas operativos")
+  ) {
+    return {
+      theoryTitle: `Arquitectura y SO — ${subjectName}`,
+      theoryDescription:
+        "Hardware, sistemas operativos, virtualización o administración según el temario del módulo.",
+      practiceTitle: `Práctica de sistemas — ${subjectName}`,
+      practiceDescription:
+        "Realizar la instalación, configuración o script de administración pedido en el enunciado.",
+    };
+  }
+
+  if (
+    n.includes("redes") ||
+    n.includes("servicios de red") ||
+    n.includes("servicios en red") ||
+    n.includes("seguridad y alta disponibilidad") ||
+    n.includes("seguridad informatica") ||
+    n.includes("planificacion y administracion de redes")
+  ) {
+    return {
+      theoryTitle: `Teoría de redes — ${subjectName}`,
+      theoryDescription:
+        "Topologías, protocolos, direccionamiento y servicios de red del temario.",
+      practiceTitle: `Laboratorio de redes — ${subjectName}`,
+      practiceDescription:
+        "Configurar el escenario de red (Packet Tracer, GNS3 o equipos reales) y entregar evidencias.",
+    };
+  }
+
+  if (
+    n.includes("hardware") ||
+    n.includes("montaje") ||
+    n.includes("equipos microinformaticos") ||
+    n.includes("ofimatica")
+  ) {
+    return {
+      theoryTitle: `Material de taller — ${subjectName}`,
+      theoryDescription:
+        "Componentes, montaje, mantenimiento preventivo u ofimática según el módulo.",
+      practiceTitle: `Ficha de práctica — ${subjectName}`,
+      practiceDescription:
+        "Completar el montaje, checklist o documento ofimático solicitado en el taller.",
+    };
+  }
+
+  if (
+    n.includes("electronica") ||
+    n.includes("circuitos") ||
+    n.includes("equipos programables") ||
+    n.includes("mantenimiento electronico") ||
+    n.includes("mantenimiento de equipos") ||
+    n.includes("tecnicas y proceso de montaje")
+  ) {
+    return {
+      theoryTitle: `Fundamentos electrónicos — ${subjectName}`,
+      theoryDescription:
+        "Componentes, mediciones, esquemas y normativa aplicable al módulo de electrónica.",
+      practiceTitle: `Práctica de electrónica — ${subjectName}`,
+      practiceDescription:
+        "Montar o simular el circuito del enunciado y entregar esquema, fotos y mediciones.",
+    };
+  }
+
+  if (
+    n.includes("telecomunicacion") ||
+    n.includes("telefonia") ||
+    n.includes("domotica") ||
+    n.includes("megafonia") ||
+    n.includes("radiocomunicaciones") ||
+    n.includes("circuito cerrado") ||
+    n.includes("instalaciones electricas") ||
+    n.includes("infraestructuras comunes") ||
+    n.includes("infraestructuras de redes de datos")
+  ) {
+    return {
+      theoryTitle: `Normativa e instalaciones — ${subjectName}`,
+      theoryDescription:
+        "Cableado, reglamentación, planos y criterios de instalación del ámbito telecomunicaciones.",
+      practiceTitle: `Actuación en instalación — ${subjectName}`,
+      practiceDescription:
+        "Elaborar croquis, presupuesto simplificado o informe de la instalación práctica del módulo.",
+    };
+  }
+
+  if (n.includes("gestion empresarial") || n.includes("erp")) {
+    return {
+      theoryTitle: `Sistemas ERP — ${subjectName}`,
+      theoryDescription:
+        "Procesos de negocio, módulos ERP y flujos administrativos del software estudiado.",
+      practiceTitle: `Caso ERP — ${subjectName}`,
+      practiceDescription:
+        "Registrar las operaciones del caso práctico en el ERP y entregar capturas o exportación.",
+    };
+  }
+
+  return {
+    theoryTitle: `Temario — ${subjectName}`,
+    theoryDescription: `Material de apoyo y documentación del módulo ${subjectName}.`,
+    practiceTitle: `Práctica — ${subjectName}`,
+    practiceDescription: `Actividad práctica y entregable correspondiente a ${subjectName}.`,
+  };
+}
+
 async function main() {
   console.log('🌱 Iniciando seed...');
 
@@ -8504,141 +8747,135 @@ async function main() {
     }
 
 
-  console.log('Creando Tasks(THEORY)...');
+  console.log('Creando Tasks (THEORY + PRACTICE)...');
 
   const now = new Date();
-  const twoWeeksFromNow = new Date();
-  twoWeeksFromNow.setDate(now.getDate() + 14);
+  const courseYearEnd = new Date("2026-06-30T23:59:59.000Z");
+  const practiceDue = new Date(now);
+  practiceDue.setDate(practiceDue.getDate() + 21);
 
-  // ===========================
-  // 1. CREAR TAREAS DE TEMARIO (THEORY)
-  // ===========================
-  const theoryTasks = await prisma.task.createMany({
-    data: [
-      { idTeacherAssignment: 1, title: 'Temario - Programación', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 2, title: 'Temario - Base de Datos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 3, title: 'Temario - Sistemas Informáticos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 4, title: 'Temario - Lenguaje de Marcas', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 5, title: 'Temario - Entornos de Desarrollo', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 6, title: 'Temario - IPE', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 7, title: 'Temario - Digitalización', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 8, title: 'Temario - Sostenibilidad', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-    ],
+  const assignmentsForTasks = await prisma.teacherOnSubjectOnGroup.findMany({
+    orderBy: { id: "asc" },
+    select: {
+      id: true,
+      schoolYear: true,
+      subject: { select: { name: true } },
+    },
   });
 
+  const taskSeedData: {
+    idTeacherAssignment: number;
+    title: string;
+    description: string;
+    type: "THEORY" | "PRACTICE";
+    startDate: Date;
+    dueDate: Date;
+    schoolYear: string;
+    isPublished: boolean;
+  }[] = [];
+
+  for (const assignment of assignmentsForTasks) {
+    const copy = subjectTaskCopy(assignment.subject.name);
+    taskSeedData.push(
+      {
+        idTeacherAssignment: assignment.id,
+        title: copy.theoryTitle,
+        description: copy.theoryDescription,
+        type: "THEORY",
+        startDate: now,
+        dueDate: courseYearEnd,
+        schoolYear: assignment.schoolYear,
+        isPublished: true,
+      },
+      {
+        idTeacherAssignment: assignment.id,
+        title: copy.practiceTitle,
+        description: copy.practiceDescription,
+        type: "PRACTICE",
+        startDate: now,
+        dueDate: practiceDue,
+        schoolYear: assignment.schoolYear,
+        isPublished: true,
+      },
+    );
+  }
+
+  const TASK_CHUNK = 2000;
+  let theoryTasks = { count: 0 };
+  let practiceTasks = { count: 0 };
+  for (let i = 0; i < taskSeedData.length; i += TASK_CHUNK) {
+    const chunk = taskSeedData.slice(i, i + TASK_CHUNK);
+    const result = await prisma.task.createMany({ data: chunk });
+    theoryTasks.count += chunk.filter((t) => t.type === "THEORY").length;
+    practiceTasks.count += chunk.filter((t) => t.type === "PRACTICE").length;
+    if (result.count !== chunk.length) {
+      throw new Error(
+        "task.createMany: se esperaban " +
+          chunk.length +
+          " filas, insertadas " +
+          result.count,
+      );
+    }
+  }
+
 
 
   // ===========================
-  // 2. CREAR TAREAS DE EXAMEN (EXAM)
-  // ===========================
-
-    console.log('Creando Tasks(EXAM)...');
-
-  const examTasks = await prisma.task.createMany({
-    data: [
-      { idTeacherAssignment: 1, title: 'Examen - Programación', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 2, title: 'Examen - Base de Datos', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 3, title: 'Examen - Sistemas Informáticos', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 4, title: 'Examen - Lenguaje de Marcas', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 5, title: 'Examen - Entornos de Desarrollo', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 6, title: 'Examen - IPE', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 7, title: 'Examen - Digitalización', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 8, title: 'Examen - Sostenibilidad', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-    ],
-  });
-
-
-
-  // ===========================
-  // 3. CREAR STUDENT TASKS
-  // Asumiendo: Tasks IDs 1-16, Enrollments IDs 1-24
-  // Ajusta los IDs de enrollments según tu BD
+  // 3. CREAR STUDENT TASKS (3 alumnos × cada Task)
   // ===========================
 
   console.log('Creando studentTasks...');
-  const studentTasks = await prisma.studentTask.createMany({
-    data: [
-      // Task 1 (Theory Programación) - 3 estudiantes
-      { idTask: 1, idStudentEnrollment: 1, status: 'PENDING' },
-      { idTask: 1, idStudentEnrollment: 9, status: 'PENDING' },
-      { idTask: 1, idStudentEnrollment: 17, status: 'PENDING' },
 
-      // Task 2 (Theory BD) - 3 estudiantes
-      { idTask: 2, idStudentEnrollment: 2, status: 'PENDING' },
-      { idTask: 2, idStudentEnrollment: 10, status: 'PENDING' },
-      { idTask: 2, idStudentEnrollment: 18, status: 'PENDING' },
+  const enrollmentsForStudentTasks =
+    await prisma.studentOnSubjectOnGroup.findMany({
+      select: { id: true, idGroup: true, idSubject: true },
+    });
 
-      // Task 3 (Theory Sistemas) - 3 estudiantes
-      { idTask: 3, idStudentEnrollment: 3, status: 'PENDING' },
-      { idTask: 3, idStudentEnrollment: 11, status: 'PENDING' },
-      { idTask: 3, idStudentEnrollment: 19, status: 'PENDING' },
+  const enrollmentByGroupSubjectForTasks = new Map<string, number[]>();
+  for (const e of enrollmentsForStudentTasks) {
+    const key = e.idGroup + ':' + e.idSubject;
+    const list = enrollmentByGroupSubjectForTasks.get(key) ?? [];
+    list.push(e.id);
+    enrollmentByGroupSubjectForTasks.set(key, list);
+  }
 
-      // Task 4 (Theory Lenguajes) - 3 estudiantes
-      { idTask: 4, idStudentEnrollment: 4, status: 'PENDING' },
-      { idTask: 4, idStudentEnrollment: 12, status: 'PENDING' },
-      { idTask: 4, idStudentEnrollment: 20, status: 'PENDING' },
-
-      // Task 5 (Theory Entornos) - 3 estudiantes
-      { idTask: 5, idStudentEnrollment: 5, status: 'PENDING' },
-      { idTask: 5, idStudentEnrollment: 13, status: 'PENDING' },
-      { idTask: 5, idStudentEnrollment: 21, status: 'PENDING' },
-
-      // Task 6 (Theory IPE) - 3 estudiantes
-      { idTask: 6, idStudentEnrollment: 6, status: 'PENDING' },
-      { idTask: 6, idStudentEnrollment: 14, status: 'PENDING' },
-      { idTask: 6, idStudentEnrollment: 22, status: 'PENDING' },
-
-      // Task 7 (Theory Digitalización) - 3 estudiantes
-      { idTask: 7, idStudentEnrollment: 7, status: 'PENDING' },
-      { idTask: 7, idStudentEnrollment: 15, status: 'PENDING' },
-      { idTask: 7, idStudentEnrollment: 23, status: 'PENDING' },
-
-      // Task 8 (Theory Sostenibilidad) - 3 estudiantes
-      { idTask: 8, idStudentEnrollment: 8, status: 'PENDING' },
-      { idTask: 8, idStudentEnrollment: 16, status: 'PENDING' },
-      { idTask: 8, idStudentEnrollment: 24, status: 'PENDING' },
-
-      // Task 9 (Exam Programación) - 3 estudiantes
-      { idTask: 9, idStudentEnrollment: 1, status: 'PENDING' },
-      { idTask: 9, idStudentEnrollment: 9, status: 'PENDING' },
-      { idTask: 9, idStudentEnrollment: 17, status: 'PENDING' },
-
-      // Task 10 (Exam BD) - 3 estudiantes
-      { idTask: 10, idStudentEnrollment: 2, status: 'PENDING' },
-      { idTask: 10, idStudentEnrollment: 10, status: 'PENDING' },
-      { idTask: 10, idStudentEnrollment: 18, status: 'PENDING' },
-
-      // Task 11 (Exam Sistemas) - 3 estudiantes
-      { idTask: 11, idStudentEnrollment: 3, status: 'PENDING' },
-      { idTask: 11, idStudentEnrollment: 11, status: 'PENDING' },
-      { idTask: 11, idStudentEnrollment: 19, status: 'PENDING' },
-
-      // Task 12 (Exam Lenguajes) - 3 estudiantes
-      { idTask: 12, idStudentEnrollment: 4, status: 'PENDING' },
-      { idTask: 12, idStudentEnrollment: 12, status: 'PENDING' },
-      { idTask: 12, idStudentEnrollment: 20, status: 'PENDING' },
-
-      // Task 13 (Exam Entornos) - 3 estudiantes
-      { idTask: 13, idStudentEnrollment: 5, status: 'PENDING' },
-      { idTask: 13, idStudentEnrollment: 13, status: 'PENDING' },
-      { idTask: 13, idStudentEnrollment: 21, status: 'PENDING' },
-
-      // Task 14 (Exam IPE) - 3 estudiantes
-      { idTask: 14, idStudentEnrollment: 6, status: 'PENDING' },
-      { idTask: 14, idStudentEnrollment: 14, status: 'PENDING' },
-      { idTask: 14, idStudentEnrollment: 22, status: 'PENDING' },
-
-      // Task 15 (Exam Digitalización) - 3 estudiantes
-      { idTask: 15, idStudentEnrollment: 7, status: 'PENDING' },
-      { idTask: 15, idStudentEnrollment: 15, status: 'PENDING' },
-      { idTask: 15, idStudentEnrollment: 23, status: 'PENDING' },
-
-      // Task 16 (Exam Sostenibilidad) - 3 estudiantes
-      { idTask: 16, idStudentEnrollment: 8, status: 'PENDING' },
-      { idTask: 16, idStudentEnrollment: 16, status: 'PENDING' },
-      { idTask: 16, idStudentEnrollment: 24, status: 'PENDING' },
-    ],
+  const tasksForStudentTasks = await prisma.task.findMany({
+    orderBy: { id: 'asc' },
+    select: {
+      id: true,
+      teacherAssignment: { select: { idGroup: true, idSubject: true } },
+    },
   });
+
+  const studentTaskData: {
+    idTask: number;
+    idStudentEnrollment: number;
+    status: 'PENDING';
+  }[] = [];
+
+  for (const task of tasksForStudentTasks) {
+    const assignment = task.teacherAssignment;
+    const enrollments =
+      enrollmentByGroupSubjectForTasks.get(
+        assignment.idGroup + ':' + assignment.idSubject,
+      ) ?? [];
+    for (const idStudentEnrollment of enrollments) {
+      studentTaskData.push({
+        idTask: task.id,
+        idStudentEnrollment,
+        status: 'PENDING',
+      });
+    }
+  }
+
+  const STUDENT_TASK_CHUNK = 2000;
+  let studentTasks = { count: 0 };
+  for (let i = 0; i < studentTaskData.length; i += STUDENT_TASK_CHUNK) {
+    const chunk = await prisma.studentTask.createMany({
+      data: studentTaskData.slice(i, i + STUDENT_TASK_CHUNK),
+    });
+    studentTasks.count += chunk.count;
+  }
 
 
 
@@ -8661,8 +8898,8 @@ async function main() {
   console.log(`👥 ${assistance.count} assistances creados`);
 
 
-  console.log(`✅ ${theoryTasks.count} tareas de temario creadas`);
-  console.log(`✅ ${examTasks.count} tareas de examen creadas`);
+  console.log(`✅ ${theoryTasks.count} tareas THEORY creadas`);
+  console.log(`✅ ${practiceTasks.count} tareas PRACTICE creadas`);
   console.log(`✅ ${studentTasks.count} StudentTasks creadas`);
   
 

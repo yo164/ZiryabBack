@@ -108,8 +108,8 @@ model TeacherOnSubjectOnGroup {
   id         Int      @id @default(autoincrement())
   
   
-  idTeacher  Int
-  teacher    Teacher  @relation(fields: [idTeacher], references: [id], onDelete: Cascade)
+  idTeacher  Int?
+  teacher    Teacher? @relation(fields: [idTeacher], references: [id], onDelete: SetNull)
   
   idSubject  Int
   subject    Subject  @relation(fields: [idSubject], references: [id], onDelete: Cascade)
@@ -122,7 +122,7 @@ model TeacherOnSubjectOnGroup {
   //isActive   Boolean  @default(true)  // NUEVO: Si la asignación está vigente
   createdAt  DateTime @default(now())
   
-  @@unique([idTeacher, idSubject, idGroup, schoolYear])
+  @@unique([idSubject, idGroup, schoolYear])
   @@index([schoolYear])  // NUEVO: Para consultas por año académico
   @@index([idTeacher, schoolYear])  // NUEVO: Para ver carga de un profesor
   
@@ -185,6 +185,7 @@ model WeekSchedule {
   id                   Int      @id @default(autoincrement())
   idTeacherAssignment  Int
   teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id],name:"TeacherAssignment", onDelete: Cascade)
+  label                String   // ej. "1º DAM — Mañana" (identidad de clase agregada)
   weekDay            DayOfWeek // Convertimos el Int a Enum para mayor consistencia
   startTime          String   // "09:00" o usar DateTime horaInicio
   finishTime             String   // "10:00" horaFin
@@ -196,6 +197,7 @@ model WeekSchedule {
   sessions             SessionClass[]
   
   @@index([idTeacherAssignment, weekDay])//filtra por id de teacherOnSubjectOnGroup y el dia de la semana
+  @@index([label])
 }
 // Estados de una sesión de clase
 enum SessionStatus {

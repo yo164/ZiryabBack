@@ -1,4 +1,5 @@
 import { PrismaClient, DayOfWeek, SessionStatus } from '@prisma/client';
+import { buildClassLabelFromAssignment } from '../../utils/classLabel.js';
 
 const prisma = new PrismaClient();
 
@@ -204,6 +205,8 @@ export const findOrCreateSessionForSubjectAndTeacher = async (
     where: { idSubject, idTeacher },
     include: {
       WeekSchedule: { take: 1 },
+      subject: { include: { course: true } },
+      group: true,
     },
   });
 
@@ -219,6 +222,7 @@ export const findOrCreateSessionForSubjectAndTeacher = async (
     schedule = await prisma.weekSchedule.create({
       data: {
         idTeacherAssignment: assignment.id,
+        label: buildClassLabelFromAssignment(assignment),
         weekDay: 'MONDAY',
         startTime: '00:00',
         finishTime: '23:59',

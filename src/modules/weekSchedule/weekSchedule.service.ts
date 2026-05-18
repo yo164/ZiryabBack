@@ -1,5 +1,9 @@
 import prisma from '../../config/prisma.js';
 import { DayOfWeek } from '@prisma/client';
+import {
+  buildClassLabel,
+  buildClassLabelFromAssignment,
+} from '../../utils/classLabel.js';
 
 const VALID_DAYS = new Set<string>(Object.values(DayOfWeek));
 
@@ -20,9 +24,18 @@ export const findClassesByAggregation = async (
         },
       },
       group: true,
-      WeekSchedule: true,
     },
   });
+
+  const scheduledLabels = new Set(
+    (
+      await prisma.weekSchedule.findMany({
+        where: schoolYear ? { teacherAssignment: { schoolYear } } : undefined,
+        select: { label: true },
+        distinct: ['label'],
+      })
+    ).map((row) => row.label)
+  );
 
   const classMap = new Map<string, {
     courseId: number;
@@ -55,13 +68,18 @@ export const findClassesByAggregation = async (
     const classData = classMap.get(key)!;
     classData.subjectIds.add(assignment.idSubject);
 
-    if (assignment.WeekSchedule.length > 0) {
+    const classLabel = buildClassLabel(
+      String(assignment.subject.grade),
+      assignment.subject.course.name,
+      assignment.group.name
+    );
+    if (scheduledLabels.has(classLabel)) {
       classData.hasWeekSchedule = true;
     }
   }
 
   let classes = Array.from(classMap.values()).map((cls) => ({
-    label: `${cls.grade}º ${cls.courseName} — ${cls.groupName}`,
+    label: buildClassLabel(cls.grade, cls.courseName, cls.groupName),
     grade: cls.grade,
     course: { id: cls.courseId, name: cls.courseName },
     group: { id: cls.groupId, name: cls.groupName },
@@ -134,13 +152,13 @@ export const findByTeacherAssignment = async (idTeacherAssignment: number) => {
   });
 };
 
-export const findByTeacherId = async(idTeacher: number) => {
+export const findByTeacherId = async (idTeacher: number) => {
   return prisma.weekSchedule.findMany({
-    where: { 
+    where: {
       teacherAssignment: {
-        idTeacher
-      }
-     },
+        idTeacher,
+      },
+    },
     include: {
       teacherAssignment:{
         include: {
@@ -225,15 +243,22 @@ export const create = async (data: {
 
   const assignmentExists = await prisma.teacherOnSubjectOnGroup.findUnique({
     where: { id: data.idTeacherAssignment },
+    include: {
+      subject: { include: { course: true } },
+      group: true,
+    },
   });
 
   if (!assignmentExists) {
     throw new Error('La asignación de profesor no existe');
   }
 
+  const label = buildClassLabelFromAssignment(assignmentExists);
+
   return prisma.weekSchedule.create({
     data: {
       idTeacherAssignment: data.idTeacherAssignment,
+      label,
       weekDay: data.weekDay as DayOfWeek,
       startTime: data.startTime,
       finishTime: data.finishTime,

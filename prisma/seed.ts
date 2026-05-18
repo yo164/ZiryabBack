@@ -5136,14 +5136,14 @@ async function main() {
   // ===========================
   const theoryTasks = await prisma.task.createMany({
     data: [
-      { idTeacherAssignment: 1, title: 'Temario - Programación', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 2, title: 'Temario - Base de Datos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 3, title: 'Temario - Sistemas Informáticos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 4, title: 'Temario - Lenguaje de Marcas', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 5, title: 'Temario - Entornos de Desarrollo', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 6, title: 'Temario - IPE', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 7, title: 'Temario - Digitalización', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 8, title: 'Temario - Sostenibilidad', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2025-06-30'), schoolYear: '2024-2025' },
+      { idTeacherAssignment: 1, title: 'Temario - Programación', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 2, title: 'Temario - Base de Datos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 3, title: 'Temario - Sistemas Informáticos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 4, title: 'Temario - Lenguaje de Marcas', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 5, title: 'Temario - Entornos de Desarrollo', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 6, title: 'Temario - IPE', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 7, title: 'Temario - Digitalización', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 8, title: 'Temario - Sostenibilidad', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
     ],
   });
 
@@ -5157,14 +5157,14 @@ async function main() {
 
   const examTasks = await prisma.task.createMany({
     data: [
-      { idTeacherAssignment: 1, title: 'Examen - Programación', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 2, title: 'Examen - Base de Datos', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 3, title: 'Examen - Sistemas Informáticos', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 4, title: 'Examen - Lenguaje de Marcas', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 5, title: 'Examen - Entornos de Desarrollo', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 6, title: 'Examen - IPE', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 7, title: 'Examen - Digitalización', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
-      { idTeacherAssignment: 8, title: 'Examen - Sostenibilidad', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000), schoolYear: '2024-2025' },
+      { idTeacherAssignment: 1, title: 'Examen - Programación', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 2, title: 'Examen - Base de Datos', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 3, title: 'Examen - Sistemas Informáticos', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 4, title: 'Examen - Lenguaje de Marcas', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 5, title: 'Examen - Entornos de Desarrollo', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 6, title: 'Examen - IPE', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 7, title: 'Examen - Digitalización', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
+      { idTeacherAssignment: 8, title: 'Examen - Sostenibilidad', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
     ],
   });
 

@@ -99,7 +99,9 @@ export const getStudentTasksByStudent = async (req: Request, res: Response) => {
       });
     }
 
-    const studentTasks = await studentTaskService.findByStudent(idStudentEnrollment);
+    const requestingStudentId = req.user?.role === 'STUDENT' ? req.user.sub : undefined;
+
+    const studentTasks = await studentTaskService.findByStudent(idStudentEnrollment, requestingStudentId);
 
     res.json({
       success: true,
@@ -107,7 +109,8 @@ export const getStudentTasksByStudent = async (req: Request, res: Response) => {
       count: studentTasks.length,
     });
   } catch (error: any) {
-    res.status(500).json({
+    const status = typeof error?.status === 'number' ? error.status : 500;
+    res.status(status).json({
       success: false,
       message: 'Error al obtener entregas del estudiante',
       error: error.message,
@@ -231,7 +234,7 @@ export const submitStudentTask = async (req: Request, res: Response) => {
     }
 
     const { attachmentUrl } = parsed.data;
-    const submittedTask = await studentTaskService.submit(id, { attachmentUrl });
+    const submittedTask = await studentTaskService.submit(id, { attachmentUrl: attachmentUrl || undefined });
 
     res.json({ success: true, message: 'Tarea entregada exitosamente', data: submittedTask });
   } catch (error: any) {

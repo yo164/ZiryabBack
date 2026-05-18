@@ -86,7 +86,7 @@ router.get('/task/:idTask', auth, authorize(['ADMIN', 'TEACHER']), studentTaskCo
  *       200:
  *         description: Lista de entregas
  */
-router.get('/student/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.getStudentTasksByStudent);
+router.get('/student/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.getStudentTasksByStudent);
 
 // ============================================
 // RUTAS PROTEGIDAS (PUT, PATCH, DELETE, POST)

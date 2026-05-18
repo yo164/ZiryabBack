@@ -83,7 +83,7 @@ const taskFileFilter = (req: Request, file: Express.Multer.File, cb: multer.File
 export const uploadTaskAttachment = multer({
     storage: taskStorage,
     limits: {
-        fileSize: 10 * 1024 * 1024 // 10 MB
+        fileSize: 50 * 1024 * 1024 // 50 MB
     },
     fileFilter: taskFileFilter
 });
@@ -107,7 +107,7 @@ const submissionStorage = multer.diskStorage({
 export const uploadSubmission = multer({
     storage: submissionStorage,
     limits: {
-        fileSize: 10 * 1024 * 1024
+        fileSize: 50 * 1024 * 1024 // 50 MB
     },
     fileFilter: taskFileFilter
 });

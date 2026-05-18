@@ -112,6 +112,7 @@ export const findSubjectsByStudentId = async (studentId: number) => {
     });
 
     return result.map((item) => ({
+        id: item.id,
         subject: item.subject,
         group: item.group,
         schoolYear: item.schoolYear,

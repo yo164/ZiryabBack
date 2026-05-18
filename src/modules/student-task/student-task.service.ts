@@ -81,7 +81,53 @@ export const findByTask = async (idTask: number) => {
   });
 };
 
-export const findByStudent = async (idStudentEnrollment: number) => {
+export const findByStudent = async (idStudentEnrollment: number, requestingStudentId?: number) => {
+  const enrollment = await prisma.studentOnSubjectOnGroup.findUnique({
+    where: { id: idStudentEnrollment }
+  });
+
+  if (!enrollment) {
+    throw Object.assign(new Error('Matrícula no encontrada'), { status: 404 });
+  }
+
+  if (requestingStudentId !== undefined && enrollment.idStudent !== requestingStudentId) {
+    throw Object.assign(new Error('No puedes ver las entregas de otro alumno'), { status: 403 });
+  }
+
+  // Obtener todas las tareas publicadas de la asignatura y grupo asociados a la matrícula y año académico
+  const tasks = await prisma.task.findMany({
+    where: {
+      teacherAssignment: {
+        idSubject: enrollment.idSubject,
+        idGroup: enrollment.idGroup,
+      },
+      schoolYear: enrollment.schoolYear,
+      isPublished: true,
+    },
+  });
+
+  if (tasks.length > 0) {
+    const existingStudentTasks = await prisma.studentTask.findMany({
+      where: { idStudentEnrollment },
+      select: { idTask: true },
+    });
+    const existingTaskIds = new Set(existingStudentTasks.map((st) => st.idTask));
+
+    const missingTasks = tasks.filter((t) => !existingTaskIds.has(t.id));
+
+    if (missingTasks.length > 0) {
+      await prisma.studentTask.createMany({
+        data: missingTasks.map((t) => ({
+          idTask: t.id,
+          idStudentEnrollment: idStudentEnrollment,
+          status: 'PENDING',
+          isEnabled: true,
+        })),
+        skipDuplicates: true,
+      });
+    }
+  }
+
   return prisma.studentTask.findMany({
     where: { idStudentEnrollment },
     include: {

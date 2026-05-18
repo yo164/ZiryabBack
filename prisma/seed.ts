@@ -247,6 +247,82 @@ function subjectTaskCopy(subjectName: string): SubjectTaskCopy {
   };
 }
 
+/** Título y descripción de examen según la asignatura. */
+function examTaskCopy(subjectName: string): { title: string; description: string } {
+  const n = normalizeSubjectName(subjectName);
+
+  if (n.includes("ipe")) {
+    return {
+      title: `Examen IPE — ${subjectName}`,
+      description:
+        "Prueba sobre orientación laboral, competencias transversales y preparación de entrevistas del módulo IPE.",
+    };
+  }
+  if (n.includes("ingles")) {
+    return {
+      title: `Exam — ${subjectName}`,
+      description:
+        "Written test: professional vocabulary and short answers in English related to the module.",
+    };
+  }
+  if (
+    n.includes("base de datos") ||
+    n.includes("bases de datos") ||
+    n.includes("gestion de bases") ||
+    n.includes("gestores de bases de datos") ||
+    n.includes("acceso a datos")
+  ) {
+    return {
+      title: `Examen BBDD — ${subjectName}`,
+      description:
+        "Examen parcial: modelo relacional, consultas SQL y normalización del temario de base de datos.",
+    };
+  }
+  if (
+    n.includes("programacion") ||
+    n.includes("servicios y procesos") ||
+    n.includes("multimedia y dispositivos") ||
+    n.includes("desarrollo web") ||
+    n.includes("entornos de desarrollo")
+  ) {
+    return {
+      title: `Examen — ${subjectName}`,
+      description:
+        "Examen parcial de programación: ejercicios de código y preguntas teóricas del módulo.",
+    };
+  }
+  if (
+    n.includes("redes") ||
+    n.includes("seguridad") ||
+    n.includes("sistemas operativos") ||
+    n.includes("servicios de red") ||
+    n.includes("servicios en red")
+  ) {
+    return {
+      title: `Examen — ${subjectName}`,
+      description:
+        "Examen parcial sobre configuración, protocolos y escenarios de red del temario.",
+    };
+  }
+  if (
+    n.includes("electronica") ||
+    n.includes("circuitos") ||
+    n.includes("telecomunicacion") ||
+    n.includes("instalaciones")
+  ) {
+    return {
+      title: `Examen — ${subjectName}`,
+      description:
+        "Examen parcial: esquemas, mediciones, normativa y criterios técnicos del módulo.",
+    };
+  }
+
+  return {
+    title: `Examen — ${subjectName}`,
+    description: `Examen parcial del módulo ${subjectName}. Consultar temario y prácticas del curso.`,
+  };
+}
+
 async function main() {
   console.log('🌱 Iniciando seed...');
 
@@ -8754,6 +8830,10 @@ async function main() {
   const practiceDue = new Date(now);
   practiceDue.setDate(practiceDue.getDate() + 21);
 
+  const twoWeeksFromNow = new Date(now);
+  twoWeeksFromNow.setDate(now.getDate() + 14);
+  const examDue = new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000);
+
   const assignmentsForTasks = await prisma.teacherOnSubjectOnGroup.findMany({
     orderBy: { id: "asc" },
     select: {
@@ -8818,7 +8898,43 @@ async function main() {
     }
   }
 
+  // ===========================
+  // 2. CREAR TAREAS DE EXAMEN (EXAM)
+  // ===========================
 
+  console.log('Creando Tasks(EXAM)...');
+
+  const examTaskData: {
+    idTeacherAssignment: number;
+    title: string;
+    description: string;
+    type: "EXAM";
+    startDate: Date;
+    dueDate: Date;
+    schoolYear: string;
+    isPublished: boolean;
+  }[] = [];
+
+  for (const assignment of assignmentsForTasks) {
+    const exam = examTaskCopy(assignment.subject.name);
+    examTaskData.push({
+      idTeacherAssignment: assignment.id,
+      title: exam.title,
+      description: exam.description,
+      type: "EXAM",
+      startDate: twoWeeksFromNow,
+      dueDate: examDue,
+      schoolYear: assignment.schoolYear,
+      isPublished: true,
+    });
+  }
+
+  let examTasks = { count: 0 };
+  for (let i = 0; i < examTaskData.length; i += TASK_CHUNK) {
+    const chunk = examTaskData.slice(i, i + TASK_CHUNK);
+    const result = await prisma.task.createMany({ data: chunk });
+    examTasks.count += result.count;
+  }
 
   // ===========================
   // 3. CREAR STUDENT TASKS (3 alumnos × cada Task)
@@ -8900,6 +9016,7 @@ async function main() {
 
   console.log(`✅ ${theoryTasks.count} tareas THEORY creadas`);
   console.log(`✅ ${practiceTasks.count} tareas PRACTICE creadas`);
+  console.log(`✅ ${examTasks.count} tareas de examen creadas`);
   console.log(`✅ ${studentTasks.count} StudentTasks creadas`);
   
 

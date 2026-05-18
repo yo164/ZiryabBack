@@ -21,6 +21,7 @@ import taskRoutes from './modules/task/task.routes.js';
 import studentTaskRoutes from './modules/student-task/student-task.routes.js';
 import usersRoutes from './modules/users/users.routes.js';
 import notificationsRoutes from './modules/notifications/notifications.routes.js';
+import announcementsRoutes from './modules/announcements/announcements.routes.js';
 
 
 
@@ -121,6 +122,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/student-tasks', studentTaskRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/announcements', announcementsRoutes);
 
 
 

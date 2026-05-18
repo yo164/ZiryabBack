@@ -675,6 +675,106 @@ async function main() {
           dni: '89012359V',
           firebaseUID: 'H4NvRLX4HFd4Z7Ixs9ZI0R5ru4s1',
         },
+        // 19–29: plantilla ampliada seed TFG. Sustituir firebaseUID en Firebase.
+        {
+          email: 'profesor19@ziryab.es',
+          name: 'Alberto',
+          surname: 'Méndez',
+          ndSurname: 'Ortega',
+          birthDate: new Date('1984-04-08'),
+          dni: '89012360W',
+          firebaseUID: 'SEEDTEACHER19PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor20@ziryab.es',
+          name: 'Cristina',
+          surname: 'Delgado',
+          ndSurname: 'Ramos',
+          birthDate: new Date('1990-10-21'),
+          dni: '89012361X',
+          firebaseUID: 'SEEDTEACHER20PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor21@ziryab.es',
+          name: 'Fernando',
+          surname: 'Iglesias',
+          ndSurname: 'Campos',
+          birthDate: new Date('1981-02-27'),
+          dni: '89012362Y',
+          firebaseUID: 'SEEDTEACHER21PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor22@ziryab.es',
+          name: 'Mónica',
+          surname: 'Vargas',
+          ndSurname: 'Peña',
+          birthDate: new Date('1987-07-16'),
+          dni: '89012363Z',
+          firebaseUID: 'SEEDTEACHER22PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor23@ziryab.es',
+          name: 'Iván',
+          surname: 'Herrero',
+          ndSurname: 'León',
+          birthDate: new Date('1983-12-01'),
+          dni: '89012364A',
+          firebaseUID: 'SEEDTEACHER23PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor24@ziryab.es',
+          name: 'Rosa',
+          surname: 'Aguilar',
+          ndSurname: 'Núñez',
+          birthDate: new Date('1992-05-19'),
+          dni: '89012365B',
+          firebaseUID: 'SEEDTEACHER24PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor25@ziryab.es',
+          name: 'Óscar',
+          surname: 'Prieto',
+          ndSurname: 'Sanz',
+          birthDate: new Date('1986-09-09'),
+          dni: '89012366C',
+          firebaseUID: 'SEEDTEACHER25PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor26@ziryab.es',
+          name: 'Teresa',
+          surname: 'Blanco',
+          ndSurname: 'Medina',
+          birthDate: new Date('1980-11-30'),
+          dni: '89012367D',
+          firebaseUID: 'SEEDTEACHER26PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor27@ziryab.es',
+          name: 'Marc',
+          surname: 'Fuentes',
+          ndSurname: 'Cortés',
+          birthDate: new Date('1988-03-12'),
+          dni: '89012368E',
+          firebaseUID: 'SEEDTEACHER27PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor28@ziryab.es',
+          name: 'Lucía',
+          surname: 'Reyes',
+          ndSurname: 'Gallego',
+          birthDate: new Date('1991-08-24'),
+          dni: '89012369F',
+          firebaseUID: 'SEEDTEACHER28PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor29@ziryab.es',
+          name: 'Héctor',
+          surname: 'Pascual',
+          ndSurname: 'Benítez',
+          birthDate: new Date('1985-01-07'),
+          dni: '89012370G',
+          firebaseUID: 'SEEDTEACHER29PENDINGFIREBASE00',
+        },
       ]
     });
 
@@ -3948,56 +4048,56 @@ async function main() {
     prisma.teacherOnSubjectOnGroup.createMany({
       data: [
         //DAM MAÑANA
-        //profesor 1 programación DAM mañana (juanarrow)
+        //profesor 1 programación DAM mañana
         {
           idTeacher: 1,
           idSubject: 1,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 2 bbdd DAM mañana (eva)
+        //profesor 2 bbdd DAM mañana 
         {
           idTeacher: 2,
           idSubject: 2,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 3 sistemas DAM mañana (gregorio)
+        //profesor 3 sistemas DAM mañana 
         {
           idTeacher: 3,
           idSubject: 3,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 4 Lenguaje de marcas DAM mañana (el bajas)
+        //profesor 4 Lenguaje de marcas DAM mañana 
         {
           idTeacher: 4,
           idSubject: 4,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 5 Entornos de desarrollo DAM mañana (fernando parra)
+        //profesor 5 Entornos de desarrollo DAM mañana 
         {
           idTeacher: 5,
           idSubject: 5,
           idGroup: 1,
           schoolYear: acaYear
         },
-        // profesor 6 Ipe Dam mañana (rosamunda)
+        // profesor 6 Ipe Dam mañana 
         {
           idTeacher: 6,
           idSubject: 6,
           idGroup: 1,
           schoolYear: acaYear
         },
-        // profesor 7 sostenibilidad dam mañana (el bizco)
+        // profesor 7 sostenibilidad dam mañana 
         {
           idTeacher: 7,
           idSubject: 7,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 2 digitalización dam mañana (eva)
+        //profesor 2 digitalización dam mañana 
         {
           idTeacher: 2,
           idSubject: 8,
@@ -4031,7 +4131,7 @@ async function main() {
         {
           idTeacher: 10,
           idSubject: 12,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor 5 da edes en 1 daw mañana
@@ -4045,7 +4145,7 @@ async function main() {
         {
           idTeacher: 6,
           idSubject: 14,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor7 da sostenibilidad en 1 daw mañana
@@ -4285,7 +4385,600 @@ async function main() {
           idSubject: 16,
           idGroup: 2,
           schoolYear: acaYear
-        }
+        },
+
+
+        //IT MAÑANA
+        //profesor 19 da infraestructuras telecomunicacion en 1 it mañana
+        {
+          idTeacher: 19,
+          idSubject: 32,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 21 da electronica aplicada en 1 it mañana
+        {
+          idTeacher: 21,
+          idSubject: 33,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 22 da equipos microinformaticos en 1 it mañana
+        {
+          idTeacher: 22,
+          idSubject: 34,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 25 da infraestructuras redes en 1 it mañana
+        {
+          idTeacher: 25,
+          idSubject: 35,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 26 da instalaciones electricas en 1 it mañana
+        {
+          idTeacher: 26,
+          idSubject: 36,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 17 da ipe en 1 it mañana
+        {
+          idTeacher: 17,
+          idSubject: 37,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 7 da sostenibilidad en 1 it mañana
+        {
+          idTeacher: 7,
+          idSubject: 38,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 28 da digitalizacion en 1 it mañana
+        {
+          idTeacher: 28,
+          idSubject: 39,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //ME MAÑANA
+        //profesor 23 da circuitos analogicos en 1 me mañana
+        {
+          idTeacher: 23,
+          idSubject: 40,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 24 da equipos programables en 1 me mañana
+        {
+          idTeacher: 24,
+          idSubject: 41,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 29 da mantenimiento voz y datos en 1 me mañana
+        {
+          idTeacher: 29,
+          idSubject: 42,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 27 da montaje equipos electronicos en 1 me mañana
+        {
+          idTeacher: 27,
+          idSubject: 43,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 26 da infraestructuras mantenimiento en 1 me mañana
+        {
+          idTeacher: 26,
+          idSubject: 44,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 17 da ipe en 1 me mañana
+        {
+          idTeacher: 17,
+          idSubject: 45,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 7 da sostenibilidad en 1 me mañana
+        {
+          idTeacher: 7,
+          idSubject: 46,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 28 da digitalizacion en 1 me mañana
+        {
+          idTeacher: 28,
+          idSubject: 47,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //DAM 2 MAÑANA
+        //profesor 2 da acceso a datos en 2 dam mañana
+        {
+          idTeacher: 2,
+          idSubject: 48,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 8 da desarrollo interfaces en 2 dam mañana
+        {
+          idTeacher: 8,
+          idSubject: 49,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 1 da programacion multimedia en 2 dam mañana
+        {
+          idTeacher: 1,
+          idSubject: 50,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 5 da programacion servicios en 2 dam mañana
+        {
+          idTeacher: 5,
+          idSubject: 51,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 14 da sistemas gestion empresarial en 2 dam mañana
+        {
+          idTeacher: 14,
+          idSubject: 52,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 6 da ipe ii en 2 dam mañana
+        {
+          idTeacher: 6,
+          idSubject: 53,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 16 da optativa en 2 dam mañana
+        {
+          idTeacher: 16,
+          idSubject: 54,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 18 da proyecto intermodular en 2 dam mañana
+        {
+          idTeacher: 18,
+          idSubject: 55,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 21 da ingles en 2 dam mañana
+        {
+          idTeacher: 21,
+          idSubject: 56,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //DAM TARDE
+        //profesor 16 da acceso a datos en 2 dam tarde
+        {
+          idTeacher: 16,
+          idSubject: 48,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 14 da desarrollo interfaces en 2 dam tarde
+        {
+          idTeacher: 14,
+          idSubject: 49,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 15 da programacion multimedia en 2 dam tarde
+        {
+          idTeacher: 15,
+          idSubject: 50,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 5 da programacion servicios en 2 dam tarde
+        {
+          idTeacher: 5,
+          idSubject: 51,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 13 da sistemas gestion empresarial en 2 dam tarde
+        {
+          idTeacher: 13,
+          idSubject: 52,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 2 da optativa en 2 dam tarde
+        {
+          idTeacher: 2,
+          idSubject: 54,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 18 da proyecto intermodular en 2 dam tarde
+        {
+          idTeacher: 18,
+          idSubject: 55,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 22 da ingles en 2 dam tarde
+        {
+          idTeacher: 22,
+          idSubject: 56,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //DAW 2 MAÑANA
+        //profesor 8 da desarrollo web cliente en 2 daw mañana
+        {
+          idTeacher: 8,
+          idSubject: 57,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 18 da desarrollo web servidor en 2 daw mañana
+        {
+          idTeacher: 18,
+          idSubject: 58,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 16 da despliegue aplicaciones web en 2 daw mañana
+        {
+          idTeacher: 16,
+          idSubject: 59,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 10 da diseño interfaces web en 2 daw mañana
+        {
+          idTeacher: 10,
+          idSubject: 60,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 daw mañana
+        {
+          idTeacher: 20,
+          idSubject: 61,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 5 da optativa en 2 daw mañana
+        {
+          idTeacher: 5,
+          idSubject: 62,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 15 da proyecto intermodular en 2 daw mañana
+        {
+          idTeacher: 15,
+          idSubject: 63,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 21 da ingles en 2 daw mañana
+        {
+          idTeacher: 21,
+          idSubject: 64,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //DAW TARDE
+        //profesor 15 da desarrollo web cliente en 2 daw tarde
+        {
+          idTeacher: 15,
+          idSubject: 57,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 18 da desarrollo web servidor en 2 daw tarde
+        {
+          idTeacher: 18,
+          idSubject: 58,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 16 da despliegue aplicaciones web en 2 daw tarde
+        {
+          idTeacher: 16,
+          idSubject: 59,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 10 da diseño interfaces web en 2 daw tarde
+        {
+          idTeacher: 10,
+          idSubject: 60,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 17 da ipe ii en 2 dam tarde
+        {
+          idTeacher: 17,
+          idSubject: 53,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 17 da ipe ii en 2 daw tarde
+        {
+          idTeacher: 17,
+          idSubject: 61,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 5 da optativa en 2 daw tarde
+        {
+          idTeacher: 5,
+          idSubject: 62,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 13 da proyecto intermodular en 2 daw tarde
+        {
+          idTeacher: 13,
+          idSubject: 63,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 22 da ingles en 2 daw tarde
+        {
+          idTeacher: 22,
+          idSubject: 64,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //ASIR 2 MAÑANA
+        //profesor 11 da administracion sistemas operativos en 2 asir mañana
+        {
+          idTeacher: 11,
+          idSubject: 65,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 12 da servicios red en 2 asir mañana
+        {
+          idTeacher: 12,
+          idSubject: 66,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 11 da implantacion aplicaciones web en 2 asir mañana
+        {
+          idTeacher: 11,
+          idSubject: 67,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 14 da administracion sgbd en 2 asir mañana
+        {
+          idTeacher: 14,
+          idSubject: 68,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 13 da seguridad alta disponibilidad en 2 asir mañana
+        {
+          idTeacher: 13,
+          idSubject: 69,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 asir mañana
+        {
+          idTeacher: 20,
+          idSubject: 70,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 16 da optativa en 2 asir mañana
+        {
+          idTeacher: 16,
+          idSubject: 71,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 21 da proyecto intermodular en 2 asir mañana
+        {
+          idTeacher: 21,
+          idSubject: 72,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 22 da ingles en 2 asir mañana
+        {
+          idTeacher: 22,
+          idSubject: 73,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //SMR 2 MAÑANA
+        //profesor 15 da aplicaciones web en 2 smr mañana
+        {
+          idTeacher: 15,
+          idSubject: 74,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 13 da seguridad informatica en 2 smr mañana
+        {
+          idTeacher: 13,
+          idSubject: 75,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 12 da servicios en red en 2 smr mañana
+        {
+          idTeacher: 12,
+          idSubject: 76,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 11 da sistemas operativos en red en 2 smr mañana
+        {
+          idTeacher: 11,
+          idSubject: 77,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 smr mañana
+        {
+          idTeacher: 20,
+          idSubject: 78,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 5 da optativa en 2 smr mañana
+        {
+          idTeacher: 5,
+          idSubject: 79,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 18 da proyecto intermodular en 2 smr mañana
+        {
+          idTeacher: 18,
+          idSubject: 80,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 22 da ingles en 2 smr mañana
+        {
+          idTeacher: 22,
+          idSubject: 81,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //IT 2 MAÑANA
+        //profesor 19 da instalaciones domoticas en 2 it mañana
+        {
+          idTeacher: 19,
+          idSubject: 82,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 21 da megafonia en 2 it mañana
+        {
+          idTeacher: 21,
+          idSubject: 83,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 22 da cctv en 2 it mañana
+        {
+          idTeacher: 22,
+          idSubject: 84,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 25 da telefonia en 2 it mañana
+        {
+          idTeacher: 25,
+          idSubject: 85,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 it mañana
+        {
+          idTeacher: 20,
+          idSubject: 86,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 5 da optativa en 2 it mañana
+        {
+          idTeacher: 5,
+          idSubject: 87,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 28 da proyecto intermodular en 2 it mañana
+        {
+          idTeacher: 28,
+          idSubject: 88,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 29 da ingles en 2 it mañana
+        {
+          idTeacher: 29,
+          idSubject: 89,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //ME 2 MAÑANA
+        //profesor 23 da configuracion mecatronica en 2 me mañana
+        {
+          idTeacher: 23,
+          idSubject: 90,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 24 da maquinas electricas en 2 me mañana
+        {
+          idTeacher: 24,
+          idSubject: 91,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 27 da instalaciones frio en 2 me mañana
+        {
+          idTeacher: 27,
+          idSubject: 92,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 26 da mantenimiento industrial en 2 me mañana
+        {
+          idTeacher: 26,
+          idSubject: 93,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 me mañana
+        {
+          idTeacher: 20,
+          idSubject: 94,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 5 da optativa en 2 me mañana
+        {
+          idTeacher: 5,
+          idSubject: 95,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 28 da proyecto intermodular en 2 me mañana
+        {
+          idTeacher: 28,
+          idSubject: 96,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 29 da ingles en 2 me mañana
+        {
+          idTeacher: 29,
+          idSubject: 97,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
 
       ]
     });

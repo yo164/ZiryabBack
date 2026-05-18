@@ -183,8 +183,8 @@ enum DayOfWeek {
 //horariosemana
 model WeekSchedule {
   id                   Int      @id @default(autoincrement())
-  idTeacherAssignment  Int
-  teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id],name:"TeacherAssignment", onDelete: Cascade)
+  idTeacherAssignment  Int?
+  teacherAssignment    TeacherOnSubjectOnGroup? @relation(fields: [idTeacherAssignment], references: [id],name:"TeacherAssignment", onDelete: Cascade)
   label                String   // ej. "1º DAM — Mañana" (identidad de clase agregada)
   weekDay            DayOfWeek // Convertimos el Int a Enum para mayor consistencia
   startTime          String   // "09:00" o usar DateTime horaInicio

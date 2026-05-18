@@ -17,7 +17,6 @@ fi
 [[ -z "$tool" ]] && tool="unknown"
 
 params=$(echo "$input" | tr -d '\n' | grep -oE '"(arguments|params)"[[:space:]]*:[[:space:]]*\{[^}]*\}' | head -c 200)
-
 mkdir -p "$(dirname "$log_file")"
 echo "[$timestamp] $tool - ${params}" >> "$log_file"
 

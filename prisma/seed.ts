@@ -4174,7 +4174,7 @@ async function main() {
         {
           idTeacher: 12,
           idSubject: 18,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
 
@@ -4204,7 +4204,7 @@ async function main() {
         {
           idTeacher: 6,
           idSubject: 22,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor 7 da sostenibilidad en 1 asir mañana
@@ -4233,7 +4233,7 @@ async function main() {
         {
           idTeacher: 13,
           idSubject: 26,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor 12 da redes locales en 1 smr mañana
@@ -4247,7 +4247,7 @@ async function main() {
         {
           idTeacher: 11,
           idSubject: 28,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor 6 da ipe en 1 smr de mañana
@@ -4261,7 +4261,7 @@ async function main() {
         {
           idTeacher: 7,
           idSubject: 30,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor 3 da digitalizacion 1 smr mañana
@@ -4315,16 +4315,16 @@ async function main() {
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 18 da digitalización en dam tarde
+        //profesor 7 da sotenibilidad en dam tarde
         {
-          idTeacher: 18,
+          idTeacher: 7,
           idSubject: 7,
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 7 da sostenibilidad dam tarde
+        //profesor 18 da digitalizacion en dam tarde
         {
-          idTeacher: 7,
+          idTeacher: 18,
           idSubject: 8,
           idGroup: 2,
           schoolYear: acaYear
@@ -4372,16 +4372,16 @@ async function main() {
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 18 da digitalización daw tarde
+        //profesor 7 da sostenibilidad daw tarde
         {
-          idTeacher: 18,
+          idTeacher: 7,
           idSubject: 15,
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 7 da sostenibilidad en daw tarde
+        //profesor 18 da digitalizacion en daw tarde
         {
-          idTeacher: 7,
+          idTeacher: 18,
           idSubject: 16,
           idGroup: 2,
           schoolYear: acaYear
@@ -4986,6 +4986,7 @@ async function main() {
 
     //Creando horarios
     console.log('Creando Horarios...');
+    const weekScheduleLabel = '';
   const weekSchedule = await
     prisma.weekSchedule.createMany({
       data: [
@@ -4993,36 +4994,42 @@ async function main() {
         //un lunes 
         {
           idTeacherAssignment: 1,
+          label: weekScheduleLabel,
           weekDay: 'MONDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 1,
+          label: weekScheduleLabel,
           weekDay: 'MONDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 2,
+          label: weekScheduleLabel,
           weekDay: 'MONDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 2,
+          label: weekScheduleLabel,
           weekDay: 'MONDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 3,
+          label: weekScheduleLabel,
           weekDay: 'MONDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 3,
+          label: weekScheduleLabel,
           weekDay: 'MONDAY',
           startTime: '13:45',
           finishTime: '14:45',
@@ -5030,36 +5037,42 @@ async function main() {
         //un martes
         {
           idTeacherAssignment: 2,
+          label: weekScheduleLabel,
           weekDay: 'TUESDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 2,
+          label: weekScheduleLabel,
           weekDay: 'TUESDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 2,
+          label: weekScheduleLabel,
           weekDay: 'TUESDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 6,
+          label: weekScheduleLabel,
           weekDay: 'TUESDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 6,
+          label: weekScheduleLabel,
           weekDay: 'TUESDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 6,
+          label: weekScheduleLabel,
           weekDay: 'TUESDAY',
           startTime: '13:45',
           finishTime: '14:45',
@@ -5067,36 +5080,42 @@ async function main() {
         //un miercoles
         {
           idTeacherAssignment: 2,
+          label: weekScheduleLabel,
           weekDay: 'WEDNESDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 4,
+          label: weekScheduleLabel,
           weekDay: 'WEDNESDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 1,
+          label: weekScheduleLabel,
           weekDay: 'WEDNESDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 1,
+          label: weekScheduleLabel,
           weekDay: 'WEDNESDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 1,
+          label: weekScheduleLabel,
           weekDay: 'WEDNESDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 8,
+          label: weekScheduleLabel,
           weekDay: 'WEDNESDAY',
           startTime: '13:45',
           finishTime: '14:45',
@@ -5104,36 +5123,42 @@ async function main() {
         //un jueves
         {
           idTeacherAssignment: 7,
+          label: weekScheduleLabel,
           weekDay: 'THURSDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 4,
+          label: weekScheduleLabel,
           weekDay: 'THURSDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 4,
+          label: weekScheduleLabel,
           weekDay: 'THURSDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 5,
+          label: weekScheduleLabel,
           weekDay: 'THURSDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 5,
+          label: weekScheduleLabel,
           weekDay: 'THURSDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 5,
+          label: weekScheduleLabel,
           weekDay: 'THURSDAY',
           startTime: '13:45',
           finishTime: '14:45',
@@ -5141,75 +5166,81 @@ async function main() {
         //un viernes
         {
           idTeacherAssignment: 1,
+          label: weekScheduleLabel,
           weekDay: 'FRIDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 1,
+          label: weekScheduleLabel,
           weekDay: 'FRIDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 1,
+          label: weekScheduleLabel,
           weekDay: 'FRIDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 3,
+          label: weekScheduleLabel,
           weekDay: 'FRIDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 3,
+          label: weekScheduleLabel,
           weekDay: 'FRIDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 3,
+          label: weekScheduleLabel,
           weekDay: 'FRIDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         // DAM TARDE - Grupo 2
-{ idTeacherAssignment: 32, weekDay: 'MONDAY', startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 32, weekDay: 'MONDAY', startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 'MONDAY', startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 'MONDAY', startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 37, weekDay: 'MONDAY', startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 39, weekDay: 'MONDAY', startTime: '20:30', finishTime: '21:30' },
+{ idTeacherAssignment: 32, label: weekScheduleLabel, weekDay: 'MONDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 32, label: weekScheduleLabel, weekDay: 'MONDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, label: weekScheduleLabel, weekDay: 'MONDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, label: weekScheduleLabel, weekDay: 'MONDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 37, label: weekScheduleLabel, weekDay: 'MONDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 39, label: weekScheduleLabel, weekDay: 'MONDAY', startTime: '20:30', finishTime: '21:30' },
 
-{ idTeacherAssignment: 32, weekDay: 'TUESDAY', startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 33, weekDay: 'TUESDAY', startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 'TUESDAY', startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 'TUESDAY', startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 35, weekDay: 'TUESDAY', startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 38, weekDay: 'TUESDAY', startTime: '20:30', finishTime: '21:30' },
+{ idTeacherAssignment: 32, label: weekScheduleLabel, weekDay: 'TUESDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 33, label: weekScheduleLabel, weekDay: 'TUESDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, label: weekScheduleLabel, weekDay: 'TUESDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, label: weekScheduleLabel, weekDay: 'TUESDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 35, label: weekScheduleLabel, weekDay: 'TUESDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 38, label: weekScheduleLabel, weekDay: 'TUESDAY', startTime: '20:30', finishTime: '21:30' },
 
-{ idTeacherAssignment: 32, weekDay: 'WEDNESDAY', startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 32, weekDay: 'WEDNESDAY', startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 'WEDNESDAY', startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 'WEDNESDAY', startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 35, weekDay: 'WEDNESDAY', startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 36, weekDay: 'WEDNESDAY', startTime: '20:30', finishTime: '21:30' },
+{ idTeacherAssignment: 32, label: weekScheduleLabel, weekDay: 'WEDNESDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 32, label: weekScheduleLabel, weekDay: 'WEDNESDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, label: weekScheduleLabel, weekDay: 'WEDNESDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, label: weekScheduleLabel, weekDay: 'WEDNESDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 35, label: weekScheduleLabel, weekDay: 'WEDNESDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 36, label: weekScheduleLabel, weekDay: 'WEDNESDAY', startTime: '20:30', finishTime: '21:30' },
 
-{ idTeacherAssignment: 32, weekDay: 'THURSDAY', startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 33, weekDay: 'THURSDAY', startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 34, weekDay: 'THURSDAY', startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 35, weekDay: 'THURSDAY', startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 36, weekDay: 'THURSDAY', startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 37, weekDay: 'THURSDAY', startTime: '20:30', finishTime: '21:30' },
+{ idTeacherAssignment: 32, label: weekScheduleLabel, weekDay: 'THURSDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 33, label: weekScheduleLabel, weekDay: 'THURSDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 34, label: weekScheduleLabel, weekDay: 'THURSDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 35, label: weekScheduleLabel, weekDay: 'THURSDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 36, label: weekScheduleLabel, weekDay: 'THURSDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 37, label: weekScheduleLabel, weekDay: 'THURSDAY', startTime: '20:30', finishTime: '21:30' },
 
-{ idTeacherAssignment: 32, weekDay: 'FRIDAY', startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 32, weekDay: 'FRIDAY', startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 'FRIDAY', startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 'FRIDAY', startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 36, weekDay: 'FRIDAY', startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 37, weekDay: 'FRIDAY', startTime: '20:30', finishTime: '21:30' }/*,
+{ idTeacherAssignment: 32, label: weekScheduleLabel, weekDay: 'FRIDAY', startTime: '15:15', finishTime: '16:15' },
+{ idTeacherAssignment: 32, label: weekScheduleLabel, weekDay: 'FRIDAY', startTime: '16:15', finishTime: '17:15' },
+{ idTeacherAssignment: 33, label: weekScheduleLabel, weekDay: 'FRIDAY', startTime: '17:15', finishTime: '18:15' },
+{ idTeacherAssignment: 34, label: weekScheduleLabel, weekDay: 'FRIDAY', startTime: '18:30', finishTime: '19:30' },
+{ idTeacherAssignment: 36, label: weekScheduleLabel, weekDay: 'FRIDAY', startTime: '19:30', finishTime: '20:30' },
+{ idTeacherAssignment: 37, label: weekScheduleLabel, weekDay: 'FRIDAY', startTime: '20:30', finishTime: '21:30' }/*,
 
           //ahora el horario de otra clase (por ejemplo 1 daw mañana)
           {

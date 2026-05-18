@@ -210,6 +210,296 @@ async function main() {
         dni: '12345693P',
         firebaseUID: 'iPHNwCEdq9V48B0wVR3eIhEmmPu1'
 
+      },
+      // 17–36: 7 clases nuevas × 3 alumnos (ASIR tarde, SMR/IT/ME mañana y tarde). Sustituir firebaseUID en Firebase.
+      {
+        email: 'estudiante17@ziryab.es',
+        name: 'Andrés',
+        surname: 'Jiménez',
+        ndSurname: 'Castro',
+        birthDate: new Date('2005-02-12'),
+        dni: '12345694Q',
+        firebaseUID: 'TgwGg8y2xsZgmQtgJQyZMVHDLW93'
+      },
+      {
+        email: 'estudiante18@ziryab.es',
+        name: 'Laura',
+        surname: 'Iglesias',
+        ndSurname: 'Rubio',
+        birthDate: new Date('2005-06-21'),
+        dni: '12345695R',
+        firebaseUID: 'dKxGy8QhS5MCX4J7tMNWHVtvcTP2'
+      },
+      {
+        email: 'estudiante19@ziryab.es',
+        name: 'Marcos',
+        surname: 'Moya',
+        ndSurname: 'Delgado',
+        birthDate: new Date('2005-09-03'),
+        dni: '12345696S',
+        firebaseUID: 'kKuIFUJQDZRn0MhsKnkXKRlXLQJ2'
+      },
+      {
+        email: 'estudiante20@ziryab.es',
+        name: 'Paula',
+        surname: 'Peña',
+        ndSurname: 'Ramos',
+        birthDate: new Date('2005-04-07'),
+        dni: '12345697T',
+        firebaseUID: 'lybcLodHB5hsR1UtogLm0o6ty0e2'
+      },
+      {
+        email: 'estudiante21@ziryab.es',
+        name: 'Hugo',
+        surname: 'Blanco',
+        ndSurname: 'Suárez',
+        birthDate: new Date('2005-11-28'),
+        dni: '12345698U',
+        firebaseUID: '8YvPa1EtCyPSL7SL67dOoVSTOD13'
+      },
+      {
+        email: 'estudiante22@ziryab.es',
+        name: 'Cristina',
+        surname: 'Martín',
+        ndSurname: 'Núñez',
+        birthDate: new Date('2005-01-16'),
+        dni: '12345699V',
+        firebaseUID: 'Tzdp4oNnkvf1u4XCmQGWgsM3gHK2'
+      },
+      {
+        email: 'estudiante23@ziryab.es',
+        name: 'Iván',
+        surname: 'Vázquez',
+        ndSurname: 'Serrano',
+        birthDate: new Date('2005-08-08'),
+        dni: '12345700W',
+        firebaseUID: 'Eh330fXGEiWaROCQgd0XRGPH3hk2'
+      },
+      {
+        email: 'estudiante24@ziryab.es',
+        name: 'Marta',
+        surname: 'Romero',
+        ndSurname: 'Pastor',
+        birthDate: new Date('2005-03-25'),
+        dni: '12345701X',
+        firebaseUID: 'b36CGlQ0UsYkOq6ec9Uo1znoEff1'
+      },
+      {
+        email: 'estudiante25@ziryab.es',
+        name: 'Óscar',
+        surname: 'Aguirre',
+        ndSurname: 'Gutiérrez',
+        birthDate: new Date('2005-07-14'),
+        dni: '12345702Y',
+        firebaseUID: 'K5RzIeZH8TawgqhB1gpWcLWnfpk1'
+      },
+      {
+        email: 'estudiante26@ziryab.es',
+        name: 'Alba',
+        surname: 'Ortega',
+        ndSurname: 'Campos',
+        birthDate: new Date('2005-12-19'),
+        dni: '12345703Z',
+        firebaseUID: 'Xhh9wVex6phRbHLeLY06fjKOvBy1'
+      },
+      {
+        email: 'estudiante27@ziryab.es',
+        name: 'Daniel',
+        surname: 'Reyes',
+        ndSurname: 'Flores',
+        birthDate: new Date('2005-05-02'),
+        dni: '12345704A',
+        firebaseUID: 'FN4W1CjSu8YN1jeVpyTjkWgxYmm1'
+      },
+      {
+        email: 'estudiante28@ziryab.es',
+        name: 'Irene',
+        surname: 'Medina',
+        ndSurname: 'Cortés',
+        birthDate: new Date('2005-10-30'),
+        dni: '12345705B',
+        firebaseUID: 'uwqc6nm3RCOCygJzVpWBtbZGYDU2'
+      },
+      {
+        email: 'estudiante29@ziryab.es',
+        name: 'Adrián',
+        surname: 'León',
+        ndSurname: 'Herrero',
+        birthDate: new Date('2005-02-22'),
+        dni: '12345706C',
+        firebaseUID: 'kXfMPYB6CYPsDW12xgi91oAvndp2'
+      },
+      {
+        email: 'estudiante30@ziryab.es',
+        name: 'Beatriz',
+        surname: 'Méndez',
+        ndSurname: 'Guerrero',
+        birthDate: new Date('2005-06-11'),
+        dni: '12345707D',
+        firebaseUID: 'f20crWZj3JTqhW0GqV5DJK7hNe43'
+      },
+      {
+        email: 'estudiante31@ziryab.es',
+        name: 'Rubén',
+        surname: 'Sanz',
+        ndSurname: 'Prieto',
+        birthDate: new Date('2005-09-17'),
+        dni: '12345708E',
+        firebaseUID: 's0QSxbLGQzRw4GZvBhyVXaI9a4l2'
+      },
+      {
+        email: 'estudiante32@ziryab.es',
+        name: 'Noelia',
+        surname: 'Calvo',
+        ndSurname: 'Márquez',
+        birthDate: new Date('2005-04-29'),
+        dni: '12345709F',
+        firebaseUID: 'uHWrJyCTswMsDskfwaqLCpxupmE2'
+      },
+      {
+        email: 'estudiante33@ziryab.es',
+        name: 'Víctor',
+        surname: 'Gallego',
+        ndSurname: 'Ibáñez',
+        birthDate: new Date('2005-11-05'),
+        dni: '12345710G',
+        firebaseUID: 'nTcUPMcqgJWNEJZcEbJ5LObOszq1'
+      },
+      {
+        email: 'estudiante34@ziryab.es',
+        name: 'Silvia',
+        surname: 'Pascual',
+        ndSurname: 'Santana',
+        birthDate: new Date('2005-01-08'),
+        dni: '12345711H',
+        firebaseUID: 'NozdILkX6JXyWQhBs7siCBdEq8p1'
+      },
+      {
+        email: 'estudiante35@ziryab.es',
+        name: 'Álvaro',
+        surname: 'Benítez',
+        ndSurname: 'Rivas',
+        birthDate: new Date('2005-08-26'),
+        dni: '12345712I',
+        firebaseUID: 'anW191avEvUPh8LPJeNYkxcaRgk2'
+      },
+      {
+        email: 'estudiante36@ziryab.es',
+        name: 'Carmen',
+        surname: 'Carrasco',
+        ndSurname: 'Lozano',
+        birthDate: new Date('2005-03-19'),
+        dni: '12345713J',
+        firebaseUID: 'TyUR5o8pYIMFcwm4y0Z319MTib92'
+      },
+      // 37–48: 2º curso (8 clases × 3 alumnos). Sustituir firebaseUID en Firebase.
+      {
+        email: 'estudiante37@ziryab.es',
+        name: 'Raúl',
+        surname: 'Herrera',
+        ndSurname: 'Vega',
+        birthDate: new Date('2004-05-10'),
+        dni: '12345714K',
+        firebaseUID: 'SEEDSTUDENT37PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante38@ziryab.es',
+        name: 'Elena',
+        surname: 'Navarro',
+        ndSurname: 'Paredes',
+        birthDate: new Date('2004-08-22'),
+        dni: '12345715L',
+        firebaseUID: 'SEEDSTUDENT38PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante39@ziryab.es',
+        name: 'Jorge',
+        surname: 'Muñoz',
+        ndSurname: 'Cabrera',
+        birthDate: new Date('2004-12-03'),
+        dni: '12345716M',
+        firebaseUID: 'SEEDSTUDENT39PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante40@ziryab.es',
+        name: 'Claudia',
+        surname: 'Soto',
+        ndSurname: 'Miranda',
+        birthDate: new Date('2004-02-17'),
+        dni: '12345717N',
+        firebaseUID: 'SEEDSTUDENT40PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante41@ziryab.es',
+        name: 'Pablo',
+        surname: 'Castillo',
+        ndSurname: 'Ríos',
+        birthDate: new Date('2004-09-28'),
+        dni: '12345718O',
+        firebaseUID: 'SEEDSTUDENT41PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante42@ziryab.es',
+        name: 'Lucía',
+        surname: 'Garrido',
+        ndSurname: 'Soler',
+        birthDate: new Date('2004-11-14'),
+        dni: '12345719P',
+        firebaseUID: 'SEEDSTUDENT42PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante43@ziryab.es',
+        name: 'Diego',
+        surname: 'Lorenzo',
+        ndSurname: 'Méndez',
+        birthDate: new Date('2004-06-06'),
+        dni: '12345720Q',
+        firebaseUID: 'SEEDSTUDENT43PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante44@ziryab.es',
+        name: 'Andrea',
+        surname: 'Pozo',
+        ndSurname: 'Salazar',
+        birthDate: new Date('2004-01-25'),
+        dni: '12345721R',
+        firebaseUID: 'SEEDSTUDENT44PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante45@ziryab.es',
+        name: 'Roberto',
+        surname: 'Cruz',
+        ndSurname: 'Parra',
+        birthDate: new Date('2004-10-09'),
+        dni: '12345722S',
+        firebaseUID: 'SEEDSTUDENT45PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante46@ziryab.es',
+        name: 'Nerea',
+        surname: 'Velasco',
+        ndSurname: 'Aguilar',
+        birthDate: new Date('2004-04-13'),
+        dni: '12345723T',
+        firebaseUID: 'SEEDSTUDENT46PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante47@ziryab.es',
+        name: 'Sergio',
+        surname: 'Bravo',
+        ndSurname: 'Fuentes',
+        birthDate: new Date('2004-07-31'),
+        dni: '12345724U',
+        firebaseUID: 'SEEDSTUDENT47PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante48@ziryab.es',
+        name: 'Patricia',
+        surname: 'Montes',
+        ndSurname: 'Crespo',
+        birthDate: new Date('2004-03-07'),
+        dni: '12345725V',
+        firebaseUID: 'SEEDSTUDENT48PENDINGFIREBASE00'
       }
       ]
     });
@@ -1164,6 +1454,14 @@ async function main() {
         {
           name: 'Tarde',
           capacity: 20
+        },
+        {
+          name: 'A',
+          capacity: 20
+        },
+        {
+          name: 'B',
+          capacity: 20
         }
       ]
     });
@@ -1690,7 +1988,7 @@ async function main() {
           idGroup: 1,
           idSubject: 16,
           schoolYear: acaYear
-        }/*
+        },
         //Estudiante 10 en DAW grupo tarde
         {
           idStudent: 10,
@@ -1984,7 +2282,1660 @@ async function main() {
           idGroup: 1,
           idSubject: 24,
           schoolYear: acaYear
-        },*/
+        },
+        // Estudiante 16 en SMR grupo mañana
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 25,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 26,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 27,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 28,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 29,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 30,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 31,
+          schoolYear: acaYear
+        },
+        // Estudiante 17 en SMR grupo mañana
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 25,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 26,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 27,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 28,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 29,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 30,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 31,
+          schoolYear: acaYear
+        },
+        // Estudiante 18 en SMR grupo mañana
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 25,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 26,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 27,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 28,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 29,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 30,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 31,
+          schoolYear: acaYear
+        },
+        // Estudiante 19 en IT grupo mañana
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 32,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 33,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 34,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 35,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 36,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 37,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 38,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 39,
+          schoolYear: acaYear
+        },
+        // Estudiante 20 en IT grupo mañana
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 32,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 33,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 34,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 35,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 36,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 37,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 38,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 39,
+          schoolYear: acaYear
+        },
+        // Estudiante 21 en IT grupo mañana
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 32,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 33,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 34,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 35,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 36,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 37,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 38,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 39,
+          schoolYear: acaYear
+        },
+        // Estudiante 22 en ME grupo mañana
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 40,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 41,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 42,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 43,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 44,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 45,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 46,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 47,
+          schoolYear: acaYear
+        },
+        // Estudiante 23 en ME grupo mañana
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 40,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 41,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 42,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 43,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 44,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 45,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 46,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 47,
+          schoolYear: acaYear
+        },
+        // Estudiante 24 en ME grupo mañana
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 40,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 41,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 42,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 43,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 44,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 45,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 46,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 47,
+          schoolYear: acaYear
+        },
+        // Estudiante 25 en DAM 2º grupo mañana
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 26 en DAM 2º grupo mañana
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 27 en DAM 2º grupo mañana
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 28 en DAM 2º grupo tarde
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 29 en DAM 2º grupo tarde
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 30 en DAM 2º grupo tarde
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 31 en DAW 2º grupo mañana
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 32 en DAW 2º grupo mañana
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 33 en DAW 2º grupo mañana
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 34 en DAW 2º grupo tarde
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 35 en DAW 2º grupo tarde
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 36 en DAW 2º grupo tarde
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 37 en ASIR 2º grupo mañana
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 65,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 66,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 67,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 68,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 69,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 70,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 71,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 72,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 73,
+          schoolYear: acaYear
+        },
+        // Estudiante 38 en ASIR 2º grupo mañana
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 65,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 66,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 67,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 68,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 69,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 70,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 71,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 72,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 73,
+          schoolYear: acaYear
+        },
+        // Estudiante 39 en ASIR 2º grupo mañana
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 65,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 66,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 67,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 68,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 69,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 70,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 71,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 72,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 73,
+          schoolYear: acaYear
+        },
+        // Estudiante 40 en SMR 2º grupo mañana
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 74,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 75,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 76,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 77,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 78,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 79,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 80,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 81,
+          schoolYear: acaYear
+        },
+        // Estudiante 41 en SMR 2º grupo mañana
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 74,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 75,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 76,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 77,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 78,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 79,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 80,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 81,
+          schoolYear: acaYear
+        },
+        // Estudiante 42 en SMR 2º grupo mañana
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 74,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 75,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 76,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 77,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 78,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 79,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 80,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 81,
+          schoolYear: acaYear
+        },
+        // Estudiante 43 en IT 2º grupo mañana
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 82,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 83,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 84,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 85,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 86,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 87,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 88,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 89,
+          schoolYear: acaYear
+        },
+        // Estudiante 44 en IT 2º grupo mañana
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 82,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 83,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 84,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 85,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 86,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 87,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 88,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 89,
+          schoolYear: acaYear
+        },
+        // Estudiante 45 en IT 2º grupo mañana
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 82,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 83,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 84,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 85,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 86,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 87,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 88,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 89,
+          schoolYear: acaYear
+        },
+        // Estudiante 46 en ME 2º grupo mañana
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 90,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 91,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 92,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 93,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 94,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 95,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 96,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 97,
+          schoolYear: acaYear
+        },
+        // Estudiante 47 en ME 2º grupo mañana
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 90,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 91,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 92,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 93,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 94,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 95,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 96,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 97,
+          schoolYear: acaYear
+        },
+        // Estudiante 48 en ME 2º grupo mañana
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 90,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 91,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 92,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 93,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 94,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 95,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 96,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 97,
+          schoolYear: acaYear
+        },
       ]
     });
 

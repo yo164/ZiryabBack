@@ -497,10 +497,10 @@ async function main() {
           idCourse: 1
         },
         {
-          name: 'IPE 1',
+          name: 'IPE',
           grade: '1',
           hours: 3,
-          description: 'Asignatura de IPE',
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
           idCourse: 1
         },
         {
@@ -553,10 +553,10 @@ async function main() {
           idCourse: 2
         },
         {
-          name: 'IPE 1',
+          name: 'IPE',
           grade: '1',
           hours: 3,
-          description: 'Asignatura de ',
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
           idCourse: 2
         },
         {
@@ -609,10 +609,10 @@ async function main() {
           idCourse: 3
         },
         {
-          name: 'IPE 1',
+          name: 'IPE',
           grade: '1',
           hours: 3,
-          description: 'Asignatura de ',
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
           idCourse: 3
         },
         {
@@ -658,10 +658,10 @@ async function main() {
           idCourse: 4
         },
         {
-          name: 'IPE 1',
+          name: 'IPE',
           grade: '1',
           hours: 3,
-          description: 'Asignatura de ',
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
           idCourse: 4
         },
         {
@@ -677,6 +677,476 @@ async function main() {
           hours: 1,
           description: 'Asignatura de ',
           idCourse: 4
+        },
+        // IT — 1º curso (idCourse 5)
+        {
+          name: 'Infraestructuras comunes de telecomunicación en viviendas y edificios',
+          grade: '1',
+          hours: 4,
+          description: 'Asignatura de Infraestructuras comunes de telecomunicación en viviendas y edificios',
+          idCourse: 5
+        },
+        {
+          name: 'Electrónica aplicada',
+          grade: '1',
+          hours: 6,
+          description: 'Asignatura de Electrónica aplicada',
+          idCourse: 5
+        },
+        {
+          name: 'Equipos microinformáticos',
+          grade: '1',
+          hours: 4,
+          description: 'Asignatura de Equipos microinformáticos',
+          idCourse: 5
+        },
+        {
+          name: 'Infraestructuras de redes de datos y sistemas de telefonía',
+          grade: '1',
+          hours: 6,
+          description: 'Asignatura de Infraestructuras de redes de datos y sistemas de telefonía',
+          idCourse: 5
+        },
+        {
+          name: 'Instalaciones eléctricas básicas',
+          grade: '1',
+          hours: 5,
+          description: 'Asignatura de Instalaciones eléctricas básicas',
+          idCourse: 5
+        },
+        {
+          name: 'IPE',
+          grade: '1',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
+          idCourse: 5
+        },
+        {
+          name: 'Sostenibilidad aplicada al sistema productivo',
+          grade: '1',
+          hours: 1,
+          description: 'Asignatura de Sostenibilidad aplicada al sistema productivo',
+          idCourse: 5
+        },
+        {
+          name: 'Digitalización aplicada al sistema productivo',
+          grade: '1',
+          hours: 1,
+          description: 'Asignatura de Digitalización aplicada al sistema productivo',
+          idCourse: 5
+        },
+        // ME — 1º curso (idCourse 6)
+        {
+          name: 'Circuitos electrónicos analógicos',
+          grade: '1',
+          hours: 7,
+          description: 'Asignatura de Circuitos electrónicos analógicos',
+          idCourse: 6
+        },
+        {
+          name: 'Equipos programables',
+          grade: '1',
+          hours: 6,
+          description: 'Asignatura de Equipos programables',
+          idCourse: 6
+        },
+        {
+          name: 'Mantenimiento de equipos de voz y datos',
+          grade: '1',
+          hours: 5,
+          description: 'Asignatura de Mantenimiento de equipos de voz y datos',
+          idCourse: 6
+        },
+        {
+          name: 'Técnicas y proceso de montaje y mantenimiento de equipos electrónicos',
+          grade: '1',
+          hours: 5,
+          description: 'Asignatura de Técnicas y proceso de montaje y mantenimiento de equipos electrónicos',
+          idCourse: 6
+        },
+        {
+          name: 'Infraestructuras y desarrollo del mantenimiento electrónico',
+          grade: '1',
+          hours: 2,
+          description: 'Asignatura de Infraestructuras y desarrollo del mantenimiento electrónico',
+          idCourse: 6
+        },
+        {
+          name: 'IPE',
+          grade: '1',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
+          idCourse: 6
+        },
+        {
+          name: 'Sostenibilidad aplicada al sistema productivo',
+          grade: '1',
+          hours: 1,
+          description: 'Asignatura de Sostenibilidad aplicada al sistema productivo',
+          idCourse: 6
+        },
+        {
+          name: 'Digitalización aplicada al sistema productivo',
+          grade: '1',
+          hours: 1,
+          description: 'Asignatura de Digitalización aplicada al sistema productivo',
+          idCourse: 6
+        },
+        // DAM — 2º curso (idCourse 1)
+        {
+          name: 'Acceso a datos',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Acceso a datos',
+          idCourse: 1
+        },
+        {
+          name: 'Desarrollo de interfaces',
+          grade: '2',
+          hours: 6,
+          description: 'Asignatura de Desarrollo de interfaces',
+          idCourse: 1
+        },
+        {
+          name: 'Programación multimedia y dispositivos móviles',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Programación multimedia y dispositivos móviles',
+          idCourse: 1
+        },
+        {
+          name: 'Programación de servicios y procesos',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Programación de servicios y procesos',
+          idCourse: 1
+        },
+        {
+          name: 'Sistemas de gestión empresarial',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Sistemas de gestión empresarial',
+          idCourse: 1
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 1
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 1
+        },
+        {
+          name: 'Proyecto Intermodular de Desarrollo de Aplicaciones Multiplataforma',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Desarrollo de Aplicaciones Multiplataforma',
+          idCourse: 1
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 1
+        },
+        // DAW — 2º curso (idCourse 2)
+        {
+          name: 'Desarrollo web en entorno cliente',
+          grade: '2',
+          hours: 6,
+          description: 'Asignatura de Desarrollo web en entorno cliente',
+          idCourse: 2
+        },
+        {
+          name: 'Desarrollo web en entorno servidor',
+          grade: '2',
+          hours: 7,
+          description: 'Asignatura de Desarrollo web en entorno servidor',
+          idCourse: 2
+        },
+        {
+          name: 'Despliegue de aplicaciones web',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Despliegue de aplicaciones web',
+          idCourse: 2
+        },
+        {
+          name: 'Diseño de interfaces web',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Diseño de interfaces web',
+          idCourse: 2
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 2
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 2
+        },
+        {
+          name: 'Proyecto intermodular de desarrollo de aplicaciones web',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto intermodular de desarrollo de aplicaciones web',
+          idCourse: 2
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 2
+        },
+        // ASIR — 2º curso (idCourse 3)
+        {
+          name: 'Administración de sistemas operativos',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Administración de sistemas operativos',
+          idCourse: 3
+        },
+        {
+          name: 'Servicios de red e internet',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Servicios de red e internet',
+          idCourse: 3
+        },
+        {
+          name: 'Implantación de aplicaciones web',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Implantación de aplicaciones web',
+          idCourse: 3
+        },
+        {
+          name: 'Administración de sistemas gestores de bases de datos',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Administración de sistemas gestores de bases de datos',
+          idCourse: 3
+        },
+        {
+          name: 'Seguridad y alta disponibilidad',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Seguridad y alta disponibilidad',
+          idCourse: 3
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 3
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 3
+        },
+        {
+          name: 'Proyecto Intermodular de Administración de Sistemas Informáticos en Red',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Administración de Sistemas Informáticos en Red',
+          idCourse: 3
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 3
+        },
+        // SMR — 2º curso (idCourse 4)
+        {
+          name: 'Aplicaciones web',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Aplicaciones web',
+          idCourse: 4
+        },
+        {
+          name: 'Seguridad informática',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Seguridad informática',
+          idCourse: 4
+        },
+        {
+          name: 'Servicios en red',
+          grade: '2',
+          hours: 6,
+          description: 'Asignatura de Servicios en red',
+          idCourse: 4
+        },
+        {
+          name: 'Sistemas operativos en red',
+          grade: '2',
+          hours: 6,
+          description: 'Asignatura de Sistemas operativos en red',
+          idCourse: 4
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 4
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 4
+        },
+        {
+          name: 'Proyecto Intermodular de Sistemas Microinformáticos y Redes',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Sistemas Microinformáticos y Redes',
+          idCourse: 4
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 4
+        },
+        // IT — 2º curso (idCourse 5)
+        {
+          name: 'Instalaciones domóticas',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Instalaciones domóticas',
+          idCourse: 5
+        },
+        {
+          name: 'Instalaciones de megafonía y sonorización',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Instalaciones de megafonía y sonorización',
+          idCourse: 5
+        },
+        {
+          name: 'Circuito cerrado de televisión y seguridad electrónica',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Circuito cerrado de televisión y seguridad electrónica',
+          idCourse: 5
+        },
+        {
+          name: 'Instalaciones de radiocomunicaciones',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Instalaciones de radiocomunicaciones',
+          idCourse: 5
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 5
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 5
+        },
+        {
+          name: 'Proyecto Intermodular de Instalaciones de Telecomunicaciones',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Instalaciones de Telecomunicaciones',
+          idCourse: 5
+        },
+        {
+          name: 'Inglés Profesional GM',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional GM',
+          idCourse: 5
+        },
+        // ME — 2º curso (idCourse 6)
+        {
+          name: 'Mantenimiento de equipos y radiocomunicaciones',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Mantenimiento de equipos y radiocomunicaciones',
+          idCourse: 6
+        },
+        {
+          name: 'Mantenimiento de equipos de electrónica industrial',
+          grade: '2',
+          hours: 7,
+          description: 'Asignatura de Mantenimiento de equipos de electrónica industrial',
+          idCourse: 6
+        },
+        {
+          name: 'Mantenimiento de equipos de audio',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Mantenimiento de equipos de audio',
+          idCourse: 6
+        },
+        {
+          name: 'Mantenimiento de equipos de vídeo',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Mantenimiento de equipos de vídeo',
+          idCourse: 6
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 6
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 6
+        },
+        {
+          name: 'Proyecto Intermodular de Mantenimiento Electrónico',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Mantenimiento Electrónico',
+          idCourse: 6
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 6
         },
       ]
     });

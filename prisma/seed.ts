@@ -441,6 +441,16 @@ async function main() {
           name: 'SMR',
           description: 'Sistemas microinformáticos y redes',
           duration: 2
+        },
+        {
+          name: 'IT',
+          description: 'Instalaciones de telecomunicaciones',
+          duration: 2
+        },
+        {
+          name: 'ME',
+          description: 'Mantenimiento electrónico',
+          duration: 2
         }
       ]
     });

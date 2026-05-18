@@ -9,38 +9,39 @@ async function main() {
 
 
   console.log('Limpiando datos existentes');
-  // Limpiar datos existentes
+  // Hijos primero (orden por FKs del schema actual)
+  await prisma.assistance.deleteMany();
+  await prisma.studentTask.deleteMany();
+  await prisma.sessionClass.deleteMany();
+  await prisma.task.deleteMany();
+  await prisma.weekSchedule.deleteMany();
   await prisma.studentOnSubjectOnGroup.deleteMany();
   await prisma.teacherOnSubjectOnGroup.deleteMany();
+  await prisma.notification.deleteMany();
+  await prisma.taskGroup.deleteMany();
   await prisma.group.deleteMany();
   await prisma.subject.deleteMany();
   await prisma.course.deleteMany();
   await prisma.student.deleteMany();
   await prisma.teacher.deleteMany();
   await prisma.admin.deleteMany();
-  await prisma.weekSchedule.deleteMany();
-  await prisma.sessionClass.deleteMany();
-  await prisma.assistance.deleteMany();
-  await prisma.task.deleteMany();
-  await prisma.studentTask.deleteMany();
-  //borrado de horariosemanal, sesion clase y asistencia
 
-
-  console.log('Reiniciando secuencia de asignación de Ids');
+  console.log('Reiniciando secuencias de IDs');
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentTask_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "SessionClass_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Task_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "WeekSchedule_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TeacherOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Notification_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TaskGroup_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Group_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Subject_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Course_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Student_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Teacher_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Admin_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Course_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Subject_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Group_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TeacherOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "WeekSchedule_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "SessionClass_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Task_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentTask_id_seq" RESTART WITH 1;`);
-  //reinicio de conteo de id falta horario semanal, sesion clase yy asistencia 
 
 
   const acaYear = "2024-2025";

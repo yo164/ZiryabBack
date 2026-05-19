@@ -23,6 +23,7 @@ async function main() {
   await prisma.assistance.deleteMany();
   await prisma.task.deleteMany();
   await prisma.studentTask.deleteMany();
+  await prisma.announcement.deleteMany();
   //borrado de horariosemanal, sesion clase y asistencia
 
 
@@ -40,6 +41,7 @@ async function main() {
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Task_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentTask_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Announcement_id_seq" RESTART WITH 1;`);
   //reinicio de conteo de id falta horario semanal, sesion clase yy asistencia 
 
 
@@ -5269,6 +5271,30 @@ async function main() {
 
 
 
+  console.log('Creando Anuncios de prueba...');
+  const announcements = await prisma.announcement.createMany({
+    data: [
+      {
+        title: 'Bienvenidos al nuevo curso 2024-2025',
+        body: 'Os damos la bienvenida a todos al nuevo curso escolar en Ziryab. Esperamos que sea un año lleno de aprendizaje y éxitos.',
+        createdByUserId: 1,
+        createdAt: new Date('2026-05-15T09:00:00Z')
+      },
+      {
+        title: 'Recordatorio: Festivo Nacional el próximo Jueves',
+        body: 'Se recuerda a todo el alumnado y profesorado que el próximo jueves no habrá clases presenciales por festividad de carácter nacional.',
+        createdByUserId: 1,
+        createdAt: new Date('2026-05-17T11:30:00Z')
+      },
+      {
+        title: 'Mantenimiento programado de la plataforma',
+        body: 'El próximo sábado de 22:00 a 24:00 la plataforma Ziryab estará fuera de servicio por tareas de mantenimiento y actualización técnica.',
+        createdByUserId: 2,
+        createdAt: new Date('2026-05-18T08:00:00Z')
+      }
+    ]
+  });
+
   console.log('✅ Seed completado exitosamente!');
   console.log(`📚 ${students.count} estudiantes creados`);
   console.log(`👨‍🏫 ${teachers.count} profesores creados`);
@@ -5280,15 +5306,12 @@ async function main() {
   console.log(`👥 ${weekSchedule.count} weekSchedules creados`);
   console.log(`👥 ${classSession.count} classSessions creados`);
   console.log(`👥 ${assistance.count} assistances creados`);
-
-
   console.log(`✅ ${theoryTasks.count} tareas de temario creadas`);
   console.log(`✅ ${examTasks.count} tareas de examen creadas`);
   console.log(`✅ ${studentTasks.count} StudentTasks creadas`);
-  
-
-
+  console.log(`✅ ${announcements.count} anuncios creados`);
 }
+
 
 main()
   .catch((e) => {

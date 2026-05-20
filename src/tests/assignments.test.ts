@@ -93,6 +93,7 @@ describe('Assignments POST (CURSO-94)', () => {
       });
 
     expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
     expect(res.body.message).toBe('Asignación creada');
     expect(res.body.data).toMatchObject({
       idTeacher: adminTeacherId,
@@ -115,6 +116,7 @@ describe('Assignments POST (CURSO-94)', () => {
       });
 
     expect(res.status).toBe(409);
+    expect(res.body.success).toBe(false);
     expect(res.body.data).toHaveProperty('existingId');
   });
 
@@ -130,6 +132,7 @@ describe('Assignments POST (CURSO-94)', () => {
       });
 
     expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
     expect(res.body.message).toBe('Profesor no encontrado');
   });
 
@@ -159,6 +162,7 @@ describe('Assignments POST (CURSO-94)', () => {
       });
 
     expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
     expect(res.body.data.created).toHaveLength(1);
     expect(res.body.data.duplicates).toHaveLength(1);
     expect(res.body.data.duplicates[0].index).toBe(1);

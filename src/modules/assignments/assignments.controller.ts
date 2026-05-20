@@ -66,6 +66,7 @@ export const postAssignment = async (req: Request, res: Response) => {
   const parsed = createAssignmentBodySchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({
+      success: false,
       message: 'Cuerpo inválido',
       errors: parsed.error.flatten(),
     });
@@ -76,6 +77,7 @@ export const postAssignment = async (req: Request, res: Response) => {
     const result = await assignmentsService.createAssignment(parsed.data);
     if (result.kind === 'duplicate') {
       res.status(409).json({
+        success: false,
         message:
           'Ya existe una asignación para esta asignatura, grupo y curso escolar',
         data: { existingId: result.existing.id },
@@ -83,16 +85,18 @@ export const postAssignment = async (req: Request, res: Response) => {
       return;
     }
     if (result.kind === 'error') {
-      res.status(400).json({ message: result.message });
+      res.status(400).json({ success: false, message: result.message });
       return;
     }
 
     res.status(201).json({
+      success: true,
       message: 'Asignación creada',
       data: result.assignment,
     });
   } catch (error: unknown) {
     res.status(500).json({
+      success: false,
       message: 'Error al crear asignación',
       error: error instanceof Error ? error.message : 'Error desconocido',
     });
@@ -103,6 +107,7 @@ export const postAssignmentsBulk = async (req: Request, res: Response) => {
   const parsed = createAssignmentsBulkBodySchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({
+      success: false,
       message: 'Cuerpo inválido',
       errors: parsed.error.flatten(),
     });
@@ -123,11 +128,13 @@ export const postAssignmentsBulk = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({
+      success: true,
       message: parts.length ? `Resultado: ${parts.join(', ')}` : 'Sin filas procesadas',
       data: summary,
     });
   } catch (error: unknown) {
     res.status(500).json({
+      success: false,
       message: 'Error en alta masiva de asignaciones',
       error: error instanceof Error ? error.message : 'Error desconocido',
     });

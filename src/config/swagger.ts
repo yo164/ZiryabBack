@@ -222,6 +222,76 @@ const options: swaggerJsdoc.Options = {
             status: { type: 'string', enum: ['PRESENT', 'ABSENT', 'LATE', 'EXCUSED'], example: 'LATE' }
           }
         },
+        IssueEmitterType: {
+          type: 'string',
+          enum: ['TEACHER', 'ADMIN'],
+          example: 'ADMIN',
+        },
+        IssueAudience: {
+          type: 'string',
+          enum: ['CENTER', 'ALL_TEACHERS', 'ALL_STUDENTS', 'GROUP', 'COURSE', 'SUBJECT_GROUP'],
+          example: 'ALL_STUDENTS',
+        },
+        Issue: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', example: 1 },
+            emitterType: { $ref: '#/components/schemas/IssueEmitterType' },
+            idTeacher: { type: 'integer', nullable: true, example: 2 },
+            idAdmin: { type: 'integer', nullable: true, example: 1 },
+            audience: { $ref: '#/components/schemas/IssueAudience' },
+            idGroup: { type: 'integer', nullable: true, example: 1 },
+            idCourse: { type: 'integer', nullable: true, example: 1 },
+            idSubject: { type: 'integer', nullable: true, example: 3 },
+            title: { type: 'string', example: 'Bienvenida al curso 2024-2025' },
+            body: { type: 'string', example: 'Recordad revisar el tablón de anuncios cada semana.' },
+            attachmentUrl: { type: 'string', nullable: true },
+            isPublished: { type: 'boolean', example: true },
+            publishAt: { type: 'string', format: 'date-time', nullable: true },
+            expiresAt: { type: 'string', format: 'date-time', nullable: true },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        CreateIssueInput: {
+          type: 'object',
+          required: ['audience', 'title', 'body'],
+          properties: {
+            audience: { $ref: '#/components/schemas/IssueAudience' },
+            title: { type: 'string', example: 'Aviso importante' },
+            body: { type: 'string', example: 'Contenido del anuncio para el tablón.' },
+            attachmentUrl: { type: 'string', example: '/uploads/issues/aviso.pdf' },
+            idGroup: { type: 'integer', example: 1 },
+            idCourse: { type: 'integer', example: 1 },
+            idSubject: { type: 'integer', example: 3 },
+            isPublished: { type: 'boolean', example: false },
+            publishAt: { type: 'string', format: 'date-time' },
+            expiresAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        ApiSuccessIssue: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean', example: true },
+            data: { $ref: '#/components/schemas/Issue' },
+          },
+        },
+        ApiSuccessIssueList: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean', example: true },
+            data: { type: 'array', items: { $ref: '#/components/schemas/Issue' } },
+            count: { type: 'integer', example: 3 },
+          },
+        },
+        ApiErrorIssue: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean', example: false },
+            message: { type: 'string', example: 'Cuerpo inválido' },
+            errors: { type: 'object' },
+          },
+        },
       },
     },
     tags: [
@@ -248,6 +318,10 @@ const options: swaggerJsdoc.Options = {
       {
         name: 'Courses',
         description: 'Ciclos formativos y asignaturas por grade',
+      },
+      {
+        name: 'Issues',
+        description: 'Tablón de anuncios (audiencia por rol, grupo o ciclo)',
       },
 
     ],

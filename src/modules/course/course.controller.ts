@@ -25,23 +25,31 @@ export const getCourseGrades = async (req: Request, res: Response) => {
     const id = parseInt(req.params.id || '0', 10);
 
     if (Number.isNaN(id) || id === 0) {
-      return res.status(400).json({ message: 'ID inválido' });
+      return res.status(400).json({
+        success: false,
+        message: 'ID inválido',
+      });
     }
 
     const grades = await courseService.findDistinctGradesByCourseId(id);
 
-    res.status(200).json({
-      message: 'Cursos (grades) del ciclo',
+    res.json({
+      success: true,
       data: grades,
+      count: grades.length,
     });
-  } catch (error: unknown) {
-    if (error instanceof Error && error.message === 'Curso no encontrado') {
-      return res.status(404).json({ message: error.message });
+  } catch (error: any) {
+    if (error.message === 'Curso no encontrado') {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
     }
 
     res.status(500).json({
+      success: false,
       message: 'Error al obtener grades del ciclo',
-      error: error instanceof Error ? error.message : 'Error desconocido',
+      error: error.message,
     });
   }
 };
@@ -52,27 +60,38 @@ export const getCourseSubjectsByGrade = async (req: Request, res: Response) => {
     const grade = typeof req.query.grade === 'string' ? req.query.grade.trim() : '';
 
     if (Number.isNaN(id) || id === 0) {
-      return res.status(400).json({ message: 'ID inválido' });
+      return res.status(400).json({
+        success: false,
+        message: 'ID inválido',
+      });
     }
 
     if (!grade) {
-      return res.status(400).json({ message: 'Query grade es obligatorio' });
+      return res.status(400).json({
+        success: false,
+        message: 'Query grade es obligatorio',
+      });
     }
 
     const subjects = await courseService.findSubjectsByCourseIdAndGrade(id, grade);
 
-    res.status(200).json({
-      message: 'Asignaturas del ciclo por grade',
+    res.json({
+      success: true,
       data: subjects,
+      count: subjects.length,
     });
-  } catch (error: unknown) {
-    if (error instanceof Error && error.message === 'Curso no encontrado') {
-      return res.status(404).json({ message: error.message });
+  } catch (error: any) {
+    if (error.message === 'Curso no encontrado') {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
     }
 
     res.status(500).json({
+      success: false,
       message: 'Error al obtener asignaturas del ciclo',
-      error: error instanceof Error ? error.message : 'Error desconocido',
+      error: error.message,
     });
   }
 };

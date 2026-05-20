@@ -62,8 +62,9 @@ describe('Courses grades y subjects (CURSO-95)', () => {
       .set('Cookie', [authCookie]);
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toBeDefined();
+    expect(res.body.success).toBe(true);
     expect(res.body.data).toEqual(['1', '2']);
+    expect(res.body.count).toBe(2);
   });
 
   it('GET /api/courses/:id/subjects?grade=1 — filtra asignaturas', async () => {
@@ -73,6 +74,7 @@ describe('Courses grades y subjects (CURSO-95)', () => {
       .set('Cookie', [authCookie]);
 
     expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(2);
     expect(res.body.data.every((s: { grade: string }) => s.grade === '1')).toBe(true);
     const names = res.body.data.map((s: { name: string }) => s.name).sort();
@@ -85,6 +87,7 @@ describe('Courses grades y subjects (CURSO-95)', () => {
       .set('Cookie', [authCookie]);
 
     expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
     expect(res.body.message).toMatch(/grade/i);
   });
 
@@ -94,6 +97,7 @@ describe('Courses grades y subjects (CURSO-95)', () => {
       .set('Cookie', [authCookie]);
 
     expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
     expect(res.body.message).toBe('Curso no encontrado');
   });
 });

@@ -1,4 +1,4 @@
-import { AssistanceStatus } from '@prisma/client';
+import { AssistanceStatus, JustificationStatus } from '@prisma/client';
 import prisma from '../../config/prisma.js';
 export const findAllByStudentId = async (studentId: number, teacherId?: number) => {
     const whereClause: any = {
@@ -21,6 +21,8 @@ export const findAllByStudentId = async (studentId: number, teacherId?: number) 
         select: {
             id: true,
             status: true,
+            justificationUri: true,
+            justificationStatus: true,
             session: {
                 select: {
                     id: true,
@@ -46,11 +48,69 @@ export const findAllByStudentId = async (studentId: number, teacherId?: number) 
 export const updateStatusToJustified = async (idAssistance: number) => {
     return await prisma.assistance.update({
         where: {
-            id: idAssistance, 
+            id: idAssistance,
         },
         data: {
             status: AssistanceStatus.EXCUSED,
+            justificationStatus: JustificationStatus.VIEWED,
         },
+    });
+};
+
+export const rejectJustification = async (idAssistance: number) => {
+    return await prisma.assistance.update({
+        where: { id: idAssistance },
+        data: { justificationStatus: JustificationStatus.REJECTED },
+    });
+};
+
+export const findPendingJustificationsByTeacher = async (
+    teacherId: number,
+    idTeacherAssignment?: number
+) => {
+    const assignmentFilter = idTeacherAssignment
+        ? { id: idTeacherAssignment, idTeacher: teacherId }
+        : { idTeacher: teacherId };
+
+    return await prisma.assistance.findMany({
+        where: {
+            justificationStatus: JustificationStatus.PENDING,
+            justificationUri: { not: null },
+            session: {
+                schedule: {
+                    teacherAssignment: assignmentFilter,
+                },
+            },
+        },
+        select: {
+            id: true,
+            status: true,
+            justificationUri: true,
+            justificationStatus: true,
+            session: {
+                select: {
+                    date: true,
+                    schedule: {
+                        select: {
+                            startTime: true,
+                            teacherAssignment: {
+                                select: {
+                                    subject: { select: { name: true } },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            studentEnrollment: {
+                select: {
+                    student: {
+                        select: { name: true, surname: true },
+                    },
+                },
+            },
+        },
+        orderBy: { createdAt: 'desc' },
     });
 };
 
@@ -65,6 +125,16 @@ export const updateJustificationUrl = async (id: number, justificationUri: strin
     return await prisma.assistance.update({
         where: { id },
         data: { justificationUri }
+    });
+};
+
+export const updateJustificationOnUpload = async (id: number, justificationUri: string) => {
+    return await prisma.assistance.update({
+        where: { id },
+        data: {
+            justificationUri,
+            justificationStatus: 'PENDING',
+        },
     });
 };
 

@@ -220,15 +220,115 @@ export const updateStatus = async (req: Request, res: Response) => {
     }
 };
 
+export const getPendingJustifications = async (req: Request, res: Response) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: 'No autorizado' });
+        }
+
+        const teacherId = req.user.role === 'ADMIN' && req.query.teacherId
+            ? parseInt(String(req.query.teacherId))
+            : req.user.sub;
+
+        if (req.user.role === 'TEACHER' && teacherId !== req.user.sub) {
+            return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
+
+        const assignmentParam = req.query.idTeacherAssignment;
+        const idTeacherAssignment = assignmentParam
+            ? parseInt(String(assignmentParam))
+            : undefined;
+
+        if (assignmentParam && (isNaN(idTeacherAssignment!) || idTeacherAssignment === 0)) {
+            return res.status(400).json({ success: false, message: 'idTeacherAssignment inválido' });
+        }
+
+        const items = await assistanceService.findPendingJustificationsByTeacher(
+            teacherId,
+            idTeacherAssignment
+        );
+
+        const data = items.map((item) => {
+            const student = item.studentEnrollment.student;
+            return {
+                id: item.id,
+                status: item.status,
+                justificationUri: item.justificationUri,
+                justificationStatus: item.justificationStatus,
+                subjectName: item.session.schedule.teacherAssignment.subject.name,
+                sessionDate: item.session.date,
+                startTime: item.session.schedule.startTime,
+                studentName: `${student.name} ${student.surname}`.trim(),
+            };
+        });
+
+        res.json({ success: true, data, count: data.length });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener justificaciones pendientes',
+            error: error.message,
+        });
+    }
+};
+
 export const justify = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id || '0');
         if (isNaN(id) || id === 0) return res.status(400).json({ success: false, message: 'ID de asistencia inválido' });
 
+        if (req.user?.role === 'TEACHER') {
+            const isOwner = await assistanceService.checkAssistanceOwnership(id, req.user.sub);
+            if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
+
+        const assistance = await assistanceService.findById(id);
+        if (!assistance) {
+            return res.status(404).json({ success: false, message: 'Asistencia no encontrada' });
+        }
+        if (!assistance.justificationUri || assistance.justificationStatus !== 'PENDING') {
+            return res.status(400).json({
+                success: false,
+                message: 'No hay un justificante pendiente de revisión para esta asistencia',
+            });
+        }
+
         const updated = await assistanceService.updateStatusToJustified(id);
         res.json({ success: true, data: updated });
     } catch (error: any) {
         res.status(400).json({ success: false, message: 'Error al justificar asistencia', error: error.message });
+    }
+};
+
+export const rejectJustification = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id || '0');
+        if (isNaN(id) || id === 0) return res.status(400).json({ success: false, message: 'ID de asistencia inválido' });
+
+        if (req.user?.role === 'TEACHER') {
+            const isOwner = await assistanceService.checkAssistanceOwnership(id, req.user.sub);
+            if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
+        }
+
+        const assistance = await assistanceService.findById(id);
+        if (!assistance) {
+            return res.status(404).json({ success: false, message: 'Asistencia no encontrada' });
+        }
+        if (!assistance.justificationUri || assistance.justificationStatus !== 'PENDING') {
+            return res.status(400).json({
+                success: false,
+                message: 'No hay un justificante pendiente de revisión para esta asistencia',
+            });
+        }
+
+        const updated = await assistanceService.rejectJustification(id);
+        res.json({ success: true, data: updated });
+    } catch (error: any) {
+        res.status(400).json({
+            success: false,
+            message: 'Error al rechazar justificación',
+            error: error.message,
+        });
     }
 };
 
@@ -294,7 +394,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
         // Express static lo sirve en /uploads, por tanto la URL será /uploads/justifications/{filename}
         const justificationUri = `/uploads/justifications/${req.file.filename}`;
 
-        const updated = await assistanceService.updateJustificationUrl(id, justificationUri);
+        const updated = await assistanceService.updateJustificationOnUpload(id, justificationUri);
 
         res.json({
             success: true,

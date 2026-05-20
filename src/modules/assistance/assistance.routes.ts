@@ -111,6 +111,32 @@ router.get('/my-absences', auth, authorize(['STUDENT']), assistanceController.ge
 
 /**
  * @swagger
+ * /api/assistances/pending-justifications:
+ *   get:
+ *     summary: Listar justificaciones pendientes del profesor
+ *     description: Devuelve faltas con justificante en estado PENDING de las sesiones del profesor.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: idTeacherAssignment
+ *         schema:
+ *           type: integer
+ *         required: false
+ *     responses:
+ *       200:
+ *         description: Lista de justificaciones pendientes
+ */
+router.get(
+    '/pending-justifications',
+    auth,
+    authorize(['ADMIN', 'TEACHER']),
+    assistanceController.getPendingJustifications
+);
+
+/**
+ * @swagger
  * /api/assistances/{id}/justification-status:
  *   get:
  *     summary: Consultar estado de justificación
@@ -222,6 +248,32 @@ router.post('/', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.cre
  *         description: Falta justificada
  */
 router.patch('/justify/:id', auth, authorize(['ADMIN', 'TEACHER']), assistanceController.justify);
+
+/**
+ * @swagger
+ * /api/assistances/reject-justification/{id}:
+ *   patch:
+ *     summary: Rechazar un justificante
+ *     description: Marca la justificación como REJECTED sin cambiar el estado de la falta.
+ *     tags: [Assistances]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Justificación rechazada
+ */
+router.patch(
+    '/reject-justification/:id',
+    auth,
+    authorize(['ADMIN', 'TEACHER']),
+    assistanceController.rejectJustification
+);
 
 /**
  * @swagger

@@ -1,4 +1,11 @@
+import { AssignmentStatus } from '@prisma/client';
 import prisma from '../../config/prisma.js';
+import type { CreateAssignmentBody } from './assignments.schema.js';
+
+export type CreateAssignmentResult =
+  | { kind: 'created'; assignment: Awaited<ReturnType<typeof prisma.teacherOnSubjectOnGroup.create>> }
+  | { kind: 'duplicate'; existing: { id: number } }
+  | { kind: 'error'; message: string };
 
 /**
  * Lista todas las asignaciones profesor-asignatura-grupo (TeacherOnSubjectOnGroup).
@@ -50,4 +57,99 @@ export const findAssignmentsByTeacher = async (idTeacher: number, schoolYear: st
       { group: { name: 'asc' } },
     ],
   });
+};
+
+const assignmentInclude = {
+  teacher: true,
+  subject: true,
+  group: true,
+} as const;
+
+/**
+ * Crea una asignación si no existe ya la tripleta (asignatura + grupo + curso escolar).
+ * Prisma: @@unique([idSubject, idGroup, schoolYear])
+ */
+export const createAssignment = async (
+  input: CreateAssignmentBody,
+): Promise<CreateAssignmentResult> => {
+  const [teacher, subject, group] = await Promise.all([
+    prisma.teacher.findUnique({ where: { id: input.idTeacher } }),
+    prisma.subject.findUnique({ where: { id: input.idSubject } }),
+    prisma.group.findUnique({ where: { id: input.idGroup } }),
+  ]);
+
+  if (!teacher) {
+    return { kind: 'error', message: 'Profesor no encontrado' };
+  }
+  if (!subject) {
+    return { kind: 'error', message: 'Asignatura no encontrada' };
+  }
+  if (!group) {
+    return { kind: 'error', message: 'Grupo no encontrado' };
+  }
+
+  const existing = await prisma.teacherOnSubjectOnGroup.findFirst({
+    where: {
+      idSubject: input.idSubject,
+      idGroup: input.idGroup,
+      schoolYear: input.schoolYear,
+    },
+  });
+
+  if (existing) {
+    return { kind: 'duplicate', existing: { id: existing.id } };
+  }
+
+  const assignment = await prisma.teacherOnSubjectOnGroup.create({
+    data: {
+      idTeacher: input.idTeacher,
+      idSubject: input.idSubject,
+      idGroup: input.idGroup,
+      schoolYear: input.schoolYear,
+      status: input.status ?? AssignmentStatus.STANDBY,
+    },
+    include: assignmentInclude,
+  });
+
+  return { kind: 'created', assignment };
+};
+
+export type BulkCreateRowResult = {
+  index: number;
+  assignment: Awaited<ReturnType<typeof prisma.teacherOnSubjectOnGroup.create>>;
+};
+
+export type BulkDuplicateRow = {
+  index: number;
+  input: CreateAssignmentBody;
+  existingId: number;
+};
+
+export type BulkErrorRow = {
+  index: number;
+  input: CreateAssignmentBody;
+  message: string;
+};
+
+/**
+ * Alta masiva: por cada fila, creada / duplicada / error (validación o FK).
+ */
+export const createAssignmentsBulk = async (items: CreateAssignmentBody[]) => {
+  const created: BulkCreateRowResult[] = [];
+  const duplicates: BulkDuplicateRow[] = [];
+  const errors: BulkErrorRow[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    const row = items[i];
+    const result = await createAssignment(row);
+    if (result.kind === 'created') {
+      created.push({ index: i, assignment: result.assignment });
+    } else if (result.kind === 'duplicate') {
+      duplicates.push({ index: i, input: row, existingId: result.existing.id });
+    } else {
+      errors.push({ index: i, input: row, message: result.message });
+    }
+  }
+
+  return { created, duplicates, errors };
 };

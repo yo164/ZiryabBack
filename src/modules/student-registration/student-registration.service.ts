@@ -13,7 +13,7 @@ export const create = async (data: {
 
   for (const reg of data.registrations) { 
     try {
-      const created = await prisma.studentOnSubjectonGroup.create({ 
+      const created = await prisma.studentOnSubjectOnGroup.create({ 
         data: {  //  Especifica cada campo
           idStudent: reg.idStudent,
           idGroup: reg.idGroup,

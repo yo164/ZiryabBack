@@ -337,6 +337,7 @@ async function main() {
   await prisma.studentOnSubjectOnGroup.deleteMany();
   await prisma.teacherOnSubjectOnGroup.deleteMany();
   await prisma.notification.deleteMany();
+  await prisma.issue.deleteMany();
   await prisma.taskGroup.deleteMany();
   await prisma.group.deleteMany();
   await prisma.subject.deleteMany();
@@ -354,6 +355,7 @@ async function main() {
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TeacherOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Notification_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Issue_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TaskGroup_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Group_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Subject_id_seq" RESTART WITH 1;`);
@@ -9001,6 +9003,90 @@ async function main() {
 
 
 
+  console.log('Creando anuncios del tablón (issues)...');
+  const issues = await prisma.issue.createMany({
+    data: [
+      {
+        emitterType: 'ADMIN',
+        idAdmin: 1,
+        audience: 'CENTER',
+        title: '[SEED] Bienvenida al centro',
+        body: 'Anuncio de prueba para toda la comunidad educativa (CENTER).',
+        isPublished: true,
+      },
+      {
+        emitterType: 'ADMIN',
+        idAdmin: 1,
+        audience: 'ALL_TEACHERS',
+        title: '[SEED] Reunión de profesorado',
+        body: 'Comunicado de prueba dirigido a todos los profesores.',
+        isPublished: true,
+      },
+      {
+        emitterType: 'TEACHER',
+        idTeacher: 1,
+        audience: 'ALL_STUDENTS',
+        title: '[SEED] Aviso general alumnado',
+        body: 'Anuncio de prueba del profesor 1 para todos sus alumnos.',
+        isPublished: true,
+      },
+      {
+        emitterType: 'ADMIN',
+        idAdmin: 1,
+        audience: 'GROUP',
+        idGroup: 1,
+        title: '[SEED] Aviso grupo Mañana (admin)',
+        body: 'Comunicado de prueba para el grupo Mañana emitido por administración.',
+        isPublished: true,
+      },
+      {
+        emitterType: 'TEACHER',
+        idTeacher: 2,
+        audience: 'GROUP',
+        idGroup: 1,
+        title: '[SEED] Aviso grupo Mañana (profesor)',
+        body: 'Anuncio de prueba del profesor 2 para el grupo Mañana.',
+        isPublished: true,
+      },
+      {
+        emitterType: 'ADMIN',
+        idAdmin: 1,
+        audience: 'COURSE',
+        idCourse: 1,
+        title: '[SEED] Información curso DAM',
+        body: 'Comunicado de prueba para todo el ciclo DAM.',
+        isPublished: true,
+      },
+      {
+        emitterType: 'TEACHER',
+        idTeacher: 3,
+        audience: 'SUBJECT_GROUP',
+        idGroup: 1,
+        idSubject: 1,
+        title: '[SEED] Programación — grupo Mañana',
+        body: 'Anuncio de prueba para la asignatura Programación en el grupo Mañana.',
+        isPublished: true,
+      },
+      {
+        emitterType: 'TEACHER',
+        idTeacher: 1,
+        audience: 'ALL_STUDENTS',
+        title: '[SEED] Borrador sin publicar',
+        body: 'Borrador de prueba (no debe aparecer en listados activos).',
+        isPublished: false,
+      },
+      {
+        emitterType: 'ADMIN',
+        idAdmin: 1,
+        audience: 'CENTER',
+        title: '[SEED] Anuncio caducado',
+        body: 'Anuncio de prueba con fecha de expiración pasada.',
+        isPublished: true,
+        expiresAt: new Date('2024-06-01'),
+      },
+    ],
+  });
+
   console.log('✅ Seed completado exitosamente!');
   console.log(`📚 ${students.count} estudiantes creados`);
   console.log(`👨‍🏫 ${teachers.count} profesores creados`);
@@ -9018,8 +9104,7 @@ async function main() {
   console.log(`✅ ${practiceTasks.count} tareas PRACTICE creadas`);
   console.log(`✅ ${examTasks.count} tareas de examen creadas`);
   console.log(`✅ ${studentTasks.count} StudentTasks creadas`);
-  
-
+  console.log(`📢 ${issues.count} anuncios (issues) creados`);
 
 }
 

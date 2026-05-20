@@ -1,6 +1,33 @@
 import type { Request, Response } from 'express';
 import * as horarioSemanalService from './weekSchedule.service.js';
 
+/**
+ * GET /api/horarios-semanales/classes — selector de clases (CURSO-70)
+ */
+export const getClasses = async (req: Request, res: Response) => {
+  try {
+    const schoolYear = (req.query.schoolYear as string) || undefined;
+    const onlyWithoutSchedule = req.query.onlyWithoutSchedule === 'true';
+
+    const classes = await horarioSemanalService.findClassesByAggregation(
+      schoolYear,
+      onlyWithoutSchedule
+    );
+
+    res.json({
+      success: true,
+      data: classes,
+      count: classes.length,
+    });
+  } catch (error: unknown) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener clases',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
+
 export const getAllHorarios = async (req: Request, res: Response) => {
   try {
     const horarios = await horarioSemanalService.findAll();
@@ -80,16 +107,16 @@ export const getHorariosByTeacherAssignment = async (req: Request, res: Response
 
 export const getHorariosByDia = async (req: Request, res: Response) => {
   try {
-    const diaSemana = parseInt(req.params.diaSemana || '0');
+    const weekDay = req.params.weekDay?.toUpperCase();
 
-    if (isNaN(diaSemana) || diaSemana < 1 || diaSemana > 7) {
+    if (!weekDay) {
       return res.status(400).json({
         success: false,
-        message: 'Día de la semana inválido (debe ser entre 1 y 7)',
+        message: 'Día de la semana requerido',
       });
     }
 
-    const horarios = await horarioSemanalService.findByDiaSemana(diaSemana);
+    const horarios = await horarioSemanalService.findByWeekDay(weekDay as any);
 
     res.json({
       success: true,

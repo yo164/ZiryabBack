@@ -1,18 +1,98 @@
 import prisma from '../../config/prisma.js';
 import { DayOfWeek } from '@prisma/client';
+import {
+  buildClassLabel,
+  buildClassLabelFromAssignment,
+} from '../../utils/classLabel.js';
 
-// Convertir de número (1-7) al Enum DayOfWeek para Prisma
-const mapNumberToDayOfWeek = (day: number): DayOfWeek => {
-  const map: Record<number, DayOfWeek> = {
-    1: DayOfWeek.MONDAY,
-    2: DayOfWeek.TUESDAY,
-    3: DayOfWeek.WEDNESDAY,
-    4: DayOfWeek.THURSDAY,
-    5: DayOfWeek.FRIDAY,
-    6: DayOfWeek.SATURDAY,
-    7: DayOfWeek.SUNDAY,
-  };
-  return map[day] || DayOfWeek.MONDAY;
+const VALID_DAYS = new Set<string>(Object.values(DayOfWeek));
+
+/**
+ * Agregación de clases para el selector del builder de horarios (CURSO-70)
+ * Agrupa por (courseId, grade, groupId, schoolYear) y cuenta asignaturas
+ */
+export const findClassesByAggregation = async (
+  schoolYear?: string,
+  onlyWithoutSchedule?: boolean
+) => {
+  const assignments = await prisma.teacherOnSubjectOnGroup.findMany({
+    where: schoolYear ? { schoolYear } : undefined,
+    include: {
+      subject: {
+        include: {
+          course: true,
+        },
+      },
+      group: true,
+    },
+  });
+
+  const scheduledLabels = new Set(
+    (
+      await prisma.weekSchedule.findMany({
+        where: schoolYear ? { teacherAssignment: { schoolYear } } : undefined,
+        select: { label: true },
+        distinct: ['label'],
+      })
+    ).map((row) => row.label)
+  );
+
+  const classMap = new Map<string, {
+    courseId: number;
+    courseName: string;
+    grade: string;
+    groupId: number;
+    groupName: string;
+    schoolYear: string;
+    subjectIds: Set<number>;
+    hasWeekSchedule: boolean;
+  }>();
+
+  for (const assignment of assignments) {
+    const course = assignment.subject.course;
+    const key = `${course.id}_${assignment.subject.grade}_${assignment.idGroup}_${assignment.schoolYear}`;
+
+    if (!classMap.has(key)) {
+      classMap.set(key, {
+        courseId: course.id,
+        courseName: course.name,
+        grade: String(assignment.subject.grade),
+        groupId: assignment.idGroup,
+        groupName: assignment.group.name,
+        schoolYear: assignment.schoolYear,
+        subjectIds: new Set<number>(),
+        hasWeekSchedule: false,
+      });
+    }
+
+    const classData = classMap.get(key)!;
+    classData.subjectIds.add(assignment.idSubject);
+
+    const classLabel = buildClassLabel(
+      String(assignment.subject.grade),
+      assignment.subject.course.name,
+      assignment.group.name
+    );
+    if (scheduledLabels.has(classLabel)) {
+      classData.hasWeekSchedule = true;
+    }
+  }
+
+  let classes = Array.from(classMap.values()).map((cls) => ({
+    label: buildClassLabel(cls.grade, cls.courseName, cls.groupName),
+    grade: cls.grade,
+    course: { id: cls.courseId, name: cls.courseName },
+    group: { id: cls.groupId, name: cls.groupName },
+    schoolYear: cls.schoolYear,
+    subjectCount: cls.subjectIds.size,
+    hasWeekSchedule: cls.hasWeekSchedule,
+  }));
+
+  if (onlyWithoutSchedule) {
+    classes = classes.filter((cls) => !cls.hasWeekSchedule);
+  }
+
+  return classes;
 };
 
 export const findAll = async () => {
@@ -72,13 +152,13 @@ export const findByTeacherAssignment = async (idTeacherAssignment: number) => {
   });
 };
 
-export const findByTeacherId = async(idTeacher: number) => {
+export const findByTeacherId = async (idTeacher: number) => {
   return prisma.weekSchedule.findMany({
-    where: { 
+    where: {
       teacherAssignment: {
-        idTeacher
-      }
-     },
+        idTeacher,
+      },
+    },
     include: {
       teacherAssignment:{
         include: {
@@ -99,9 +179,9 @@ export const findByTeacherId = async(idTeacher: number) => {
 
   });
 };
-export const findByDiaSemana = async (diaSemana: number) => {
+export const findByWeekDay = async (weekDay: DayOfWeek) => {
   return prisma.weekSchedule.findMany({
-    where: { weekDay: mapNumberToDayOfWeek(diaSemana) },
+    where: { weekDay },
     include: {
       teacherAssignment: {
         include: {
@@ -153,28 +233,33 @@ export const findByStudentId = async (idStudent: number) => {
 
 export const create = async (data: {
   idTeacherAssignment: number;
-  weekDay: number;
+  weekDay: string;
   startTime: string;
   finishTime: string;
 }) => {
-  // Validar que weekDay esté entre 1 y 7
-  if (data.weekDay < 1 || data.weekDay > 7) {
-    throw new Error('El día de la semana debe estar entre 1 (Lunes) y 7 (Domingo)');
+  if (!VALID_DAYS.has(data.weekDay)) {
+    throw new Error(`Día inválido: ${data.weekDay}. Valores válidos: ${[...VALID_DAYS].join(', ')}`);
   }
 
-  // Verificar que la asignación de profesor existe
   const assignmentExists = await prisma.teacherOnSubjectOnGroup.findUnique({
     where: { id: data.idTeacherAssignment },
+    include: {
+      subject: { include: { course: true } },
+      group: true,
+    },
   });
 
   if (!assignmentExists) {
     throw new Error('La asignación de profesor no existe');
   }
 
+  const label = buildClassLabelFromAssignment(assignmentExists);
+
   return prisma.weekSchedule.create({
     data: {
       idTeacherAssignment: data.idTeacherAssignment,
-      weekDay: mapNumberToDayOfWeek(data.weekDay),
+      label,
+      weekDay: data.weekDay as DayOfWeek,
       startTime: data.startTime,
       finishTime: data.finishTime,
     },
@@ -197,9 +282,9 @@ export const update = async (
   id: number,
   data: {
     idTeacherAssignment?: number;
-    diaSemana?: number;
-    horaInicio?: string;
-    horaFin?: string;
+    weekDay?: string;
+    startTime?: string;
+    finishTime?: string;
   }
 ) => {
   const exists = await prisma.weekSchedule.findUnique({ where: { id } });
@@ -207,17 +292,17 @@ export const update = async (
     throw new Error('Horario no encontrado');
   }
 
-  if (data.diaSemana && (data.diaSemana < 1 || data.diaSemana > 7)) {
-    throw new Error('El día de la semana debe estar entre 1 (Lunes) y 7 (Domingo)');
+  if (data.weekDay && !VALID_DAYS.has(data.weekDay)) {
+    throw new Error(`Día inválido: ${data.weekDay}. Valores válidos: ${[...VALID_DAYS].join(', ')}`);
   }
 
   return prisma.weekSchedule.update({
     where: { id },
     data: {
       ...(data.idTeacherAssignment && { idTeacherAssignment: data.idTeacherAssignment }),
-      ...(data.diaSemana && { weekDay: mapNumberToDayOfWeek(data.diaSemana) }),
-      ...(data.horaInicio && { startTime: data.horaInicio }),
-      ...(data.horaFin && { finishTime: data.horaFin }),
+      ...(data.weekDay && { weekDay: data.weekDay as DayOfWeek }),
+      ...(data.startTime && { startTime: data.startTime }),
+      ...(data.finishTime && { finishTime: data.finishTime }),
     },
     include: {
       teacherAssignment: {
@@ -235,9 +320,9 @@ export const patch = async (
   id: number,
   data: Partial<{
     idTeacherAssignment: number;
-    diaSemana: number;
-    horaInicio: string;
-    horaFin: string;
+    weekDay: string;
+    startTime: string;
+    finishTime: string;
   }>
 ) => {
   const exists = await prisma.weekSchedule.findUnique({ where: { id } });
@@ -245,17 +330,17 @@ export const patch = async (
     throw new Error('Horario no encontrado');
   }
 
-  if (data.diaSemana && (data.diaSemana < 1 || data.diaSemana > 7)) {
-    throw new Error('El día de la semana debe estar entre 1 (Lunes) y 7 (Domingo)');
+  if (data.weekDay && !VALID_DAYS.has(data.weekDay)) {
+    throw new Error(`Día inválido: ${data.weekDay}. Valores válidos: ${[...VALID_DAYS].join(', ')}`);
   }
 
   return prisma.weekSchedule.update({
     where: { id },
     data: {
       ...(data.idTeacherAssignment && { idTeacherAssignment: data.idTeacherAssignment }),
-      ...(data.diaSemana && { weekDay: mapNumberToDayOfWeek(data.diaSemana) }),
-      ...(data.horaInicio && { startTime: data.horaInicio }),
-      ...(data.horaFin && { finishTime: data.horaFin }),
+      ...(data.weekDay && { weekDay: data.weekDay as DayOfWeek }),
+      ...(data.startTime && { startTime: data.startTime }),
+      ...(data.finishTime && { finishTime: data.finishTime }),
     },
     include: {
       teacherAssignment: {

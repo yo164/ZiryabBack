@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import * as classSessionService from './classSession.service.js';
+import { bulkSuspendBodySchema } from './classSession.schema.js';
 
 export const getAllSessions = async (req: Request, res: Response) => {
   try {
@@ -181,6 +182,50 @@ export const deleteSession = async (req: Request, res: Response) => {
       success: false,
       message: 'Error al eliminar sesión',
       error: error.message,
+    });
+  }
+};
+
+export const suspendPreview = async (req: Request, res: Response) => {
+  const parsed = bulkSuspendBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      message: 'Cuerpo inválido',
+      errors: parsed.error.flatten(),
+    });
+  }
+
+  try {
+    const count = await classSessionService.countSuspendPreview(parsed.data);
+    res.json({ success: true, count });
+  } catch (error: unknown) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al calcular vista previa',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
+
+export const bulkSuspend = async (req: Request, res: Response) => {
+  const parsed = bulkSuspendBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      message: 'Cuerpo inválido',
+      errors: parsed.error.flatten(),
+    });
+  }
+
+  try {
+    const count = await classSessionService.bulkSuspendSessions(parsed.data);
+    res.json({ success: true, count });
+  } catch (error: unknown) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al suspender sesiones',
+      error: error instanceof Error ? error.message : 'Error desconocido',
     });
   }
 };

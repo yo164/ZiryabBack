@@ -241,6 +241,14 @@ const options: swaggerJsdoc.Options = {
         name: 'Assistances',
         description: 'Gestión de asistencias de los alumnos'
       },
+      {
+        name: 'Assignments',
+        description: 'Asignaciones profesor-asignatura-grupo',
+      },
+      {
+        name: 'Courses',
+        description: 'Ciclos formativos y asignaturas por grade',
+      },
 
     ],
   },

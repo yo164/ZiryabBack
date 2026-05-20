@@ -114,3 +114,70 @@ export const findSubjectsByTeacherId = async (teacherId: number) => {
         }
     });
 };
+
+export const findStudentsAbsencesByTeacher = async (teacherId: number) => {
+    const teacherAssignments = await prisma.teacherOnSubjectOnGroup.findMany({
+        where: { idTeacher: teacherId },
+        select: { idSubject: true, idGroup: true, schoolYear: true, subject: { select: { name: true } } }
+    });
+
+    if (teacherAssignments.length === 0) return [];
+
+    const orConditions = teacherAssignments.map(a => ({
+        idSubject: a.idSubject,
+        idGroup: a.idGroup,
+        schoolYear: a.schoolYear
+    }));
+
+    const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
+        where: {
+            OR: orConditions
+        },
+        include: {
+            student: {
+                select: { id: true, name: true, surname: true, email: true }
+            },
+            subject: {
+                select: { name: true }
+            },
+            Assistance: {
+                where: {
+                    OR: [
+                        { status: 'ABSENT' },
+                        { status: 'LATE' },
+                        { status: 'EXCUSED' }
+                    ]
+                },
+                select: {
+                    id: true,
+                    status: true,
+                    justificationStatus: true
+                }
+            }
+        }
+    });
+
+    const studentMap = new Map();
+    
+    for (const enr of enrollments) {
+        if (!studentMap.has(enr.student.id)) {
+            studentMap.set(enr.student.id, {
+                student: enr.student,
+                subjects: [],
+                totalAbsences: 0
+            });
+        }
+        
+        const stData = studentMap.get(enr.student.id);
+        const absenceCount = enr.Assistance.length;
+        
+        stData.subjects.push({
+            subjectName: enr.subject.name,
+            absences: absenceCount
+        });
+        
+        stData.totalAbsences += absenceCount;
+    }
+    
+    return Array.from(studentMap.values()).sort((a: any, b: any) => b.totalAbsences - a.totalAbsences);
+};

@@ -124,7 +124,10 @@ export const updateStatusById = async (id: number, status: AssistanceStatus) => 
 export const updateJustificationUrl = async (id: number, justificationUri: string) => {
     return await prisma.assistance.update({
         where: { id },
-        data: { justificationUri }
+        data: { 
+            justificationUri,
+            justificationStatus: 'PENDING'
+        }
     });
 };
 
@@ -277,10 +280,27 @@ export const createMany = async (assistances: {
     idStudentEnrollment: number;
     status: AssistanceStatus;
 }[]) => {
-    return await prisma.assistance.createMany({
-        data: assistances,
-        skipDuplicates: true
-    });
+    return await prisma.$transaction(
+        assistances.map((ast) =>
+            prisma.assistance.upsert({
+                where: {
+                    idSession_idStudentEnrollment: {
+                        idSession: ast.idSession,
+                        idStudentEnrollment: ast.idStudentEnrollment,
+                    },
+                },
+                update: {
+                    status: ast.status,
+                    createdAt: new Date(), // actualizamos la fecha de creacion al sobreescribir
+                },
+                create: {
+                    idSession: ast.idSession,
+                    idStudentEnrollment: ast.idStudentEnrollment,
+                    status: ast.status,
+                },
+            })
+        )
+    );
 };
 
 
@@ -305,7 +325,19 @@ export const findAllByTeacher = async (teacherId: number) => {
             }
         },
         include: {
-            session: true,
+            session: {
+                include: {
+                    schedule: {
+                        include: {
+                            teacherAssignment: {
+                                include: {
+                                    subject: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             studentEnrollment: { include: { student: true } }
         },
         orderBy: { createdAt: 'desc' }

@@ -20,6 +20,13 @@ router.get('/', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getAll
 router.get('/:id/subjects', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getTeacherSubjects);
 
 /**
+ * @route   GET /api/teachers/my-students-absences
+ * @desc    Obtener listado de alumnos y sus faltas para un profesor
+ * @access  Admin, Teacher
+ */
+router.get('/my-students-absences', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getMyStudentsAbsences);
+
+/**
  * @route   GET /api/teachers/:id
  * @desc    Obtener un profesor por ID
  * @access  Admin, Teacher

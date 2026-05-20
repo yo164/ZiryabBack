@@ -37,6 +37,7 @@ model Teacher {
   createdAt  DateTime @default(now())
   
   assignments   TeacherOnSubjectOnGroup[]
+  issues        Issue[]
 }
 
 model Admin {
@@ -50,6 +51,8 @@ model Admin {
   role       String   @default("ADMIN")
   firebaseUID String   @unique
   createdAt  DateTime @default(now())
+
+  issues     Issue[]
 }
 
 model Course {
@@ -61,6 +64,7 @@ model Course {
   createdAt   DateTime @default(now())
 
   subjects Subject[]
+  issues   Issue[]
 }
 
 model Subject {
@@ -76,7 +80,8 @@ model Subject {
   
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
-  
+  issues             Issue[]
+
   // NUEVO: Evita duplicar asignaturas en el mismo ciclo y curso
   @@unique([name, idCourse, grade])
   @@index([idCourse, grade])  // NUEVO: Índice para búsquedas frecuentes
@@ -93,6 +98,7 @@ model Group {
   
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
+  issues             Issue[]
 }
 
 enum AssignmentStatus {
@@ -347,4 +353,52 @@ model Notification {
   createdAt            DateTime @default(now())
 
   @@index([recipientFirebaseUID, isRead, createdAt])
+}
+
+enum IssueEmitterType {
+  TEACHER
+  ADMIN
+}
+
+enum IssueAudience {
+  CENTER
+  ALL_TEACHERS
+  ALL_STUDENTS
+  GROUP
+  COURSE
+  SUBJECT_GROUP
+}
+
+model Issue {
+  id            Int              @id @default(autoincrement())
+
+  emitterType   IssueEmitterType
+  idTeacher     Int?
+  teacher       Teacher?         @relation(fields: [idTeacher], references: [id], onDelete: SetNull)
+  idAdmin       Int?
+  admin         Admin?           @relation(fields: [idAdmin], references: [id], onDelete: SetNull)
+
+  audience      IssueAudience
+  idGroup       Int?
+  group         Group?           @relation(fields: [idGroup], references: [id], onDelete: SetNull)
+  idCourse      Int?
+  course        Course?          @relation(fields: [idCourse], references: [id], onDelete: SetNull)
+  idSubject     Int?
+  subject       Subject?         @relation(fields: [idSubject], references: [id], onDelete: SetNull)
+
+  title         String
+  body          String
+  attachmentUrl String?
+
+  isPublished   Boolean          @default(false)
+  publishAt     DateTime?
+  expiresAt     DateTime?
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([audience, idGroup])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@index([isPublished, publishAt])
 }

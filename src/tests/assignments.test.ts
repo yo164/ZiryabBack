@@ -6,7 +6,7 @@ import { env } from '../config/env.js';
 
 const prisma = new PrismaClient();
 
-describe('Assignments POST (CURSO-94)', () => {
+describe('Assignments API (CURSO-94 / CURSO-101)', () => {
   let authCookie: string;
   let adminTeacherId: number;
   let courseId: number;
@@ -118,6 +118,32 @@ describe('Assignments POST (CURSO-94)', () => {
     expect(res.status).toBe(409);
     expect(res.body.success).toBe(false);
     expect(res.body.data).toHaveProperty('existingId');
+  });
+
+  it('POST /api/assignments — 400 si faltan campos obligatorios (Zod)', async () => {
+    const res = await request(app)
+      .post('/api/assignments')
+      .set('Cookie', [authCookie])
+      .send({
+        idTeacher: adminTeacherId,
+        idSubject: subjectId,
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe('Cuerpo inválido');
+    expect(res.body.errors).toBeDefined();
+  });
+
+  it('POST /api/assignments/bulk — 400 si assignments vacío', async () => {
+    const res = await request(app)
+      .post('/api/assignments/bulk')
+      .set('Cookie', [authCookie])
+      .send({ assignments: [] });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe('Cuerpo inválido');
   });
 
   it('POST /api/assignments — 400 si profesor inexistente', async () => {

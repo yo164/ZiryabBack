@@ -37,9 +37,30 @@ const router = Router();
  *                       enum: [ACTIVE, SUSPENDED, ILLNESS, EXCEDENCE, WITHDRAWN, STANDBY]
  *     responses:
  *       200:
- *         description: Resultado parcial por filas
+ *         description: Resultado parcial (creadas, duplicadas, errores)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 message: { type: string }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     created: { type: array, items: { type: object } }
+ *                     duplicates: { type: array, items: { type: object } }
+ *                     errors: { type: array, items: { type: object } }
  *       400:
- *         description: Validación
+ *         description: Cuerpo inválido (Zod)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: false }
+ *                 message: { type: string }
+ *                 errors: { type: object }
  */
 router.post(
   '/bulk',
@@ -74,11 +95,38 @@ router.post(
  *                 enum: [ACTIVE, SUSPENDED, ILLNESS, EXCEDENCE, WITHDRAWN, STANDBY]
  *     responses:
  *       201:
- *         description: Creada
+ *         description: Asignación creada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 message: { type: string, example: Asignación creada }
+ *                 data: { type: object }
  *       409:
- *         description: Duplicado
+ *         description: Duplicado (misma asignatura+grupo+año)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: false }
+ *                 message: { type: string }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     existingId: { type: integer }
  *       400:
- *         description: Validación o FK
+ *         description: Validación Zod o FK inexistente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: false }
+ *                 message: { type: string }
+ *                 errors: { type: object }
  */
 router.post('/', auth, authorize(['ADMIN']), assignmentsController.postAssignment);
 
@@ -112,6 +160,14 @@ router.post('/', auth, authorize(['ADMIN']), assignmentsController.postAssignmen
  *     responses:
  *       200:
  *         description: Lista de asignaciones
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 data: { type: array, items: { type: object } }
+ *                 count: { type: integer }
  *       400:
  *         description: Parámetros inválidos
  *       404:

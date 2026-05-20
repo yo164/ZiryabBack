@@ -1,7 +1,60 @@
-import { PrismaClient, DayOfWeek, SessionStatus } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import { DayOfWeek, SessionStatus } from '@prisma/client';
+import prisma from '../../config/prisma.js';
 import { buildClassLabelFromAssignment } from '../../utils/classLabel.js';
+import type { BulkSuspendBody } from './classSession.schema.js';
 
-const prisma = new PrismaClient();
+const SUSPENDABLE_STATUSES: SessionStatus[] = ['SCHEDULED', 'COMPLETED'];
+
+const parseDateRange = (dateFrom: string, dateTo: string) => {
+  const from = new Date(dateFrom);
+  const to = new Date(dateTo);
+  from.setHours(0, 0, 0, 0);
+  to.setHours(23, 59, 59, 999);
+  return { from, to };
+};
+
+export const buildSuspendWhere = (filters: BulkSuspendBody): Prisma.SessionClassWhereInput => {
+  const { from, to } = parseDateRange(filters.dateFrom, filters.dateTo);
+
+  const assignmentWhere: Prisma.TeacherOnSubjectOnGroupWhereInput = {};
+  if (filters.idCourse !== undefined) {
+    assignmentWhere.subject = { idCourse: filters.idCourse };
+  }
+  if (filters.idSubject !== undefined) {
+    assignmentWhere.idSubject = filters.idSubject;
+  }
+  if (filters.idGroup !== undefined) {
+    assignmentWhere.idGroup = filters.idGroup;
+  }
+  if (filters.idTeacher !== undefined) {
+    assignmentWhere.idTeacher = filters.idTeacher;
+  }
+
+  const hasAssignmentFilters = Object.keys(assignmentWhere).length > 0;
+
+  return {
+    date: { gte: from, lte: to },
+    status: { in: SUSPENDABLE_STATUSES },
+    ...(hasAssignmentFilters && {
+      schedule: {
+        teacherAssignment: assignmentWhere,
+      },
+    }),
+  };
+};
+
+export const countSuspendPreview = async (filters: BulkSuspendBody): Promise<number> => {
+  return prisma.sessionClass.count({ where: buildSuspendWhere(filters) });
+};
+
+export const bulkSuspendSessions = async (filters: BulkSuspendBody): Promise<number> => {
+  const result = await prisma.sessionClass.updateMany({
+    where: buildSuspendWhere(filters),
+    data: { status: 'CANCELLED' },
+  });
+  return result.count;
+};
 
 export const findAll = async () => {
   return prisma.sessionClass.findMany({

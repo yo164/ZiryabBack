@@ -24,6 +24,91 @@ router.get('/', auth, authorize(['ADMIN', 'TEACHER']), classSessionController.ge
 router.get('/active', auth, authorize(['ADMIN', 'TEACHER']), classSessionController.getActiveSession);
 
 /**
+ * @swagger
+ * /api/sessions/suspend-preview:
+ *   post:
+ *     summary: Vista previa de sesiones a suspender (CURSO-110)
+ *     description: Solo ADMIN. Cuenta sesiones SCHEDULED/COMPLETED en el rango y filtros opcionales.
+ *     tags: [Sessions]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [dateFrom, dateTo]
+ *             properties:
+ *               dateFrom: { type: string, format: date, example: '2025-01-01' }
+ *               dateTo: { type: string, format: date, example: '2025-01-31' }
+ *               idCourse: { type: integer }
+ *               idSubject: { type: integer }
+ *               idGroup: { type: integer }
+ *               idTeacher: { type: integer }
+ *     responses:
+ *       200:
+ *         description: Número de sesiones que se suspenderían
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 count: { type: integer, example: 12 }
+ *       400:
+ *         description: Cuerpo inválido
+ *       401:
+ *         description: No autorizado
+ */
+router.post(
+  '/suspend-preview',
+  auth,
+  authorize(['ADMIN']),
+  classSessionController.suspendPreview,
+);
+
+/**
+ * @swagger
+ * /api/sessions/bulk-suspend:
+ *   post:
+ *     summary: Suspensión masiva de sesiones (CURSO-110)
+ *     description: Solo ADMIN. Pasa a CANCELLED las sesiones SCHEDULED/COMPLETED del filtro. Idempotente con ya canceladas.
+ *     tags: [Sessions]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [dateFrom, dateTo]
+ *             properties:
+ *               dateFrom: { type: string, format: date }
+ *               dateTo: { type: string, format: date }
+ *               idCourse: { type: integer }
+ *               idSubject: { type: integer }
+ *               idGroup: { type: integer }
+ *               idTeacher: { type: integer }
+ *     responses:
+ *       200:
+ *         description: Sesiones actualizadas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 count: { type: integer, example: 12 }
+ *       400:
+ *         description: Cuerpo inválido
+ *       401:
+ *         description: No autorizado
+ */
+router.post('/bulk-suspend', auth, authorize(['ADMIN']), classSessionController.bulkSuspend);
+
+/**
  * @route   GET /api/sessions/:id
  * @desc    Obtener una sesión por ID
  * @access  Admin, Teacher

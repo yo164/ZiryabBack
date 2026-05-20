@@ -20,6 +20,63 @@ export const getAllCourses = async (req: Request, res: Response) => {
   }
 };
 
+export const getCourseGrades = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || '0', 10);
+
+    if (Number.isNaN(id) || id === 0) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
+
+    const grades = await courseService.findDistinctGradesByCourseId(id);
+
+    res.status(200).json({
+      message: 'Cursos (grades) del ciclo',
+      data: grades,
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'Curso no encontrado') {
+      return res.status(404).json({ message: error.message });
+    }
+
+    res.status(500).json({
+      message: 'Error al obtener grades del ciclo',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
+
+export const getCourseSubjectsByGrade = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id || '0', 10);
+    const grade = typeof req.query.grade === 'string' ? req.query.grade.trim() : '';
+
+    if (Number.isNaN(id) || id === 0) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
+
+    if (!grade) {
+      return res.status(400).json({ message: 'Query grade es obligatorio' });
+    }
+
+    const subjects = await courseService.findSubjectsByCourseIdAndGrade(id, grade);
+
+    res.status(200).json({
+      message: 'Asignaturas del ciclo por grade',
+      data: subjects,
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'Curso no encontrado') {
+      return res.status(404).json({ message: error.message });
+    }
+
+    res.status(500).json({
+      message: 'Error al obtener asignaturas del ciclo',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
+
 export const getCourseById = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id || '0');

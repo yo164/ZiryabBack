@@ -22,6 +22,65 @@ export const getAllAssignments = async (_req: Request, res: Response) => {
   }
 };
 
+export const getAssignmentsByCourse = async (req: Request, res: Response) => {
+  try {
+    const idCourse = parseInt(req.params.idCourse || '0', 10);
+    const grade = typeof req.query.grade === 'string' ? req.query.grade.trim() : '';
+    const schoolYear =
+      typeof req.query.schoolYear === 'string' ? req.query.schoolYear.trim() : '';
+
+    if (Number.isNaN(idCourse) || idCourse === 0) {
+      res.status(400).json({
+        success: false,
+        message: 'ID de ciclo inválido',
+      });
+      return;
+    }
+
+    if (!grade) {
+      res.status(400).json({
+        success: false,
+        message: 'Query grade es obligatorio',
+      });
+      return;
+    }
+
+    if (!schoolYear) {
+      res.status(400).json({
+        success: false,
+        message: 'Query schoolYear es obligatorio',
+      });
+      return;
+    }
+
+    const assignments = await assignmentsService.findAssignmentsByCourseGrade(
+      idCourse,
+      grade,
+      schoolYear,
+    );
+
+    res.json({
+      success: true,
+      data: assignments,
+      count: assignments.length,
+    });
+  } catch (error: any) {
+    if (error.message === 'Curso no encontrado') {
+      res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener asignaciones del ciclo',
+      error: error.message,
+    });
+  }
+};
+
 export const getAssignmentsByTeacher = async (req: Request, res: Response) => {
   try {
     const idTeacher = parseInt(req.params.idTeacher || '0', 10);

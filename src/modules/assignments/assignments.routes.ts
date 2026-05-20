@@ -83,6 +83,48 @@ router.post(
 router.post('/', auth, authorize(['ADMIN']), assignmentsController.postAssignment);
 
 /**
+ * @swagger
+ * /api/assignments/by-course/{idCourse}:
+ *   get:
+ *     summary: Asignaciones por ciclo, grade y año escolar
+ *     description: TeacherOnSubjectOnGroup filtradas por idCourse (vía subject), grade y schoolYear.
+ *     tags: [Assignments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: idCourse
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: grade
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "1"
+ *       - in: query
+ *         name: schoolYear
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "2024-2025"
+ *     responses:
+ *       200:
+ *         description: Lista de asignaciones
+ *       400:
+ *         description: Parámetros inválidos
+ *       404:
+ *         description: Ciclo no encontrado
+ */
+router.get(
+  '/by-course/:idCourse',
+  auth,
+  authorize(['ADMIN', 'TEACHER']),
+  assignmentsController.getAssignmentsByCourse,
+);
+
+/**
  * @route   GET /api/assignments/teacher/:idTeacher?schoolYear=2024-2025
  * @desc    Asignaciones de un profesor en un año académico (TeacherOnSubjectOnGroup)
  * @access  Admin, Teacher

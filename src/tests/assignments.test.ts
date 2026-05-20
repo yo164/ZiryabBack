@@ -170,6 +170,44 @@ describe('Assignments POST (CURSO-94)', () => {
     await prisma.subject.delete({ where: { id: subject2.id } });
   });
 
+  it('GET /api/assignments/by-course/:idCourse — filtra por grade y schoolYear', async () => {
+    const res = await request(app)
+      .get(`/api/assignments/by-course/${courseId}`)
+      .query({ grade: '1', schoolYear })
+      .set('Cookie', [authCookie]);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.length).toBeGreaterThanOrEqual(1);
+    expect(res.body.data.every((a: { schoolYear: string; subject: { grade: string; idCourse: number } }) =>
+      a.schoolYear === schoolYear &&
+      a.subject.grade === '1' &&
+      a.subject.idCourse === courseId,
+    )).toBe(true);
+  });
+
+  it('GET /api/assignments/by-course/:idCourse — 400 sin schoolYear', async () => {
+    const res = await request(app)
+      .get(`/api/assignments/by-course/${courseId}`)
+      .query({ grade: '1' })
+      .set('Cookie', [authCookie]);
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toMatch(/schoolYear/i);
+  });
+
+  it('GET /api/assignments/by-course/:idCourse — 404 si ciclo no existe', async () => {
+    const res = await request(app)
+      .get('/api/assignments/by-course/999999')
+      .query({ grade: '1', schoolYear })
+      .set('Cookie', [authCookie]);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe('Curso no encontrado');
+  });
+
   it('POST /api/assignments — 403 si no es ADMIN', async () => {
     const teacherCookie = cookie(otherTeacherId, 'TEACHER', 'assign_other_teacher@example.com', 'assign_other_uid');
     const res = await request(app)

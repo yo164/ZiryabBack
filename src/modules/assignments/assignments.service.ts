@@ -23,6 +23,58 @@ export const findAllAssignments = async () => {
 /**
  * Asignaciones de un profesor en un año académico (tarjetas asignatura/grupo).
  */
+/**
+ * Asignaciones de un ciclo + grade + año escolar (datagrid wizard Course).
+ */
+export const findAssignmentsByCourseGrade = async (
+  idCourse: number,
+  grade: string,
+  schoolYear: string,
+) => {
+  const course = await prisma.course.findUnique({
+    where: { id: idCourse },
+    select: { id: true },
+  });
+  if (!course) {
+    throw new Error('Curso no encontrado');
+  }
+
+  return prisma.teacherOnSubjectOnGroup.findMany({
+    where: {
+      schoolYear,
+      subject: {
+        idCourse,
+        grade,
+      },
+    },
+    include: {
+      teacher: {
+        select: {
+          id: true,
+          name: true,
+          surname: true,
+          email: true,
+        },
+      },
+      subject: {
+        select: {
+          id: true,
+          name: true,
+          grade: true,
+          idCourse: true,
+        },
+      },
+      group: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: [{ subject: { name: 'asc' } }, { group: { name: 'asc' } }],
+  });
+};
+
 export const findAssignmentsByTeacher = async (idTeacher: number, schoolYear: string) => {
   return prisma.teacherOnSubjectOnGroup.findMany({
     where: {

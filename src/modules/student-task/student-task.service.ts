@@ -1,5 +1,44 @@
 import prisma from '../../config/prisma.js';
 
+/**
+ * Crea StudentTask faltantes para tareas ya publicadas en las matrículas del alumno.
+ * Cubre el caso en que isPublished se activó solo en BD sin pasar por el API.
+ */
+export const syncPublishedTasksForStudent = async (studentId: number): Promise<number> => {
+  const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
+    where: { idStudent: studentId, status: 'ENROLLED' },
+  });
+
+  let totalCreated = 0;
+  for (const enrollment of enrollments) {
+    const tasks = await prisma.task.findMany({
+      where: {
+        isPublished: true,
+        schoolYear: enrollment.schoolYear,
+        teacherAssignment: {
+          idSubject: enrollment.idSubject,
+          idGroup: enrollment.idGroup,
+        },
+      },
+      select: { id: true, type: true },
+    });
+
+    if (tasks.length === 0) continue;
+
+    const result = await prisma.studentTask.createMany({
+      data: tasks.map((t) => ({
+        idTask: t.id,
+        idStudentEnrollment: enrollment.id,
+        status: 'PENDING',
+      })),
+      skipDuplicates: true,
+    });
+    totalCreated += result.count;
+  }
+
+  return totalCreated;
+};
+
 export const findAll = async (teacherId?: number, studentId?: number) => {
   const whereClause: any = {};
   if (teacherId) {

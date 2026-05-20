@@ -238,8 +238,15 @@ export const update = async (
   });
 
   const justPublished = task.isPublished === false && data.isPublished === true;
+  const existingStudentTaskCount = await prisma.studentTask.count({
+    where: { idTask: id },
+  });
 
-  if (justPublished) {
+  const shouldCreateStudentTasks =
+    updatedTask.isPublished &&
+    (justPublished || existingStudentTaskCount === 0);
+
+  if (shouldCreateStudentTasks) {
     const assignment = await prisma.teacherOnSubjectOnGroup.findUnique({
       where: { id: updatedTask.idTeacherAssignment },
     });

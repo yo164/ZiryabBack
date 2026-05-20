@@ -13,6 +13,10 @@ export const getAllStudentTasks = async (req: Request, res: Response) => {
     if (userRole === 'TEACHER') teacherId = userId;
     if (userRole === 'STUDENT') studentId = userId;
 
+    if (studentId) {
+      await studentTaskService.syncPublishedTasksForStudent(studentId);
+    }
+
     const studentTasks = await studentTaskService.findAll(teacherId, studentId);
     res.json({
       success: true,

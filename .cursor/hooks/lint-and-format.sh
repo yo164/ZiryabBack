@@ -13,7 +13,7 @@ file=$(echo "$input" | grep -oE '"path"[[:space:]]*:[[:space:]]*"[^"]+"' | head 
 if [[ -z "$file" || ! -f "$file" ]]; then
   echo '{}'
   exit 0
-fi
+fire
 
 case "$file" in
   *.ts)

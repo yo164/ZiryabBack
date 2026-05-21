@@ -70,7 +70,7 @@ app.use(cors({
 app.use(express.json({ limit: '100kb' }));
 app.use(requestLogger);
 
-if (env.NODE_ENV !== 'test') {
+if (env.NODE_ENV === 'production') {
   app.use(generalLimiter);
 }
 

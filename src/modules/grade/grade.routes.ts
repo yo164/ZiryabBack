@@ -30,25 +30,30 @@ router.get('/my', auth, authorize(['STUDENT']), gradeController.getMyGrades);
  * @swagger
  * /api/grades/tutored-groups:
  *   get:
- *     summary: Obtener grupos de los que soy tutor
+ *     summary: Obtener las clases (CourseGroup) de las que soy tutor
  *     tags: [Grades]
  *     responses:
  *       200:
- *         description: Lista de grupos
+ *         description: Lista de clases tutoradas
  */
 router.get('/tutored-groups', auth, authorize(['TEACHER']), gradeController.getTutoredGroups);
 
 /**
  * @swagger
- * /api/grades/group/{idGroup}/period/{period}:
+ * /api/grades/course-group/{idCourseGroup}/period/{period}:
  *   get:
- *     summary: Obtener notas de un grupo para un periodo
+ *     summary: Obtener notas de una clase (CourseGroup) para un periodo
  *     tags: [Grades]
  *     responses:
  *       200:
  *         description: Lista de notas
  */
-router.get('/group/:idGroup/period/:period', auth, authorize(['TEACHER']), gradeController.getGradesByGroupAndPeriod);
+router.get(
+  '/course-group/:idCourseGroup/period/:period',
+  auth,
+  authorize(['TEACHER']),
+  gradeController.getGradesByCourseGroupAndPeriod
+);
 
 /**
  * @swagger

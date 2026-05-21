@@ -26,6 +26,7 @@ import gradeRoutes from './modules/grade/grade.routes.js';
 
 import courseRouter from './modules/course/course.routes.js';
 import groupRouter from './modules/group/group.routes.js';
+import courseGroupRouter from './modules/course-group/course-group.routes.js';
 import studentregsitrationRouter from './modules/student-registration/student-registration.routes.js'
 //SACO UNA RAMA PARA IR HACIENDO PEQUEÑOS CAMBIOS EN LA BASE DE DATOS DE CARA A LA FUTURA ASIGNACIÓN DE UN PROFESOR A UNA ASIGNATURA IMPARTIDA EN UN GRUPO
 const app = express();
@@ -106,6 +107,7 @@ app.use('/api/admins', adminsRoutes);
 
 app.use('/api/courses', courseRouter);
 app.use('/api/groups', groupRouter);
+app.use('/api/course-groups', courseGroupRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/studentregistration', studentregsitrationRouter);
 app.use('/api/enrollments', enrollmentRoutes);

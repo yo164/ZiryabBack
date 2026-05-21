@@ -16,6 +16,98 @@ export const findByStudentEnrollment = async (idStudentEnrollment: number) => {
   });
 };
 
+/**
+ * Devuelve las CourseGroups (ciclo+grupo+grado) de las que el profesor es tutor,
+ * incluyendo las matrículas filtradas por curso y grado correctos.
+ */
+export const getTutoredGroups = async (idTeacher: number) => {
+  const courseGroups = await prisma.courseGroup.findMany({
+    where: { tutorId: idTeacher },
+    include: {
+      course: true,
+      group: true,
+    },
+  });
+
+  const result = await Promise.all(
+    courseGroups.map(async (cg) => {
+      const studentEnrollments = await prisma.studentOnSubjectOnGroup.findMany({
+        where: {
+          idGroup: cg.idGroup,
+          subject: {
+            idCourse: cg.idCourse,
+            grade: cg.grade,
+          },
+        },
+        include: {
+          student: true,
+          subject: true,
+        },
+      });
+
+      return {
+        id: cg.id,
+        grade: cg.grade,
+        course: cg.course,
+        group: cg.group,
+        studentEnrollments,
+      };
+    })
+  );
+
+  return result;
+};
+
+/**
+ * Comprueba si el profesor es tutor de la CourseGroup indicada.
+ */
+export const isTutorOfCourseGroup = async (
+  idTeacher: number,
+  courseGroupId: number
+) => {
+  const cg = await prisma.courseGroup.findUnique({
+    where: { id: courseGroupId },
+  });
+  return cg?.tutorId === idTeacher;
+};
+
+/**
+ * Devuelve las notas de una CourseGroup para un periodo,
+ * filtrando por idGroup + subject.idCourse + subject.grade.
+ */
+export const findByCourseGroupAndPeriod = async (
+  courseGroupId: number,
+  period: EvaluationPeriod
+) => {
+  const cg = await prisma.courseGroup.findUnique({
+    where: { id: courseGroupId },
+  });
+  if (!cg) throw new Error('Clase no encontrada');
+
+  const grades = await prisma.grade.findMany({
+    where: {
+      period,
+      studentEnrollment: {
+        idGroup: cg.idGroup,
+        subject: {
+          idCourse: cg.idCourse,
+          grade: cg.grade,
+        },
+      },
+    },
+    include: {
+      studentEnrollment: {
+        include: {
+          student: true,
+          subject: true,
+        },
+      },
+    },
+  });
+
+  return grades;
+};
+
 export const upsertGrade = async (
   idTeacher: number,
   data: {
@@ -25,20 +117,26 @@ export const upsertGrade = async (
     observations?: string | null;
   }
 ) => {
-  // Verificar que el profesor es tutor del grupo del alumno
+  // Buscar la matrícula con su asignatura para localizar la CourseGroup
   const enrollment = await prisma.studentOnSubjectOnGroup.findUnique({
     where: { id: data.idStudentEnrollment },
-    include: {
-      group: true,
-    },
+    include: { subject: true },
   });
 
   if (!enrollment) {
     throw new Error('Matrícula no encontrada');
   }
 
-  if (enrollment.group.tutorId !== idTeacher) {
-    console.error(`[GradeService] Teacher ${idTeacher} is not tutor of group ${enrollment.group.id} (Tutor: ${enrollment.group.tutorId})`);
+  // Verificar que el profesor es tutor de la CourseGroup correspondiente
+  const courseGroup = await prisma.courseGroup.findFirst({
+    where: {
+      idGroup: enrollment.idGroup,
+      idCourse: enrollment.subject.idCourse,
+      grade: enrollment.subject.grade,
+    },
+  });
+
+  if (!courseGroup || courseGroup.tutorId !== idTeacher) {
     throw new Error('Solo el tutor del grupo puede introducir notas');
   }
 
@@ -78,48 +176,4 @@ export const bulkUpsertGrades = async (
     results.push(await upsertGrade(idTeacher, gradeData));
   }
   return results;
-};
-
-export const findByGroupAndPeriod = async (idGroup: number, period: EvaluationPeriod) => {
-  const grades = await prisma.grade.findMany({
-    where: {
-      period,
-      studentEnrollment: {
-        idGroup,
-      },
-    },
-    include: {
-      studentEnrollment: {
-        include: {
-          student: true,
-          subject: true,
-        },
-      },
-    },
-  });
-  console.log(`[GradeService] Found ${grades.length} grades for group ${idGroup} and period ${period}`);
-  return grades;
-};
-
-export const isTutorOfGroup = async (idTeacher: number, idGroup: number) => {
-  const group = await prisma.group.findUnique({
-    where: { id: idGroup },
-  });
-  return group?.tutorId === idTeacher;
-};
-
-export const getTutoredGroups = async (idTeacher: number) => {
-  const groups = await prisma.group.findMany({
-    where: { tutorId: idTeacher },
-    include: {
-      studentEnrollments: {
-        include: {
-          student: true,
-          subject: true,
-        },
-      },
-    },
-  });
-  console.log(`[GradeService] Found ${groups.length} tutored groups for teacher ${idTeacher}`);
-  return groups;
 };

@@ -10,12 +10,9 @@ export const getMyGrades = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'No autorizado' });
     }
 
-    // Buscar todas las matrículas del alumno
     const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
       where: { idStudent: studentId },
-      include: {
-        subject: true,
-      },
+      include: { subject: true },
     });
 
     const allGrades = [];
@@ -77,22 +74,25 @@ export const getTutoredGroups = async (req: Request, res: Response) => {
   }
 };
 
-export const getGradesByGroupAndPeriod = async (req: Request, res: Response) => {
+export const getGradesByCourseGroupAndPeriod = async (req: Request, res: Response) => {
   try {
     const teacherId = req.user?.sub;
-    const { idGroup, period } = req.params;
+    const { idCourseGroup, period } = req.params;
 
     if (!teacherId) {
       return res.status(401).json({ message: 'No autorizado' });
     }
 
-    const isTutor = await gradeService.isTutorOfGroup(teacherId, parseInt(idGroup));
+    const isTutor = await gradeService.isTutorOfCourseGroup(
+      teacherId,
+      parseInt(idCourseGroup)
+    );
     if (!isTutor) {
       return res.status(403).json({ message: 'No eres el tutor de este grupo' });
     }
 
-    const grades = await gradeService.findByGroupAndPeriod(
-      parseInt(idGroup),
+    const grades = await gradeService.findByCourseGroupAndPeriod(
+      parseInt(idCourseGroup),
       period as EvaluationPeriod
     );
     res.json({ message: 'Notas del grupo recuperadas', data: grades });

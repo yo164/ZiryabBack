@@ -36,7 +36,9 @@ model Teacher {
   //isActive   Boolean  @default(true)  // NUEVO: También para profesores (bajas, jubilaciones)
   createdAt  DateTime @default(now())
   
-  assignments   TeacherOnSubjectOnGroup[]
+  assignments       TeacherOnSubjectOnGroup[]
+  tutorCourseGroups CourseGroup[]
+  grades            Grade[]
 }
 
 model Admin {
@@ -60,7 +62,29 @@ model Course {
   //isActive    Boolean  @default(true)  // NUEVO: Controla si el ciclo se oferta actualmente
   createdAt   DateTime @default(now())
 
-  subjects Subject[]
+  subjects     Subject[]
+  courseGroups CourseGroup[]
+}
+
+// Combinación Ciclo + Grupo + Grado (la "clase" real, ej: 1º DAM Mañana)
+model CourseGroup {
+  id        Int      @id @default(autoincrement())
+
+  idCourse  Int
+  course    Course   @relation(fields: [idCourse], references: [id], onDelete: Cascade)
+
+  idGroup   Int
+  group     Group    @relation(fields: [idGroup], references: [id], onDelete: Cascade)
+
+  grade     String   // "1" o "2" — curso dentro del ciclo
+
+  tutorId   Int?
+  tutor     Teacher? @relation(fields: [tutorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  // Una clase = ciclo + grupo + grado únicos
+  @@unique([idCourse, idGroup, grade])
 }
 
 model Subject {
@@ -90,9 +114,9 @@ model Group {
   
   createdAt   DateTime @default(now())
   
-  
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
+  courseGroups       CourseGroup[]
 }
 
 enum AssignmentStatus {
@@ -165,8 +189,33 @@ model StudentOnSubjectOnGroup {
   @@index([schoolYear, status])  // NUEVO: Para reportes por año
   @@index([idStudent, schoolYear])  // NUEVO: Para expediente del alumno
  
-  Assistance Assistance[] @relation(name: "StudentEnrollment")
-  studentTasks StudentTask[]  // ← AÑADIR ESTA LÍNEA
+  Assistance   Assistance[] @relation(name: "StudentEnrollment")
+  studentTasks StudentTask[]
+  grades       Grade[]
+}
+
+enum EvaluationPeriod {
+  INITIAL
+  FIRST_TRIMESTER
+  SECOND_TRIMESTER
+  THIRD_TRIMESTER
+  FINAL
+}
+
+model Grade {
+  id                  Int                     @id @default(autoincrement())
+  idStudentEnrollment Int
+  studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], onDelete: Cascade)
+  period              EvaluationPeriod
+  value               Int?
+  observations        String?
+  idTeacher           Int
+  teacher             Teacher                 @relation(fields: [idTeacher], references: [id], onDelete: Restrict)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+
+  @@unique([idStudentEnrollment, period])
+  @@index([idTeacher])
 }
 
 // Días de la semana para el horario

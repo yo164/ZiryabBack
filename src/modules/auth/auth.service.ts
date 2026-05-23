@@ -1,7 +1,9 @@
+import https from 'https';
 import { prisma } from '../../config/db.js';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.js';
 import { firebaseAuth } from '../../config/firebase.config.js';
+import { logger } from '../../utils/logger.js';
 
 // ============================================
 // INTERFACES
@@ -261,15 +263,43 @@ export class AuthService {
 
   /**
    * Comprueba email+contraseña contra Firebase Authentication (REST Identity Toolkit).
+   * Usa https.request (no fetch) para respetar rejectUnauthorized en desarrollo
+   * (mismo criterio que firebase.config.ts en redes con proxy/antivirus).
    */
   static async verifyEmailPassword(email: string, password: string): Promise<boolean> {
-    const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${env.FIREBASE_WEB_API_KEY}`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, returnSecureToken: false }),
+    if (env.NODE_ENV === 'test') {
+      return AuthService.validateLegacyTestPassword(email, password);
+    }
+
+    const body = JSON.stringify({ email, password, returnSecureToken: false });
+    const path = `/v1/accounts:signInWithPassword?key=${env.FIREBASE_WEB_API_KEY}`;
+
+    return new Promise((resolve) => {
+      const req = https.request(
+        {
+          hostname: 'identitytoolkit.googleapis.com',
+          path,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(body),
+          },
+          rejectUnauthorized: env.NODE_ENV !== 'development',
+        },
+        (res) => {
+          res.resume();
+          resolve(res.statusCode === 200);
+        },
+      );
+
+      req.on('error', (err) => {
+        logger.error('verifyEmailPassword: fallo al contactar Firebase Identity Toolkit', err);
+        resolve(false);
+      });
+
+      req.write(body);
+      req.end();
     });
-    return res.ok;
   }
 
   /**

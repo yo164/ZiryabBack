@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import * as classSessionService from './classSession.service.js';
-import { bulkSuspendBodySchema } from './classSession.schema.js';
+import { bulkSuspendBodySchema, bulkGenerateBodySchema } from './classSession.schema.js';
 
 export const getAllSessions = async (req: Request, res: Response) => {
   try {
@@ -251,6 +251,36 @@ export const startSessionForSubject = async (req: Request, res: Response) => {
     res.status(400).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+export const bulkGenerate = async (req: Request, res: Response) => {
+  const parsed = bulkGenerateBodySchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validación fallida',
+      message: 'Request body inválido',
+    });
+  }
+
+  try {
+    const { label, schoolYear } = parsed.data;
+    const result = await classSessionService.bulkGenerate(label, schoolYear);
+    res.status(200).json({
+      success: true,
+      created: result.created,
+      skipped: result.skipped,
+      message: `Se han generado ${result.created} sesiones de clase`,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    res.status(400).json({
+      success: false,
+      error: message,
+      message: 'Error al generar las sesiones',
     });
   }
 };

@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-import type { IssueEmitterType } from '@prisma/client';
 import * as issueService from './issue.service.js';
 import { createIssueBodySchema, updateIssueBodySchema } from './issue.schema.js';
 
@@ -7,12 +6,6 @@ const getRequester = (req: Request) => ({
   requesterId: req.user!.sub,
   requesterRole: req.user!.role,
 });
-
-const resolveEmitter = (role: string): IssueEmitterType | null => {
-  if (role === 'ADMIN') return 'ADMIN';
-  if (role === 'TEACHER') return 'TEACHER';
-  return null;
-};
 
 const mapServiceErrorStatus = (message: string): number => {
   if (message.includes('no encontrado') || message === 'Anuncio no encontrado') {
@@ -73,13 +66,12 @@ export const createIssue = async (req: Request, res: Response) => {
 
   try {
     const { requesterId, requesterRole } = getRequester(req);
-    const emitterType = resolveEmitter(requesterRole);
-    if (!emitterType) {
-      res.status(403).json({ success: false, message: 'No autorizado para crear anuncios' });
+    if (requesterRole !== 'ADMIN') {
+      res.status(403).json({ success: false, message: 'Solo administradores pueden crear anuncios' });
       return;
     }
 
-    const issue = await issueService.createIssue(parsed.data, emitterType, requesterId);
+    const issue = await issueService.createIssue(parsed.data, requesterId);
     res.status(201).json({ success: true, data: issue });
   } catch (error: unknown) {
     handleServiceError(res, error, 'Error al crear anuncio');

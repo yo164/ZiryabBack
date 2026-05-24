@@ -26,7 +26,7 @@ const router = Router();
  *               count: 2
  *               data:
  *                 - id: 1
- *                   emitterType: ADMIN
+ *                   idAdmin: 1
  *                   audience: CENTER
  *                   title: Bienvenida
  *                   body: Texto del anuncio
@@ -38,8 +38,8 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/ApiErrorIssue'
  *   post:
- *     summary: Crear anuncio
- *     description: TEACHER o ADMIN. Borrador o publicado según isPublished.
+ *     summary: Crear anuncio (solo ADMIN)
+ *     description: Emisor siempre admin (idAdmin del JWT). COURSE = ciclo (idCourse) + curso opcional (grade 1|2). SUBJECT_GROUP = grupo + asignatura (curso 1º/2º en Subject).
  *     tags: [Issues]
  *     security:
  *       - bearerAuth: []
@@ -86,7 +86,7 @@ const router = Router();
  *               $ref: '#/components/schemas/ApiErrorIssue'
  */
 router.get('/', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), issueController.getIssues);
-router.post('/', auth, authorize(['ADMIN', 'TEACHER']), issueController.createIssue);
+router.post('/', auth, authorize(['ADMIN']), issueController.createIssue);
 
 /**
  * @swagger
@@ -207,7 +207,7 @@ router.post('/', auth, authorize(['ADMIN', 'TEACHER']), issueController.createIs
  *               $ref: '#/components/schemas/ApiErrorIssue'
  */
 router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), issueController.getIssueById);
-router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER']), issueController.updateIssue);
-router.delete('/:id', auth, authorize(['ADMIN', 'TEACHER']), issueController.deleteIssue);
+router.patch('/:id', auth, authorize(['ADMIN']), issueController.updateIssue);
+router.delete('/:id', auth, authorize(['ADMIN']), issueController.deleteIssue);
 
 export default router;

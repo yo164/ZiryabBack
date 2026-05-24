@@ -20,7 +20,8 @@ model Student {
   //isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   
-  enrollments   StudentOnSubjectOnGroup[]
+  enrollments      StudentOnSubjectOnGroup[]
+  issuesAsTarget   Issue[]                   @relation("IssueTargetStudent")
 }
 
 model Teacher {
@@ -36,8 +37,8 @@ model Teacher {
   //isActive   Boolean  @default(true)  // NUEVO: También para profesores (bajas, jubilaciones)
   createdAt  DateTime @default(now())
   
-  assignments   TeacherOnSubjectOnGroup[]
-  issues        Issue[]
+  assignments      TeacherOnSubjectOnGroup[]
+  issuesAsTarget   Issue[]                   @relation("IssueTargetTeacher")
 }
 
 model Admin {
@@ -355,11 +356,6 @@ model Notification {
   @@index([recipientFirebaseUID, isRead, createdAt])
 }
 
-enum IssueEmitterType {
-  TEACHER
-  ADMIN
-}
-
 enum IssueAudience {
   CENTER
   ALL_TEACHERS
@@ -367,16 +363,15 @@ enum IssueAudience {
   GROUP
   COURSE
   SUBJECT_GROUP
+  TEACHER
+  STUDENT
 }
 
 model Issue {
   id            Int              @id @default(autoincrement())
 
-  emitterType   IssueEmitterType
-  idTeacher     Int?
-  teacher       Teacher?         @relation(fields: [idTeacher], references: [id], onDelete: SetNull)
-  idAdmin       Int?
-  admin         Admin?           @relation(fields: [idAdmin], references: [id], onDelete: SetNull)
+  idAdmin       Int
+  admin         Admin            @relation(fields: [idAdmin], references: [id], onDelete: Restrict)
 
   audience      IssueAudience
   idGroup       Int?
@@ -385,7 +380,11 @@ model Issue {
   course        Course?          @relation(fields: [idCourse], references: [id], onDelete: SetNull)
   idSubject     Int?
   subject       Subject?         @relation(fields: [idSubject], references: [id], onDelete: SetNull)
-  grade         String?          // "1" | "2" — solo audiencia COURSE (curso dentro del ciclo)
+  grade         String?          // "1" | "2" = curso (1º/2º). Solo audiencia COURSE. idCourse = ciclo (DAM, DAW…)
+  idTargetTeacher Int?
+  targetTeacher   Teacher?       @relation("IssueTargetTeacher", fields: [idTargetTeacher], references: [id], onDelete: SetNull)
+  idTargetStudent Int?
+  targetStudent   Student?       @relation("IssueTargetStudent", fields: [idTargetStudent], references: [id], onDelete: SetNull)
 
   title         String
   body          String
@@ -400,6 +399,8 @@ model Issue {
 
   @@index([audience, idGroup])
   @@index([audience, idCourse, grade])
+  @@index([audience, idTargetTeacher])
+  @@index([audience, idTargetStudent])
   @@index([createdAt])
   @@index([expiresAt])
   @@index([isPublished, publishAt])

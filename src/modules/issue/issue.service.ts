@@ -1,9 +1,5 @@
-import type { IssueAudience, IssueEmitterType, Prisma } from '@prisma/client';
+import type { IssueAudience, Prisma } from '@prisma/client';
 import prisma from '../../config/prisma.js';
-
-// ============================================
-// TIPOS (entrada del service; validación Zod en CURSO-122)
-// ============================================
 
 export interface CreateIssueData {
   audience: IssueAudience;
@@ -14,6 +10,8 @@ export interface CreateIssueData {
   idCourse?: number;
   idSubject?: number;
   grade?: string;
+  idTargetTeacher?: number;
+  idTargetStudent?: number;
   isPublished?: boolean;
   publishAt?: string;
   expiresAt?: string;
@@ -28,6 +26,8 @@ export interface UpdateIssueData {
   idCourse?: number | null;
   idSubject?: number | null;
   grade?: string | null;
+  idTargetTeacher?: number | null;
+  idTargetStudent?: number | null;
   isPublished?: boolean;
   publishAt?: string | null;
   expiresAt?: string | null;
@@ -38,21 +38,18 @@ type NormalizedIssueScope = {
   idCourse: number | null;
   idSubject: number | null;
   grade: string | null;
+  idTargetTeacher: number | null;
+  idTargetStudent: number | null;
 };
 
 const issueInclude = {
-  teacher: { select: { id: true, name: true, surname: true, email: true } },
   admin: { select: { id: true, name: true, surname: true, email: true } },
+  targetTeacher: { select: { id: true, name: true, surname: true, email: true } },
+  targetStudent: { select: { id: true, name: true, surname: true, email: true } },
   group: { select: { id: true, name: true } },
   course: { select: { id: true, name: true } },
   subject: { select: { id: true, name: true, grade: true, idCourse: true } },
 } as const;
-
-const TEACHER_ALLOWED_AUDIENCES: IssueAudience[] = [
-  'ALL_STUDENTS',
-  'GROUP',
-  'SUBJECT_GROUP',
-];
 
 const parseOptionalDate = (value?: string | null): Date | null | undefined => {
   if (value === undefined) return undefined;
@@ -76,12 +73,8 @@ const activePublicationFilter = (now: Date): Prisma.IssueWhereInput => ({
   ],
 });
 
-const isIssueOwner = (
-  issue: { emitterType: IssueEmitterType; idTeacher: number | null; idAdmin: number | null },
-  requesterId: number,
-): boolean =>
-  (issue.emitterType === 'TEACHER' && issue.idTeacher === requesterId) ||
-  (issue.emitterType === 'ADMIN' && issue.idAdmin === requesterId);
+const isIssueCreator = (issue: { idAdmin: number }, adminId: number): boolean =>
+  issue.idAdmin === adminId;
 
 const parseGrade = (value?: string | null): string | null => {
   if (value === undefined || value === null || value === '') {
@@ -89,7 +82,7 @@ const parseGrade = (value?: string | null): string | null => {
   }
   const grade = String(value).trim();
   if (grade !== '1' && grade !== '2') {
-    throw new Error('grade debe ser "1" o "2"');
+    throw new Error('grade (curso 1º/2º) debe ser "1" o "2"');
   }
   return grade;
 };
@@ -100,45 +93,143 @@ const normalizeAudienceFks = (data: {
   idCourse?: number | null;
   idSubject?: number | null;
   grade?: string | null;
+  idTargetTeacher?: number | null;
+  idTargetStudent?: number | null;
 }): NormalizedIssueScope => {
   const idGroup = data.idGroup ?? null;
   const idCourse = data.idCourse ?? null;
   const idSubject = data.idSubject ?? null;
   const grade = parseGrade(data.grade);
+  const idTargetTeacher = data.idTargetTeacher ?? null;
+  const idTargetStudent = data.idTargetStudent ?? null;
 
   switch (data.audience) {
     case 'CENTER':
     case 'ALL_TEACHERS':
     case 'ALL_STUDENTS':
-      if (idGroup !== null || idCourse !== null || idSubject !== null || grade !== null) {
+      if (
+        idGroup !== null ||
+        idCourse !== null ||
+        idSubject !== null ||
+        grade !== null ||
+        idTargetTeacher !== null ||
+        idTargetStudent !== null
+      ) {
         throw new Error(
-          'Para audiencias globales no se permiten idGroup, idCourse, idSubject ni grade',
+          'Para audiencias globales no se permiten filtros de ámbito ni id de receptor',
         );
       }
-      return { idGroup: null, idCourse: null, idSubject: null, grade: null };
+      return {
+        idGroup: null,
+        idCourse: null,
+        idSubject: null,
+        grade: null,
+        idTargetTeacher: null,
+        idTargetStudent: null,
+      };
+    case 'TEACHER':
+      if (
+        !idTargetTeacher ||
+        idGroup !== null ||
+        idCourse !== null ||
+        idSubject !== null ||
+        grade !== null ||
+        idTargetStudent !== null
+      ) {
+        throw new Error('TEACHER requiere idTargetTeacher y no admite otros filtros');
+      }
+      return {
+        idGroup: null,
+        idCourse: null,
+        idSubject: null,
+        grade: null,
+        idTargetTeacher,
+        idTargetStudent: null,
+      };
+    case 'STUDENT':
+      if (
+        !idTargetStudent ||
+        idGroup !== null ||
+        idCourse !== null ||
+        idSubject !== null ||
+        grade !== null ||
+        idTargetTeacher !== null
+      ) {
+        throw new Error('STUDENT requiere idTargetStudent y no admite otros filtros');
+      }
+      return {
+        idGroup: null,
+        idCourse: null,
+        idSubject: null,
+        grade: null,
+        idTargetTeacher: null,
+        idTargetStudent,
+      };
     case 'GROUP':
-      if (!idGroup || idCourse !== null || idSubject !== null || grade !== null) {
-        throw new Error('GROUP requiere idGroup y no admite idCourse, idSubject ni grade');
+      if (
+        !idGroup ||
+        idCourse !== null ||
+        idSubject !== null ||
+        grade !== null ||
+        idTargetTeacher !== null ||
+        idTargetStudent !== null
+      ) {
+        throw new Error('GROUP requiere idGroup y no admite otros filtros');
       }
-      return { idGroup, idCourse: null, idSubject: null, grade: null };
+      return {
+        idGroup,
+        idCourse: null,
+        idSubject: null,
+        grade: null,
+        idTargetTeacher: null,
+        idTargetStudent: null,
+      };
     case 'COURSE':
-      if (!idCourse || idGroup !== null || idSubject !== null) {
-        throw new Error('COURSE requiere idCourse y no admite idGroup ni idSubject');
-      }
-      return { idGroup: null, idCourse, idSubject: null, grade };
-    case 'SUBJECT_GROUP':
-      if (!idGroup || !idSubject || idCourse !== null || grade !== null) {
+      if (
+        !idCourse ||
+        idGroup !== null ||
+        idSubject !== null ||
+        idTargetTeacher !== null ||
+        idTargetStudent !== null
+      ) {
         throw new Error(
-          'SUBJECT_GROUP requiere idGroup e idSubject y no admite idCourse ni grade',
+          'COURSE requiere idCourse (ciclo) y opcionalmente grade (curso 1º/2º); no admite idGroup ni idSubject',
         );
       }
-      return { idGroup, idCourse: null, idSubject, grade: null };
+      return {
+        idGroup: null,
+        idCourse,
+        idSubject: null,
+        grade,
+        idTargetTeacher: null,
+        idTargetStudent: null,
+      };
+    case 'SUBJECT_GROUP':
+      if (
+        !idGroup ||
+        !idSubject ||
+        idCourse !== null ||
+        grade !== null ||
+        idTargetTeacher !== null ||
+        idTargetStudent !== null
+      ) {
+        throw new Error(
+          'SUBJECT_GROUP requiere idGroup e idSubject (el curso 1º/2º va en Subject.grade); no admite idCourse ni grade en el issue',
+        );
+      }
+      return {
+        idGroup,
+        idCourse: null,
+        idSubject,
+        grade: null,
+        idTargetTeacher: null,
+        idTargetStudent: null,
+      };
     default:
       throw new Error('Audiencia no soportada');
   }
 };
 
-/** Cláusulas OR para anuncios COURSE visibles según ciclos (y curso 1º/2º) del usuario. */
 const buildCourseAudienceOr = (
   courseGradePairs: { idCourse: number; grade: string }[],
 ): Prisma.IssueWhereInput[] => {
@@ -164,45 +255,6 @@ const buildCourseAudienceOr = (
   return clauses;
 };
 
-const assertTeacherCanUseAudience = async (
-  teacherId: number,
-  audience: IssueAudience,
-  fks: NormalizedIssueScope,
-) => {
-  if (!TEACHER_ALLOWED_AUDIENCES.includes(audience)) {
-    throw new Error('No tienes permiso para esta audiencia');
-  }
-
-  if (audience === 'ALL_STUDENTS') {
-    return;
-  }
-
-  if (audience === 'GROUP') {
-    const assignment = await prisma.teacherOnSubjectOnGroup.findFirst({
-      where: { idTeacher: teacherId, idGroup: fks.idGroup! },
-      select: { id: true },
-    });
-    if (!assignment) {
-      throw new Error('Grupo no asignado a este profesor');
-    }
-    return;
-  }
-
-  if (audience === 'SUBJECT_GROUP') {
-    const assignment = await prisma.teacherOnSubjectOnGroup.findFirst({
-      where: {
-        idTeacher: teacherId,
-        idGroup: fks.idGroup!,
-        idSubject: fks.idSubject!,
-      },
-      select: { id: true },
-    });
-    if (!assignment) {
-      throw new Error('Asignatura y grupo no asignados a este profesor');
-    }
-  }
-};
-
 const buildStudentVisibilityOr = async (studentId: number): Promise<Prisma.IssueWhereInput[]> => {
   const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
     where: { idStudent: studentId, status: 'ENROLLED' },
@@ -216,6 +268,7 @@ const buildStudentVisibilityOr = async (studentId: number): Promise<Prisma.Issue
   const or: Prisma.IssueWhereInput[] = [
     { audience: 'CENTER' },
     { audience: 'ALL_STUDENTS' },
+    { audience: 'STUDENT', idTargetStudent: studentId },
   ];
 
   const groupIds = [...new Set(enrollments.map((e) => e.idGroup))];
@@ -255,6 +308,7 @@ const buildTeacherVisibilityOr = async (teacherId: number): Promise<Prisma.Issue
     { audience: 'CENTER' },
     { audience: 'ALL_TEACHERS' },
     { audience: 'ALL_STUDENTS' },
+    { audience: 'TEACHER', idTargetTeacher: teacherId },
   ];
 
   const groupIds = [...new Set(assignments.map((a) => a.idGroup))];
@@ -310,14 +364,12 @@ const assertCanViewIssue = async (
     isPublished: boolean;
     publishAt: Date | null;
     expiresAt: Date | null;
-    emitterType: IssueEmitterType;
-    idTeacher: number | null;
-    idAdmin: number | null;
+    idAdmin: number;
   },
   requesterId: number,
   requesterRole: string,
 ) => {
-  if (requesterRole === 'ADMIN' || isIssueOwner(issue, requesterId)) {
+  if (requesterRole === 'ADMIN' || isIssueCreator(issue, requesterId)) {
     return;
   }
 
@@ -339,74 +391,73 @@ const assertCanViewIssue = async (
 };
 
 const assertCanModifyIssue = (
-  issue: { emitterType: IssueEmitterType; idTeacher: number | null; idAdmin: number | null },
+  issue: { idAdmin: number },
   requesterId: number,
   requesterRole: string,
 ) => {
-  if (requesterRole === 'ADMIN' || isIssueOwner(issue, requesterId)) {
+  if (requesterRole === 'ADMIN' && isIssueCreator(issue, requesterId)) {
     return;
   }
   throw new Error('No autorizado para modificar este anuncio');
 };
 
-// ============================================
-// MUTACIONES Y CONSULTAS
-// ============================================
-
-export const createIssue = async (
-  data: CreateIssueData,
-  emitterType: IssueEmitterType,
-  emitterId: number,
-) => {
-  const fks = normalizeAudienceFks(data);
-
-  if (emitterType === 'TEACHER') {
-    await assertTeacherCanUseAudience(emitterId, data.audience, fks);
-  }
-
-  if (emitterType === 'ADMIN' && emitterId) {
-    const admin = await prisma.admin.findUnique({ where: { id: emitterId }, select: { id: true } });
-    if (!admin) {
-      throw new Error('Administrador no encontrado');
-    }
-  }
-
-  if (emitterType === 'TEACHER') {
-    const teacher = await prisma.teacher.findUnique({
-      where: { id: emitterId },
+const assertScopeEntitiesExist = async (scope: NormalizedIssueScope) => {
+  if (scope.idGroup) {
+    const group = await prisma.group.findUnique({
+      where: { id: scope.idGroup },
       select: { id: true },
     });
-    if (!teacher) {
-      throw new Error('Profesor no encontrado');
-    }
-  }
-
-  if (fks.idGroup) {
-    const group = await prisma.group.findUnique({ where: { id: fks.idGroup }, select: { id: true } });
     if (!group) throw new Error('Grupo no encontrado');
   }
-  if (fks.idCourse) {
-    const course = await prisma.course.findUnique({ where: { id: fks.idCourse }, select: { id: true } });
-    if (!course) throw new Error('Curso no encontrado');
+  if (scope.idCourse) {
+    const course = await prisma.course.findUnique({
+      where: { id: scope.idCourse },
+      select: { id: true },
+    });
+    if (!course) throw new Error('Ciclo formativo no encontrado');
   }
-  if (fks.idSubject) {
+  if (scope.idSubject) {
     const subject = await prisma.subject.findUnique({
-      where: { id: fks.idSubject },
+      where: { id: scope.idSubject },
       select: { id: true },
     });
     if (!subject) throw new Error('Asignatura no encontrada');
   }
+  if (scope.idTargetTeacher) {
+    const teacher = await prisma.teacher.findUnique({
+      where: { id: scope.idTargetTeacher },
+      select: { id: true },
+    });
+    if (!teacher) throw new Error('Profesor destinatario no encontrado');
+  }
+  if (scope.idTargetStudent) {
+    const student = await prisma.student.findUnique({
+      where: { id: scope.idTargetStudent },
+      select: { id: true },
+    });
+    if (!student) throw new Error('Alumno destinatario no encontrado');
+  }
+};
+
+export const createIssue = async (data: CreateIssueData, idAdmin: number) => {
+  const admin = await prisma.admin.findUnique({ where: { id: idAdmin }, select: { id: true } });
+  if (!admin) {
+    throw new Error('Administrador no encontrado');
+  }
+
+  const scope = normalizeAudienceFks(data);
+  await assertScopeEntitiesExist(scope);
 
   return prisma.issue.create({
     data: {
-      emitterType,
-      idTeacher: emitterType === 'TEACHER' ? emitterId : null,
-      idAdmin: emitterType === 'ADMIN' ? emitterId : null,
+      idAdmin,
       audience: data.audience,
-      idGroup: fks.idGroup,
-      idCourse: fks.idCourse,
-      idSubject: fks.idSubject,
-      grade: fks.grade,
+      idGroup: scope.idGroup,
+      idCourse: scope.idCourse,
+      idSubject: scope.idSubject,
+      grade: scope.grade,
+      idTargetTeacher: scope.idTargetTeacher,
+      idTargetStudent: scope.idTargetStudent,
       title: data.title,
       body: data.body,
       attachmentUrl: data.attachmentUrl ?? null,
@@ -457,42 +508,30 @@ export const updateIssue = async (
   assertCanModifyIssue(existing, requesterId, requesterRole);
 
   const audience = data.audience ?? existing.audience;
-  const fks = normalizeAudienceFks({
+  const scope = normalizeAudienceFks({
     audience,
     idGroup: data.idGroup !== undefined ? data.idGroup : existing.idGroup,
     idCourse: data.idCourse !== undefined ? data.idCourse : existing.idCourse,
     idSubject: data.idSubject !== undefined ? data.idSubject : existing.idSubject,
     grade: data.grade !== undefined ? data.grade : existing.grade,
+    idTargetTeacher:
+      data.idTargetTeacher !== undefined ? data.idTargetTeacher : existing.idTargetTeacher,
+    idTargetStudent:
+      data.idTargetStudent !== undefined ? data.idTargetStudent : existing.idTargetStudent,
   });
 
-  if (requesterRole === 'TEACHER') {
-    await assertTeacherCanUseAudience(requesterId, audience, fks);
-  }
-
-  if (fks.idGroup) {
-    const group = await prisma.group.findUnique({ where: { id: fks.idGroup }, select: { id: true } });
-    if (!group) throw new Error('Grupo no encontrado');
-  }
-  if (fks.idCourse) {
-    const course = await prisma.course.findUnique({ where: { id: fks.idCourse }, select: { id: true } });
-    if (!course) throw new Error('Curso no encontrado');
-  }
-  if (fks.idSubject) {
-    const subject = await prisma.subject.findUnique({
-      where: { id: fks.idSubject },
-      select: { id: true },
-    });
-    if (!subject) throw new Error('Asignatura no encontrada');
-  }
+  await assertScopeEntitiesExist(scope);
 
   return prisma.issue.update({
     where: { id },
     data: {
       ...(data.audience !== undefined && { audience: data.audience }),
-      idGroup: fks.idGroup,
-      idCourse: fks.idCourse,
-      idSubject: fks.idSubject,
-      grade: fks.grade,
+      idGroup: scope.idGroup,
+      idCourse: scope.idCourse,
+      idSubject: scope.idSubject,
+      grade: scope.grade,
+      idTargetTeacher: scope.idTargetTeacher,
+      idTargetStudent: scope.idTargetStudent,
       ...(data.title !== undefined && { title: data.title }),
       ...(data.body !== undefined && { body: data.body }),
       ...(data.attachmentUrl !== undefined && { attachmentUrl: data.attachmentUrl }),

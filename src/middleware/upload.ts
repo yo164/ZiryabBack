@@ -99,7 +99,19 @@ const submissionStorage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
+        let ext = path.extname(file.originalname).toLowerCase();
+        if (!ext || ext === '.tmp') {
+            const mimeToExt: Record<string, string> = {
+                'application/pdf': '.pdf',
+                'image/png': '.png',
+                'image/jpeg': '.jpg',
+                'image/jpg': '.jpg',
+                'application/zip': '.zip',
+                'application/x-zip-compressed': '.zip',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+            };
+            ext = mimeToExt[file.mimetype] ?? '.bin';
+        }
         cb(null, 'submission-' + uniqueSuffix + ext);
     }
 });

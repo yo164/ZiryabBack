@@ -15,6 +15,7 @@ export interface CreateTaskData {
   schoolYear: string;
   idTaskGroup?: number;
   isPublished?: boolean;
+  allowLateSubmission?: boolean;
 }
 
 export interface UpdateTaskData {
@@ -26,6 +27,7 @@ export interface UpdateTaskData {
   attachmentUrl?: string | null;
   idTaskGroup?: number | null;
   isPublished?: boolean;
+  allowLateSubmission?: boolean;
 }
 
 // ============================================
@@ -139,6 +141,7 @@ export const create = async (data: CreateTaskData) => {
       attachmentUrl: data.attachmentUrl ?? null,
       schoolYear: data.schoolYear,
       isPublished: data.isPublished ?? false,
+      allowLateSubmission: data.allowLateSubmission ?? false,
       ...(data.idTaskGroup && { idTaskGroup: data.idTaskGroup }),
     },
     include: {
@@ -229,6 +232,7 @@ export const update = async (
       ...(data.attachmentUrl !== undefined && { attachmentUrl: data.attachmentUrl }),
       ...(data.idTaskGroup !== undefined && { idTaskGroup: data.idTaskGroup }),
       ...(data.isPublished !== undefined && { isPublished: data.isPublished }),
+      ...(data.allowLateSubmission !== undefined && { allowLateSubmission: data.allowLateSubmission }),
     },
     include: {
       teacherAssignment: true,

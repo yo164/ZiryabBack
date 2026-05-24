@@ -1,44 +1,5 @@
 import prisma from '../../config/prisma.js';
 
-/**
- * Crea StudentTask faltantes para tareas ya publicadas en las matrículas del alumno.
- * Cubre el caso en que isPublished se activó solo en BD sin pasar por el API.
- */
-export const syncPublishedTasksForStudent = async (studentId: number): Promise<number> => {
-  const enrollments = await prisma.studentOnSubjectOnGroup.findMany({
-    where: { idStudent: studentId, status: 'ENROLLED' },
-  });
-
-  let totalCreated = 0;
-  for (const enrollment of enrollments) {
-    const tasks = await prisma.task.findMany({
-      where: {
-        isPublished: true,
-        schoolYear: enrollment.schoolYear,
-        teacherAssignment: {
-          idSubject: enrollment.idSubject,
-          idGroup: enrollment.idGroup,
-        },
-      },
-      select: { id: true, type: true },
-    });
-
-    if (tasks.length === 0) continue;
-
-    const result = await prisma.studentTask.createMany({
-      data: tasks.map((t) => ({
-        idTask: t.id,
-        idStudentEnrollment: enrollment.id,
-        status: 'PENDING',
-      })),
-      skipDuplicates: true,
-    });
-    totalCreated += result.count;
-  }
-
-  return totalCreated;
-};
-
 export const findAll = async (teacherId?: number, studentId?: number) => {
   const whereClause: any = {};
   if (teacherId) {
@@ -108,17 +69,6 @@ export const findByTask = async (idTask: number) => {
   return prisma.studentTask.findMany({
     where: { idTask },
     include: {
-      task: {
-        include: {
-          taskGroup: true,
-          teacherAssignment: {
-            include: {
-              subject: true,
-              group: true,
-            },
-          },
-        },
-      },
       studentEnrollment: {
         include: {
           student: true,
@@ -131,51 +81,53 @@ export const findByTask = async (idTask: number) => {
   });
 };
 
-/** Solo entregas de alumnos concretos (evita filtrar en memoria datos de otros). */
-export const findByTaskForStudent = async (idTask: number, studentId: number) => {
-  return prisma.studentTask.findMany({
+export const findByStudent = async (idStudentEnrollment: number, requestingStudentId?: number) => {
+  const enrollment = await prisma.studentOnSubjectOnGroup.findUnique({
+    where: { id: idStudentEnrollment }
+  });
+
+  if (!enrollment) {
+    throw Object.assign(new Error('Matrícula no encontrada'), { status: 404 });
+  }
+
+  if (requestingStudentId !== undefined && enrollment.idStudent !== requestingStudentId) {
+    throw Object.assign(new Error('No puedes ver las entregas de otro alumno'), { status: 403 });
+  }
+
+  // Obtener todas las tareas publicadas de la asignatura y grupo asociados a la matrícula y año académico
+  const tasks = await prisma.task.findMany({
     where: {
-      idTask,
-      studentEnrollment: {
-        idStudent: studentId,
+      teacherAssignment: {
+        idSubject: enrollment.idSubject,
+        idGroup: enrollment.idGroup,
       },
-    },
-    include: {
-      studentEnrollment: {
-        include: {
-          student: true,
-        },
-      },
-      task: {
-        include: {
-          taskGroup: true,
-          teacherAssignment: {
-            include: {
-              subject: true,
-              group: true,
-            },
-          },
-        },
-      },
-    },
-    orderBy: {
-      submissionDate: 'desc',
+      schoolYear: enrollment.schoolYear,
+      isPublished: true,
     },
   });
-};
 
-export const enrollmentBelongsToStudent = async (
-  enrollmentId: number,
-  studentId: number,
-): Promise<boolean> => {
-  const row = await prisma.studentOnSubjectOnGroup.findUnique({
-    where: { id: enrollmentId },
-    select: { idStudent: true },
-  });
-  return row !== null && row.idStudent === studentId;
-};
+  if (tasks.length > 0) {
+    const existingStudentTasks = await prisma.studentTask.findMany({
+      where: { idStudentEnrollment },
+      select: { idTask: true },
+    });
+    const existingTaskIds = new Set(existingStudentTasks.map((st) => st.idTask));
 
-export const findByStudent = async (idStudentEnrollment: number) => {
+    const missingTasks = tasks.filter((t) => !existingTaskIds.has(t.id));
+
+    if (missingTasks.length > 0) {
+      await prisma.studentTask.createMany({
+        data: missingTasks.map((t) => ({
+          idTask: t.id,
+          idStudentEnrollment: idStudentEnrollment,
+          status: 'PENDING',
+          isEnabled: true,
+        })),
+        skipDuplicates: true,
+      });
+    }
+  }
+
   return prisma.studentTask.findMany({
     where: { idStudentEnrollment },
     include: {
@@ -314,35 +266,6 @@ export const submit = async (id: number, data: { attachmentUrl?: string }) => {
       studentEnrollment: { include: { student: true } },
     },
   });
-};
-
-/**
- * Marca como entregada la StudentTask correspondiente a (idTask, idStudentEnrollment).
- * Si todavía no existe la fila StudentTask, la crea y la entrega en una sola operación.
- * Reutiliza la lógica de validación del submit por id.
- */
-export const submitByEnrollment = async (data: {
-  idTask: number;
-  idStudentEnrollment: number;
-  attachmentUrl?: string;
-}) => {
-  const existing = await prisma.studentTask.findFirst({
-    where: {
-      idTask: data.idTask,
-      idStudentEnrollment: data.idStudentEnrollment,
-    },
-  });
-
-  if (existing) {
-    return submit(existing.id, { attachmentUrl: data.attachmentUrl });
-  }
-
-  // Si no había StudentTask aún (alumno sin asignación previa), la creamos PENDING y la entregamos
-  const created = await create({
-    idTask: data.idTask,
-    idStudentEnrollment: data.idStudentEnrollment,
-  });
-  return submit(created.id, { attachmentUrl: data.attachmentUrl });
 };
 
 export const createBulk = async (data: {

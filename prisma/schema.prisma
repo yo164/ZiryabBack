@@ -8,131 +8,129 @@ datasource db {
 }
 
 model Student {
-  id         Int      @id @default(autoincrement())
-  email      String   @unique
-  name       String
-  surname    String
-  ndSurname  String?
-  birthDate  DateTime
-  dni        String?   @unique
-  role       String   @default("STUDENT")
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String
+  surname     String
+  ndSurname   String?
+  birthDate   DateTime
+  dni         String?  @unique
+  role        String   @default("STUDENT")
   firebaseUID String   @unique
   //isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
-  
-  enrollments   StudentOnSubjectOnGroup[]
+
+  enrollments StudentOnSubjectOnGroup[]
 }
 
 model Teacher {
-  id         Int      @id @default(autoincrement())
-  email      String   @unique
-  name       String
-  surname    String
-  ndSurname  String?
-  birthDate  DateTime
-  dni        String   @unique
-  role       String   @default("TEACHER")
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String
+  surname     String
+  ndSurname   String?
+  birthDate   DateTime
+  dni         String   @unique
+  role        String   @default("TEACHER")
   firebaseUID String   @unique
   //isActive   Boolean  @default(true)  // NUEVO: También para profesores (bajas, jubilaciones)
   createdAt  DateTime @default(now())
-  
-  assignments   TeacherOnSubjectOnGroup[]
+
+  assignments TeacherOnSubjectOnGroup[]
 }
 
 model Admin {
-  id         Int      @id @default(autoincrement())
-  email      String   @unique
-  name       String
-  surname    String
-  ndSurname  String?
-  birthDate  DateTime
-  dni        String   @unique
-  role       String   @default("ADMIN")
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String
+  surname     String
+  ndSurname   String?
+  birthDate   DateTime
+  dni         String   @unique
+  role        String   @default("ADMIN")
   firebaseUID String   @unique
   createdAt  DateTime @default(now())
 }
 
 model Course {
   id          Int      @id @default(autoincrement())
-  name        String   @unique  // NUEVO: Evita duplicar ciclos como "DAM"
-  description String?  // NUEVO: Descripción del ciclo formativo
-  duration    Int      @default(2)  // NUEVO: Duración en años (normalmente 2)
-  //isActive    Boolean  @default(true)  // NUEVO: Controla si el ciclo se oferta actualmente
+  name        String   @unique 
+  description String? 
+  duration    Int      @default(2) 
+  //isActive    Boolean  @default(true)  
   createdAt   DateTime @default(now())
 
   subjects Subject[]
 }
 
 model Subject {
-  id          Int      @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
-  //code        String?  // NUEVO: Código oficial de la asignatura (ej: "0483")
-  grade       String   // "1" o "2" - Curso dentro del ciclo
-  hours       Int?     // NUEVO: Horas semanales de la asignatura
-  description String?  // NUEVO: Descripción breve
-  
+  //code        String?  
+  grade       String 
+  hours       Int? 
+  description String?
+
   idCourse Int
-  course   Course   @relation(fields: [idCourse], references: [id], onDelete: Cascade)
-  
+  course   Course @relation(fields: [idCourse], references: [id], onDelete: Cascade)
+
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
-  
-  // NUEVO: Evita duplicar asignaturas en el mismo ciclo y curso
+
+  // Evita duplicar asignaturas en el mismo ciclo y curso
   @@unique([name, idCourse, grade])
-  @@index([idCourse, grade])  // NUEVO: Índice para búsquedas frecuentes
+  @@index([idCourse, grade]) 
 }
 
 model Group {
-  id          Int      @id @default(autoincrement())
-  name        String
-  //shift       String?  // NUEVO: "Mañana", "Tarde", "Noche" (más estructurado)
-  capacity    Int?     // NUEVO: Capacidad máxima de alumnos
-  
-  createdAt   DateTime @default(now())
-  
-  
+  id       Int    @id @default(autoincrement())
+  name     String
+  //shift       String?  //"Mañana", "Tarde", "Noche" (más estructurado)
+  capacity Int? // Capacidad máxima de alumnos
+
+  createdAt DateTime @default(now())
+
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
 }
 
 enum AssignmentStatus {
   ACTIVE // EQUIVALENTE DE ENROLLED PARA STUDENT
-  SUSPENDED//SUSPENDIDO DE EMPLEO Y SUELDO(NO SE SI SE LO HACENA LOS FUNCIONARIOS PERO)
-  ILLNESS//BAJA POR ENFERMEDAD
-  EXCEDENCE//ESTA DE EXCEDENCIA
+  SUSPENDED //SUSPENDIDO DE EMPLEO Y SUELDO(NO SE SI SE LO HACENA LOS FUNCIONARIOS PERO)
+  ILLNESS //BAJA POR ENFERMEDAD
+  EXCEDENCE //ESTA DE EXCEDENCIA
   WITHDRAWN // BAJA VOLUNTARIA EN PUESTO DE TRABAJO
-  STANDBY//PROFESOR QUE ESTA EN EL SISTEMA PERO NO DA CLASE EN NINGUN CENTRO
+  STANDBY //PROFESOR QUE ESTA EN EL SISTEMA PERO NO DA CLASE EN NINGUN CENTRO
 }
 
 model TeacherOnSubjectOnGroup {
-  id         Int      @id @default(autoincrement())
-  
-  
-  idTeacher  Int?
-  teacher    Teacher? @relation(fields: [idTeacher], references: [id], onDelete: SetNull)
-  
-  idSubject  Int
-  subject    Subject  @relation(fields: [idSubject], references: [id], onDelete: Cascade)
-  
-  idGroup    Int
-  group      Group    @relation(fields: [idGroup], references: [id], onDelete: Cascade)
-  
-  schoolYear String   // Formato: "2024-2025"
-  status AssignmentStatus @default(STANDBY)
+  id Int @id @default(autoincrement())
+
+  idTeacher Int
+  teacher   Teacher @relation(fields: [idTeacher], references: [id], onDelete: Cascade)
+
+  idSubject Int
+  subject   Subject @relation(fields: [idSubject], references: [id], onDelete: Cascade)
+
+  idGroup Int
+  group   Group @relation(fields: [idGroup], references: [id], onDelete: Cascade)
+
+  schoolYear String // Formato: "2024-2025"
+  status     AssignmentStatus @default(STANDBY)
   //isActive   Boolean  @default(true)  // NUEVO: Si la asignación está vigente
-  createdAt  DateTime @default(now())
-  
-  @@unique([idSubject, idGroup, schoolYear])
-  @@index([schoolYear])  // NUEVO: Para consultas por año académico
-  @@index([idTeacher, schoolYear])  // NUEVO: Para ver carga de un profesor
-  
+  createdAt  DateTime         @default(now())
+
   WeekSchedule WeekSchedule[] @relation(name: "TeacherAssignment")
-  tasks        Task[]  // ← AÑADIR ESTA LÍNEA
+  tasks        Task[]
+
+  @@unique([idTeacher, idSubject, idGroup, schoolYear])
+  @@index([schoolYear]) // consultas por año académico
+  @@index([idTeacher, schoolYear]) //Para ver carga de un profesor
 }
 
 enum EnrollmentStatus {
-  ENROLLED//MATRICULADO
-  EVALUATION_LOST//EVALUACION PERDIDA
+  ENROLLED //MATRICULADO
+  EVALUATION_LOST //EVALUACION PERDIDA
   COMPLETED // PASADO
   FAILED //SUSPENSO
   WITHDRAWN // BAJA VOLUNTARIA
@@ -140,33 +138,32 @@ enum EnrollmentStatus {
 }
 
 model StudentOnSubjectOnGroup {
-  id         Int      @id @default(autoincrement())
-  
-  idStudent  Int
-  student    Student  @relation(fields: [idStudent], references: [id], onDelete: Cascade)
-  
-  idGroup    Int
-  group      Group    @relation(fields: [idGroup], references: [id], onDelete: Cascade)
-  
-  idSubject  Int
-  subject    Subject  @relation(fields: [idSubject], references: [id], onDelete: Cascade)
-  
-  schoolYear String   // Formato: "2024-2025"
-  status     EnrollmentStatus   @default(ENROLLED)  // NUEVO: "ENROLLED", "COMPLETED", "FAILED", "WITHDRAWN"
-  
-  createdAt  DateTime @default(now())
- 
-  
+  id Int @id @default(autoincrement())
+
+  idStudent Int
+  student   Student @relation(fields: [idStudent], references: [id], onDelete: Cascade)
+
+  idGroup Int
+  group   Group @relation(fields: [idGroup], references: [id], onDelete: Cascade)
+
+  idSubject Int
+  subject   Subject @relation(fields: [idSubject], references: [id], onDelete: Cascade)
+
+  schoolYear String // Formato: "2024-2025"
+  status     EnrollmentStatus @default(ENROLLED) //"ENROLLED", "COMPLETED", "FAILED", "WITHDRAWN"
+
+  createdAt DateTime @default(now())
+
   // FUTURO: Aquí podrás añadir calificaciones
   // finalGrade Decimal?
   // examGrades Json?
-  
+
+  Assistance   Assistance[]  @relation(name: "StudentEnrollment")
+  studentTasks StudentTask[] 
+
   @@unique([idStudent, idGroup, idSubject, schoolYear])
-  @@index([schoolYear, status])  // NUEVO: Para reportes por año
-  @@index([idStudent, schoolYear])  // NUEVO: Para expediente del alumno
- 
-  Assistance Assistance[] @relation(name: "StudentEnrollment")
-  studentTasks StudentTask[]  // ← AÑADIR ESTA LÍNEA
+  @@index([schoolYear, status]) Para reportes por año
+  @@index([idStudent, schoolYear]) Para expediente del alumno
 }
 
 // Días de la semana para el horario
@@ -182,23 +179,21 @@ enum DayOfWeek {
 
 //horariosemana
 model WeekSchedule {
-  id                   Int      @id @default(autoincrement())
-  idTeacherAssignment  Int?
-  teacherAssignment    TeacherOnSubjectOnGroup? @relation(fields: [idTeacherAssignment], references: [id],name:"TeacherAssignment", onDelete: Cascade)
-  label                String   // ej. "1º DAM — Mañana" (identidad de clase agregada)
-  weekDay            DayOfWeek // Convertimos el Int a Enum para mayor consistencia
-  startTime          String   // "09:00" o usar DateTime horaInicio
-  finishTime             String   // "10:00" horaFin
+  id                  Int                     @id @default(autoincrement())
+  idTeacherAssignment Int
+  teacherAssignment   TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], name: "TeacherAssignment", onDelete: Cascade)
+  weekDay             DayOfWeek // Convertimos el Int a Enum para mayor consistencia
+  startTime           String // "09:00" o usar DateTime horaInicio
+  finishTime          String // "10:00" horaFin
   //aula                 String?
-  
-  
-  createdAt            DateTime @default(now())
-  
-  sessions             SessionClass[]
-  
-  @@index([idTeacherAssignment, weekDay])//filtra por id de teacherOnSubjectOnGroup y el dia de la semana
-  @@index([label])
+
+  createdAt DateTime @default(now())
+
+  sessions SessionClass[]
+
+  @@index([idTeacherAssignment, weekDay]) //filtra por id de teacherOnSubjectOnGroup y el dia de la semana
 }
+
 // Estados de una sesión de clase
 enum SessionStatus {
   SCHEDULED
@@ -208,21 +203,22 @@ enum SessionStatus {
 
 //una clase propiamente hablando
 model SessionClass {
-  id          Int      @id @default(autoincrement())
-  idSchedule   Int
-  schedule     WeekSchedule @relation(fields: [idSchedule], references: [id], onDelete: Cascade)//horario
-  
+  id         Int          @id @default(autoincrement())
+  idSchedule Int
+  schedule   WeekSchedule @relation(fields: [idSchedule], references: [id], onDelete: Cascade) //horario
+
   date        DateTime //fecha
-  status      SessionStatus   @default(SCHEDULED) // PROGRAMADA, REALIZADA, CANCELADA estado
-  apointments String?//detalles, observaciones
-  
-  createdAt   DateTime @default(now())
-  
+  status      SessionStatus @default(SCHEDULED) // PROGRAMADA, REALIZADA, CANCELADA estado
+  apointments String? //detalles, observaciones
+
+  createdAt DateTime @default(now())
+
   assistances Assistance[]
-  
-  @@index([date])
+
   @@unique([idSchedule, date])
+  @@index([date])
 }
+
 // Estados de asistencia
 enum AssistanceStatus {
   PRESENT
@@ -232,31 +228,30 @@ enum AssistanceStatus {
 }
 
 enum JustificationStatus {
-  PENDING   // Enviado por el alumno, pendiente de revisión
-  VIEWED    // El profesor lo ha visto
-  REJECTED  // Rechazado, no válido
+  PENDING // Enviado por el alumno, pendiente de revisión
+  VIEWED // El profesor lo ha visto
+  REJECTED // Rechazado, no válido
   // Aceptado = AssistanceStatus cambia a JUSTIFY
 }
 
 //asistencia
 model Assistance {
-  id                  Int      @id @default(autoincrement())
-  idSession            Int
-  session              SessionClass @relation(fields: [idSession], references: [id], onDelete: Cascade)
-  
-  idStudentEnrollment Int
- studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], name: "StudentEnrollment", onDelete: Cascade)
+  id        Int          @id @default(autoincrement())
+  idSession Int
+  session   SessionClass @relation(fields: [idSession], references: [id], onDelete: Cascade)
 
-  
-  status              AssistanceStatus @default(PRESENT)   // PRESENTE, AUSENTE, RETRASO, JUSTIFICADA
-  justificationUri    String?             // URL/path del archivo subido
+  idStudentEnrollment Int
+  studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], name: "StudentEnrollment", onDelete: Cascade)
+
+  status              AssistanceStatus     @default(PRESENT) // PRESENTE, AUSENTE, RETRASO, JUSTIFICADA
+  justificationUri    String? // URL/path del archivo subido
   justificationStatus JustificationStatus? // null = sin justificante enviado o estaba presente
-  
-  createdAt           DateTime @default(now())
-  
+
+  createdAt DateTime @default(now())
+
   @@unique([idSession, idStudentEnrollment]) // Un alumno solo puede tener una asistencia por sesión
-  @@index([idStudentEnrollment])//filtra por id StudentOnSubjectOnGroup
-  @@index([idSession, status])//filtra por estado y clase
+  @@index([idStudentEnrollment]) //filtra por id StudentOnSubjectOnGroup
+  @@index([idSession, status]) //filtra por estado y clase
 }
 
 model TaskGroup {
@@ -267,84 +262,92 @@ model TaskGroup {
 }
 
 enum TaskType {
-  PRACTICE     // Práctica
-  THEORY       // Teoría/trabajo/material
-  EXAM         // Examen
-  PROJECT      // Proyecto
-  HOMEWORK     // Deberes
+  PRACTICE // Práctica
+  THEORY // Teoría/trabajo/material
+  EXAM // Examen
+  PROJECT // Proyecto
+  HOMEWORK // Deberes
 }
 
 model Task {
-  id                   Int      @id @default(autoincrement())
-  
-  idTeacherAssignment  Int
-  teacherAssignment    TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], onDelete: Cascade)
-  
-  idTaskGroup          Int?
-  taskGroup            TaskGroup? @relation(fields: [idTaskGroup], references: [id], onDelete: SetNull)
-  
-  title                String
-  description          String?
-  type                 TaskType
-  
-  startDate            DateTime  // Fecha/hora desde que se puede ver
-  dueDate              DateTime  // Fecha/hora límite de entrega
+  id Int @id @default(autoincrement())
 
-  isPublished          Boolean   @default(false)
-  allowLateSubmission  Boolean   @default(false)
+  idTeacherAssignment Int
+  teacherAssignment   TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], onDelete: Cascade)
 
-  attachmentUrl        String?//url del fichero que sube el profesor, puede ser temario o contenido para una tarea
-  
-  schoolYear           String    // "2024-2025"
-  
-  createdAt            DateTime @default(now())
-  
-  studentTasks         StudentTask[]  // Entregas de los alumnos
-  
+  idTaskGroup Int?
+  taskGroup   TaskGroup? @relation(fields: [idTaskGroup], references: [id], onDelete: SetNull)
+
+  title       String
+  description String?
+  type        TaskType
+
+  startDate DateTime // Fecha/hora desde que se puede ver
+  dueDate   DateTime // Fecha/hora límite de entrega
+
+  isPublished         Boolean @default(false)
+  allowLateSubmission Boolean @default(false)
+
+  attachmentUrl String? //url del fichero que sube el profesor, puede ser temario o contenido para una tarea
+
+  schoolYear String // "2024-2025"
+
+  createdAt DateTime @default(now())
+
+  studentTasks StudentTask[] // Entregas de los alumnos
+
   @@index([idTeacherAssignment, schoolYear])
   @@index([dueDate])
 }
 
 enum SubmissionStatus {
-  PENDING      // Pendiente de entregar
-  SUBMITTED    // Entregada
-  LATE         // Entregada tarde
-  GRADED       // Calificada
+  PENDING // Pendiente de entregar
+  SUBMITTED // Entregada
+  LATE // Entregada tarde
+  GRADED // Calificada
   NOT_SUBMITTED // No entregada (después de la fecha)
 }
 
 model StudentTask {
-  id                  Int      @id @default(autoincrement())
-  
-  idTask              Int
-  task                Task @relation(fields: [idTask], references: [id], onDelete: Cascade)
-  
+  id Int @id @default(autoincrement())
+
+  idTask Int
+  task   Task @relation(fields: [idTask], references: [id], onDelete: Cascade)
+
   idStudentEnrollment Int
   studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], onDelete: Cascade)
-  
-  isEnabled           Boolean          @default(true)
-  status              SubmissionStatus @default(PENDING)
-  submissionDate      DateTime?        // Fecha/hora de entrega (null si no ha entregado)
-  score               Decimal?         // Nota (null si no está calificada)
-  feedback            String?          // Comentarios del profesor
-  attachmentUrl       String?          // URL del archivo subido (opcional)
-  
-  createdAt           DateTime @default(now())
-  
-  @@unique([idTask, idStudentEnrollment])  // Un alumno solo puede tener una entrega por tarea
+
+  isEnabled      Boolean          @default(true)
+  status         SubmissionStatus @default(PENDING)
+  submissionDate DateTime? // Fecha/hora de entrega (null si no ha entregado)
+  score          Decimal? // Nota (null si no está calificada)
+  feedback       String? // Comentarios del profesor
+  attachmentUrl  String? // URL del archivo subido (opcional)
+
+  createdAt DateTime @default(now())
+
+  @@unique([idTask, idStudentEnrollment]) // Un alumno solo puede tener una entrega por tarea
   @@index([idStudentEnrollment, status])
   @@index([idTask, status])
 }
 
 model Notification {
-  id                   Int      @id @default(autoincrement())
+  id                   Int       @id @default(autoincrement())
   recipientFirebaseUID String
   title                String
   message              String
-  type                 String   @default("INFO")
-  isRead               Boolean  @default(false)
+  type                 String    @default("INFO")
+  isRead               Boolean   @default(false)
   readAt               DateTime?
-  createdAt            DateTime @default(now())
+  createdAt            DateTime  @default(now())
 
   @@index([recipientFirebaseUID, isRead, createdAt])
+}
+
+model Announcement {
+  id              Int      @id @default(autoincrement())
+  title           String
+  body            String
+  createdAt       DateTime @default(now())
+  createdByUserId Int
 }

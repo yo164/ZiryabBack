@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import * as studentTaskService from './student-task.service.js';
-import { submitByEnrollmentSchema, submitSchema } from './student-task.schema.js';
+import { submitSchema } from './student-task.schema.js';
 
 export const getAllStudentTasks = async (req: Request, res: Response) => {
   try {
@@ -12,10 +12,6 @@ export const getAllStudentTasks = async (req: Request, res: Response) => {
 
     if (userRole === 'TEACHER') teacherId = userId;
     if (userRole === 'STUDENT') studentId = userId;
-
-    if (studentId) {
-      await studentTaskService.syncPublishedTasksForStudent(studentId);
-    }
 
     const studentTasks = await studentTaskService.findAll(teacherId, studentId);
     res.json({
@@ -76,10 +72,7 @@ export const getStudentTasksByTask = async (req: Request, res: Response) => {
       });
     }
 
-    const studentTasks =
-      req.user?.role === 'STUDENT' && typeof req.user.sub === 'number'
-        ? await studentTaskService.findByTaskForStudent(idTask, req.user.sub)
-        : await studentTaskService.findByTask(idTask);
+    const studentTasks = await studentTaskService.findByTask(idTask);
 
     res.json({
       success: true,
@@ -106,20 +99,9 @@ export const getStudentTasksByStudent = async (req: Request, res: Response) => {
       });
     }
 
-    if (req.user?.role === 'STUDENT' && typeof req.user.sub === 'number') {
-      const ok = await studentTaskService.enrollmentBelongsToStudent(
-        idStudentEnrollment,
-        req.user.sub,
-      );
-      if (!ok) {
-        return res.status(403).json({
-          success: false,
-          message: 'No autorizado a consultar esta matrícula',
-        });
-      }
-    }
+    const requestingStudentId = req.user?.role === 'STUDENT' ? req.user.sub : undefined;
 
-    const studentTasks = await studentTaskService.findByStudent(idStudentEnrollment);
+    const studentTasks = await studentTaskService.findByStudent(idStudentEnrollment, requestingStudentId);
 
     res.json({
       success: true,
@@ -127,7 +109,8 @@ export const getStudentTasksByStudent = async (req: Request, res: Response) => {
       count: studentTasks.length,
     });
   } catch (error: any) {
-    res.status(500).json({
+    const status = typeof error?.status === 'number' ? error.status : 500;
+    res.status(status).json({
       success: false,
       message: 'Error al obtener entregas del estudiante',
       error: error.message,
@@ -251,55 +234,12 @@ export const submitStudentTask = async (req: Request, res: Response) => {
     }
 
     const { attachmentUrl } = parsed.data;
-    const submittedTask = await studentTaskService.submit(id, { attachmentUrl });
+    const submittedTask = await studentTaskService.submit(id, { attachmentUrl: attachmentUrl || undefined });
 
     res.json({ success: true, message: 'Tarea entregada exitosamente', data: submittedTask });
   } catch (error: any) {
     const status = typeof error?.status === 'number' ? error.status : 400;
     res.status(status).json({ success: false, message: 'Error al entregar tarea', error: error.message });
-  }
-};
-
-export const submitStudentTaskByEnrollment = async (req: Request, res: Response) => {
-  try {
-    const parsed = submitByEnrollmentSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({
-        success: false,
-        message: 'Body inválido',
-        errors: parsed.error.flatten(),
-      });
-    }
-
-    const { idTask, idStudentEnrollment, attachmentUrl } = parsed.data;
-
-    if (req.user?.role === 'STUDENT' && typeof req.user.sub === 'number') {
-      const ok = await studentTaskService.enrollmentBelongsToStudent(
-        idStudentEnrollment,
-        req.user.sub,
-      );
-      if (!ok) {
-        return res.status(403).json({
-          success: false,
-          message: 'No puedes entregar una tarea para una matrícula ajena',
-        });
-      }
-    }
-
-    const submittedTask = await studentTaskService.submitByEnrollment({
-      idTask,
-      idStudentEnrollment,
-      attachmentUrl,
-    });
-
-    res.json({ success: true, message: 'Tarea entregada exitosamente', data: submittedTask });
-  } catch (error: any) {
-    const status = typeof error?.status === 'number' ? error.status : 400;
-    res.status(status).json({
-      success: false,
-      message: 'Error al entregar tarea',
-      error: error.message,
-    });
   }
 };
 

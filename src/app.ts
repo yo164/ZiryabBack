@@ -22,6 +22,7 @@ import taskRoutes from './modules/task/task.routes.js';
 import studentTaskRoutes from './modules/student-task/student-task.routes.js';
 import usersRoutes from './modules/users/users.routes.js';
 import notificationsRoutes from './modules/notifications/notifications.routes.js';
+import announcementsRoutes from './modules/announcements/announcements.routes.js';
 
 
 
@@ -60,7 +61,7 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }, 
 }));
 app.use(cors({
-  origin: env.FRONTEND_URL, 
+  origin: env.NODE_ENV === 'production' ? env.FRONTEND_URL : true, 
   methods: env.NODE_ENV === 'production' 
     ? ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
     : ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -68,6 +69,7 @@ app.use(cors({
   credentials: true,
   optionsSuccessStatus: 200
 }));
+
 app.use(express.json({ limit: '100kb' }));
 app.use(requestLogger);
 
@@ -123,6 +125,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/student-tasks', studentTaskRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/announcements', announcementsRoutes);
 
 
 

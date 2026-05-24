@@ -277,3 +277,18 @@ export const getHorariosByStudent = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Error al obtener horarios', error: error.message });
   }
 };
+
+/**
+ * POST /api/horarios-semanales/materialize — plantilla vacía por clase (CURSO-146)
+ */
+export const materializeHorario = async (req: Request, res: Response) => {
+  try {
+    const result = await horarioSemanalService.materialize(req.body);
+    res.status(201).json({ success: true, data: result });
+  } catch (error: unknown) {
+    res.status(400).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};

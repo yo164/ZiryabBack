@@ -13,6 +13,7 @@ export interface CreateIssueData {
   idGroup?: number;
   idCourse?: number;
   idSubject?: number;
+  grade?: string;
   isPublished?: boolean;
   publishAt?: string;
   expiresAt?: string;
@@ -26,10 +27,18 @@ export interface UpdateIssueData {
   idGroup?: number | null;
   idCourse?: number | null;
   idSubject?: number | null;
+  grade?: string | null;
   isPublished?: boolean;
   publishAt?: string | null;
   expiresAt?: string | null;
 }
+
+type NormalizedIssueScope = {
+  idGroup: number | null;
+  idCourse: number | null;
+  idSubject: number | null;
+  grade: string | null;
+};
 
 const issueInclude = {
   teacher: { select: { id: true, name: true, surname: true, email: true } },
@@ -74,48 +83,91 @@ const isIssueOwner = (
   (issue.emitterType === 'TEACHER' && issue.idTeacher === requesterId) ||
   (issue.emitterType === 'ADMIN' && issue.idAdmin === requesterId);
 
+const parseGrade = (value?: string | null): string | null => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+  const grade = String(value).trim();
+  if (grade !== '1' && grade !== '2') {
+    throw new Error('grade debe ser "1" o "2"');
+  }
+  return grade;
+};
+
 const normalizeAudienceFks = (data: {
   audience: IssueAudience;
   idGroup?: number | null;
   idCourse?: number | null;
   idSubject?: number | null;
-}) => {
+  grade?: string | null;
+}): NormalizedIssueScope => {
   const idGroup = data.idGroup ?? null;
   const idCourse = data.idCourse ?? null;
   const idSubject = data.idSubject ?? null;
+  const grade = parseGrade(data.grade);
 
   switch (data.audience) {
     case 'CENTER':
     case 'ALL_TEACHERS':
     case 'ALL_STUDENTS':
-      if (idGroup !== null || idCourse !== null || idSubject !== null) {
-        throw new Error('Audiencia inválida para los filtros indicados');
+      if (idGroup !== null || idCourse !== null || idSubject !== null || grade !== null) {
+        throw new Error(
+          'Para audiencias globales no se permiten idGroup, idCourse, idSubject ni grade',
+        );
       }
-      return { idGroup: null, idCourse: null, idSubject: null };
+      return { idGroup: null, idCourse: null, idSubject: null, grade: null };
     case 'GROUP':
-      if (!idGroup || idCourse !== null || idSubject !== null) {
-        throw new Error('Audiencia inválida para los filtros indicados');
+      if (!idGroup || idCourse !== null || idSubject !== null || grade !== null) {
+        throw new Error('GROUP requiere idGroup y no admite idCourse, idSubject ni grade');
       }
-      return { idGroup, idCourse: null, idSubject: null };
+      return { idGroup, idCourse: null, idSubject: null, grade: null };
     case 'COURSE':
       if (!idCourse || idGroup !== null || idSubject !== null) {
-        throw new Error('Audiencia inválida para los filtros indicados');
+        throw new Error('COURSE requiere idCourse y no admite idGroup ni idSubject');
       }
-      return { idGroup: null, idCourse, idSubject: null };
+      return { idGroup: null, idCourse, idSubject: null, grade };
     case 'SUBJECT_GROUP':
-      if (!idGroup || !idSubject || idCourse !== null) {
-        throw new Error('Audiencia inválida para los filtros indicados');
+      if (!idGroup || !idSubject || idCourse !== null || grade !== null) {
+        throw new Error(
+          'SUBJECT_GROUP requiere idGroup e idSubject y no admite idCourse ni grade',
+        );
       }
-      return { idGroup, idCourse: null, idSubject };
+      return { idGroup, idCourse: null, idSubject, grade: null };
     default:
       throw new Error('Audiencia no soportada');
   }
 };
 
+/** Cláusulas OR para anuncios COURSE visibles según ciclos (y curso 1º/2º) del usuario. */
+const buildCourseAudienceOr = (
+  courseGradePairs: { idCourse: number; grade: string }[],
+): Prisma.IssueWhereInput[] => {
+  const clauses: Prisma.IssueWhereInput[] = [];
+  const courseIds = [...new Set(courseGradePairs.map((p) => p.idCourse))];
+
+  for (const idCourse of courseIds) {
+    clauses.push({ audience: 'COURSE', idCourse, grade: null });
+  }
+
+  const seen = new Set<string>();
+  for (const pair of courseGradePairs) {
+    const key = `${pair.idCourse}:${pair.grade}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    clauses.push({
+      audience: 'COURSE',
+      idCourse: pair.idCourse,
+      grade: pair.grade,
+    });
+  }
+
+  return clauses;
+};
+
 const assertTeacherCanUseAudience = async (
   teacherId: number,
   audience: IssueAudience,
-  fks: { idGroup: number | null; idCourse: number | null; idSubject: number | null },
+  fks: NormalizedIssueScope,
 ) => {
   if (!TEACHER_ALLOWED_AUDIENCES.includes(audience)) {
     throw new Error('No tienes permiso para esta audiencia');
@@ -157,7 +209,7 @@ const buildStudentVisibilityOr = async (studentId: number): Promise<Prisma.Issue
     select: {
       idGroup: true,
       idSubject: true,
-      subject: { select: { idCourse: true } },
+      subject: { select: { idCourse: true, grade: true } },
     },
   });
 
@@ -167,14 +219,15 @@ const buildStudentVisibilityOr = async (studentId: number): Promise<Prisma.Issue
   ];
 
   const groupIds = [...new Set(enrollments.map((e) => e.idGroup))];
-  const courseIds = [...new Set(enrollments.map((e) => e.subject.idCourse))];
+  const courseGradePairs = enrollments.map((e) => ({
+    idCourse: e.subject.idCourse,
+    grade: e.subject.grade,
+  }));
 
   if (groupIds.length > 0) {
     or.push({ audience: 'GROUP', idGroup: { in: groupIds } });
   }
-  if (courseIds.length > 0) {
-    or.push({ audience: 'COURSE', idCourse: { in: courseIds } });
-  }
+  or.push(...buildCourseAudienceOr(courseGradePairs));
   if (enrollments.length > 0) {
     or.push({
       OR: enrollments.map((e) => ({
@@ -194,7 +247,7 @@ const buildTeacherVisibilityOr = async (teacherId: number): Promise<Prisma.Issue
     select: {
       idGroup: true,
       idSubject: true,
-      subject: { select: { idCourse: true } },
+      subject: { select: { idCourse: true, grade: true } },
     },
   });
 
@@ -205,14 +258,15 @@ const buildTeacherVisibilityOr = async (teacherId: number): Promise<Prisma.Issue
   ];
 
   const groupIds = [...new Set(assignments.map((a) => a.idGroup))];
-  const courseIds = [...new Set(assignments.map((a) => a.subject.idCourse))];
+  const courseGradePairs = assignments.map((a) => ({
+    idCourse: a.subject.idCourse,
+    grade: a.subject.grade,
+  }));
 
   if (groupIds.length > 0) {
     or.push({ audience: 'GROUP', idGroup: { in: groupIds } });
   }
-  if (courseIds.length > 0) {
-    or.push({ audience: 'COURSE', idCourse: { in: courseIds } });
-  }
+  or.push(...buildCourseAudienceOr(courseGradePairs));
   if (assignments.length > 0) {
     or.push({
       OR: assignments.map((a) => ({
@@ -352,6 +406,7 @@ export const createIssue = async (
       idGroup: fks.idGroup,
       idCourse: fks.idCourse,
       idSubject: fks.idSubject,
+      grade: fks.grade,
       title: data.title,
       body: data.body,
       attachmentUrl: data.attachmentUrl ?? null,
@@ -407,6 +462,7 @@ export const updateIssue = async (
     idGroup: data.idGroup !== undefined ? data.idGroup : existing.idGroup,
     idCourse: data.idCourse !== undefined ? data.idCourse : existing.idCourse,
     idSubject: data.idSubject !== undefined ? data.idSubject : existing.idSubject,
+    grade: data.grade !== undefined ? data.grade : existing.grade,
   });
 
   if (requesterRole === 'TEACHER') {
@@ -436,6 +492,7 @@ export const updateIssue = async (
       idGroup: fks.idGroup,
       idCourse: fks.idCourse,
       idSubject: fks.idSubject,
+      grade: fks.grade,
       ...(data.title !== undefined && { title: data.title }),
       ...(data.body !== undefined && { body: data.body }),
       ...(data.attachmentUrl !== undefined && { attachmentUrl: data.attachmentUrl }),

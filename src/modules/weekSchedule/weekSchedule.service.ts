@@ -27,10 +27,24 @@ export const findClassesByAggregation = async (
     },
   });
 
+  // Incluye plantillas materializadas (idTeacherAssignment null), no solo franjas con asignación.
+  const classLabelsForYear = new Set<string>();
+  for (const assignment of assignments) {
+    classLabelsForYear.add(
+      buildClassLabel(
+        String(assignment.subject.grade),
+        assignment.subject.course.name,
+        assignment.group.name
+      )
+    );
+  }
+
   const scheduledLabels = new Set(
     (
       await prisma.weekSchedule.findMany({
-        where: schoolYear ? { teacherAssignment: { schoolYear } } : undefined,
+        where: classLabelsForYear.size > 0
+          ? { label: { in: [...classLabelsForYear] } }
+          : undefined,
         select: { label: true },
         distinct: ['label'],
       })
@@ -363,4 +377,76 @@ export const remove = async (id: number) => {
   return prisma.weekSchedule.delete({
     where: { id },
   });
+};
+
+const NUMBER_TO_DAY: Record<number, DayOfWeek> = {
+  1: DayOfWeek.MONDAY,
+  2: DayOfWeek.TUESDAY,
+  3: DayOfWeek.WEDNESDAY,
+  4: DayOfWeek.THURSDAY,
+  5: DayOfWeek.FRIDAY,
+  6: DayOfWeek.SATURDAY,
+  7: DayOfWeek.SUNDAY,
+};
+
+export type MaterializeInput = {
+  label: string;
+  schoolYear: string;
+  weekDays: number[];
+  slots: { startTime: string; finishTime: string }[];
+};
+
+export const materialize = async (data: MaterializeInput) => {
+  const label = data.label?.trim();
+  const schoolYear = data.schoolYear?.trim();
+
+  if (!label) {
+    throw new Error('label es obligatorio');
+  }
+  if (!schoolYear) {
+    throw new Error('schoolYear es obligatorio');
+  }
+  if (!data.weekDays?.length) {
+    throw new Error('weekDays no puede estar vacío');
+  }
+  if (!data.slots?.length) {
+    throw new Error('slots no puede estar vacío');
+  }
+
+  for (const day of data.weekDays) {
+    if (!Number.isInteger(day) || day < 1 || day > 7) {
+      throw new Error(`Día inválido: ${day}. Debe estar entre 1 y 7`);
+    }
+  }
+
+  const classes = await findClassesByAggregation(schoolYear);
+  const targetClass = classes.find((cls) => cls.label === label);
+
+  if (!targetClass) {
+    throw new Error(`Clase no encontrada para el año escolar ${schoolYear}`);
+  }
+  if (targetClass.hasWeekSchedule) {
+    throw new Error('La clase ya tiene plantilla de horario');
+  }
+
+  const rows = data.weekDays.flatMap((dayNum) => {
+    const weekDay = NUMBER_TO_DAY[dayNum];
+    return data.slots.map((slot) => ({
+      label,
+      weekDay,
+      startTime: slot.startTime,
+      finishTime: slot.finishTime,
+      idTeacherAssignment: null,
+    }));
+  });
+
+  const result = await prisma.weekSchedule.createMany({ data: rows });
+
+  return {
+    label,
+    schoolYear,
+    created: result.count,
+    weekDays: data.weekDays,
+    slotCount: data.slots.length,
+  };
 };

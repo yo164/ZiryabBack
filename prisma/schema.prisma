@@ -385,6 +385,7 @@ model Issue {
   course        Course?          @relation(fields: [idCourse], references: [id], onDelete: SetNull)
   idSubject     Int?
   subject       Subject?         @relation(fields: [idSubject], references: [id], onDelete: SetNull)
+  grade         String?          // "1" | "2" — solo audiencia COURSE (curso dentro del ciclo)
 
   title         String
   body          String
@@ -398,6 +399,7 @@ model Issue {
   updatedAt     DateTime         @updatedAt
 
   @@index([audience, idGroup])
+  @@index([audience, idCourse, grade])
   @@index([createdAt])
   @@index([expiresAt])
   @@index([isPublished, publishAt])

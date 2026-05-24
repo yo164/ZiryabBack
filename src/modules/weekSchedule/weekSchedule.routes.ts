@@ -25,13 +25,6 @@ router.get('/', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.
 router.get('/classes', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.getClasses);
 
 /**
- * @route   GET /api/horarios-semanales/:id
- * @desc    Obtener un horario por ID
- * @access  Admin, Teacher
- */
-router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.getHorarioById);
-
-/**
  * @route   GET /api/horarios-semanales/teacher-assignment/:idTeacherAssignment
  * @desc    Obtener horarios de una asignación de profesor
  * @access  Admin, Teacher, Student
@@ -59,6 +52,13 @@ router.get('/teacher/:idTeacher', auth, authorize(['ADMIN', 'TEACHER']), horario
  */
 router.get('/student/:idStudent', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER'], 'idStudent'), horarioSemanalController.getHorariosByStudent);
 
+/**
+ * @route   GET /api/horarios-semanales/:id
+ * @desc    Obtener un horario por ID
+ * @access  Admin, Teacher
+ */
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.getHorarioById);
+
 // ============================================
 // RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN y TEACHER)
 // ============================================
@@ -69,6 +69,13 @@ router.get('/student/:idStudent', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER
  * @access  Admin and Teacher
  */
 router.post('/', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.createHorario);
+
+/**
+ * @route   POST /api/horarios-semanales/materialize
+ * @desc    Crear plantilla vacía (días × franjas) sin asignación de profesor — CURSO-146
+ * @access  Admin, Teacher
+ */
+router.post('/materialize', auth, authorize(['ADMIN', 'TEACHER']), horarioSemanalController.materializeHorario);
 
 /**
  * @route   PUT /api/horarios-semanales/:id

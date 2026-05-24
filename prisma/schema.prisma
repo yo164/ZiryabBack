@@ -162,8 +162,8 @@ model StudentOnSubjectOnGroup {
   studentTasks StudentTask[] 
 
   @@unique([idStudent, idGroup, idSubject, schoolYear])
-  @@index([schoolYear, status]) Para reportes por año
-  @@index([idStudent, schoolYear]) Para expediente del alumno
+  @@index([schoolYear, status])
+  @@index([idStudent, schoolYear])
 }
 
 // Días de la semana para el horario
@@ -182,16 +182,17 @@ model WeekSchedule {
   id                  Int                     @id @default(autoincrement())
   idTeacherAssignment Int
   teacherAssignment   TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], name: "TeacherAssignment", onDelete: Cascade)
-  weekDay             DayOfWeek // Convertimos el Int a Enum para mayor consistencia
-  startTime           String // "09:00" o usar DateTime horaInicio
-  finishTime          String // "10:00" horaFin
-  //aula                 String?
+  label               String                  @default("")
+  weekDay             DayOfWeek
+  startTime           String
+  finishTime          String
 
   createdAt DateTime @default(now())
 
   sessions SessionClass[]
 
-  @@index([idTeacherAssignment, weekDay]) //filtra por id de teacherOnSubjectOnGroup y el dia de la semana
+  @@index([idTeacherAssignment, weekDay])
+  @@index([label])
 }
 
 // Estados de una sesión de clase

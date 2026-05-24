@@ -1,5 +1,5 @@
 /**
- * seed-demo.ts — Caso controlado para la exposición del TFG
+ * seed-demo.ts — Caso controlado para pruebas Android (TFG)
  *
  * Ejecutar: npm run seed:demo
  *
@@ -8,164 +8,252 @@
  *  2. Pega los UIDs reales en las constantes FIREBASE_UID_* de abajo.
  *  3. npm run seed:demo
  *
- * Este script NO borra los datos existentes del seed principal.
- * Usa upsert en todo lo que puede y deleteMany acotado solo al prefijo "demo-".
+ * Cubre: usuarios, matrículas, horario, sesiones, asistencias (con justificantes),
+ * tareas (todos los TaskType), entregas en distintos estados, anuncios y notificaciones.
+ * Caso reducido: 1 profesor + 2 alumnos.
  */
 
-import { PrismaClient, TaskType, EnrollmentStatus, AssignmentStatus } from '@prisma/client';
+import {
+  PrismaClient,
+  TaskType,
+  EnrollmentStatus,
+  AssignmentStatus,
+  DayOfWeek,
+  SessionStatus,
+  AssistanceStatus,
+  JustificationStatus,
+  SubmissionStatus,
+} from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 // ─────────────────────────────────────────────
-//  PASO 1 — Pega aquí los UIDs de Firebase
+//  PASO 1 — UIDs de Firebase
 // ─────────────────────────────────────────────
-const FIREBASE_UID_PROFESOR: string  = 'hDSXMkow9qMuIPxOSehAYsbsH3L2';   // profesor.demo@ziryab.es
-const FIREBASE_UID_ALUMNO_1: string  = 'LKdrueilWDdRnEdFPEzMhcdC7Z63';    // alumno1.demo@ziryab.es
-const FIREBASE_UID_ALUMNO_2: string  = 'r49QBujkh3OiPZkFoqSHCn6lAb83';    // alumno2.demo@ziryab.es
+const FIREBASE_UID_PROFESOR: string = 'hDSXMkow9qMuIPxOSehAYsbsH3L2'; // profesor.demo@ziryab.es
+const FIREBASE_UID_ALUMNO_1: string = 'LKdrueilWDdRnEdFPEzMhcdC7Z63'; // alumno1.demo@ziryab.es
+const FIREBASE_UID_ALUMNO_2: string = 'r49QBujkh3OiPZkFoqSHCn6lAb83'; // alumno2.demo@ziryab.es
 
-// ─────────────────────────────────────────────
-//  Credenciales que usarás en la app
-// ─────────────────────────────────────────────
-// Profesor : profesor.demo@ziryab.es  /  Demo2026!
-// Alumno 1 : alumno1.demo@ziryab.es   /  Demo2026!
-// Alumno 2 : alumno2.demo@ziryab.es   /  Demo2026!
+// Credenciales: profesor.demo@ziryab.es / alumno1.demo@ziryab.es / alumno2.demo@ziryab.es → Demo2026!
+// Año académico alineado con Android (lista de alumnos usa "2024-2025" hardcodeado).
+const SCHOOL_YEAR = '2024-2025';
+
+const DEMO_EMAILS = [
+  'profesor.demo@ziryab.es',
+  'alumno1.demo@ziryab.es',
+  'alumno2.demo@ziryab.es',
+];
+
+const DEMO_FIREBASE_UIDS = [
+  FIREBASE_UID_PROFESOR,
+  FIREBASE_UID_ALUMNO_1,
+  FIREBASE_UID_ALUMNO_2,
+];
+
+const WEEKDAY_TO_JS: Record<DayOfWeek, number> = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+};
+
+const JS_DAY_TO_ENUM: DayOfWeek[] = [
+  'SUNDAY',
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+];
+
+function buildClassLabel(grade: string, courseName: string, groupName: string): string {
+  const normalizedGrade = grade.trim().endsWith('º') ? grade.trim() : `${grade.trim()}º`;
+  return `${normalizedGrade} ${courseName} — ${groupName}`;
+}
+
+function startOfDay(d: Date): Date {
+  const copy = new Date(d);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+}
+
+/** Fecha del último `weekDay` anterior o igual a hoy (para sesiones pasadas). */
+function lastDateForWeekDay(weekDay: DayOfWeek, weeksAgo = 0): Date {
+  const today = startOfDay(new Date());
+  const targetIdx = WEEKDAY_TO_JS[weekDay];
+  let diff = today.getDay() - targetIdx;
+  if (diff < 0) diff += 7;
+  diff += weeksAgo * 7;
+  const result = new Date(today);
+  result.setDate(today.getDate() - diff);
+  return result;
+}
+
+async function cleanupDemoData(studentIds: number[], teacherIds: number[]): Promise<void> {
+  if (studentIds.length === 0 && teacherIds.length === 0) return;
+
+  console.log('  ♻️  Eliminando demo anterior...');
+
+  const demoEnrollments = await prisma.studentOnSubjectOnGroup.findMany({
+    where: { idStudent: { in: studentIds } },
+    select: { id: true },
+  });
+  const enrollmentIds = demoEnrollments.map((e) => e.id);
+
+  const demoAssignments = await prisma.teacherOnSubjectOnGroup.findMany({
+    where: { idTeacher: { in: teacherIds } },
+    select: { id: true },
+  });
+  const assignmentIds = demoAssignments.map((a) => a.id);
+
+  const demoSchedules =
+    assignmentIds.length > 0
+      ? await prisma.weekSchedule.findMany({
+          where: { idTeacherAssignment: { in: assignmentIds } },
+          select: { id: true },
+        })
+      : [];
+  const scheduleIds = demoSchedules.map((s) => s.id);
+
+  if (scheduleIds.length > 0) {
+    const demoSessions = await prisma.sessionClass.findMany({
+      where: { idSchedule: { in: scheduleIds } },
+      select: { id: true },
+    });
+    const sessionIds = demoSessions.map((s) => s.id);
+    if (sessionIds.length > 0) {
+      await prisma.assistance.deleteMany({ where: { idSession: { in: sessionIds } } });
+      await prisma.sessionClass.deleteMany({ where: { id: { in: sessionIds } } });
+    }
+    await prisma.weekSchedule.deleteMany({ where: { id: { in: scheduleIds } } });
+  }
+
+  if (enrollmentIds.length > 0) {
+    await prisma.studentTask.deleteMany({ where: { idStudentEnrollment: { in: enrollmentIds } } });
+    await prisma.assistance.deleteMany({ where: { idStudentEnrollment: { in: enrollmentIds } } });
+  }
+
+  if (assignmentIds.length > 0) {
+    const demoTasks = await prisma.task.findMany({
+      where: { idTeacherAssignment: { in: assignmentIds } },
+      select: { id: true },
+    });
+    const taskIds = demoTasks.map((t) => t.id);
+    if (taskIds.length > 0) {
+      await prisma.studentTask.deleteMany({ where: { idTask: { in: taskIds } } });
+    }
+    await prisma.task.deleteMany({ where: { idTeacherAssignment: { in: assignmentIds } } });
+  }
+
+  if (teacherIds.length > 0) {
+    await prisma.announcement.deleteMany({ where: { createdByUserId: { in: teacherIds } } });
+  }
+
+  await prisma.notification.deleteMany({
+    where: { recipientFirebaseUID: { in: DEMO_FIREBASE_UIDS } },
+  });
+
+  if (studentIds.length > 0) {
+    await prisma.studentOnSubjectOnGroup.deleteMany({ where: { idStudent: { in: studentIds } } });
+  }
+  if (teacherIds.length > 0) {
+    await prisma.teacherOnSubjectOnGroup.deleteMany({ where: { idTeacher: { in: teacherIds } } });
+  }
+  if (studentIds.length > 0) {
+    await prisma.student.deleteMany({ where: { id: { in: studentIds } } });
+  }
+  if (teacherIds.length > 0) {
+    await prisma.teacher.deleteMany({ where: { id: { in: teacherIds } } });
+  }
+}
 
 async function main() {
   console.log('🎬 Iniciando seed de demo...');
 
-  const schoolYear = '2025-2026';
-
-  // ─── LIMPIAR datos de demo previos (solo los nuestros) ──────────────────
-  // Limpiamos desde los hijos hacia los padres para respetar las FKs.
-  // Identificamos los registros de demo por los emails/DNIs que usamos.
-
-  const demoEmails = [
-    'profesor.demo@ziryab.es',
-    'alumno1.demo@ziryab.es',
-    'alumno2.demo@ziryab.es',
-  ];
-
   const existingStudents = await prisma.student.findMany({
-    where: { email: { in: demoEmails } },
+    where: { email: { in: DEMO_EMAILS } },
     select: { id: true },
   });
   const existingTeachers = await prisma.teacher.findMany({
-    where: { email: { in: demoEmails } },
+    where: { email: { in: DEMO_EMAILS } },
     select: { id: true },
   });
 
-  const studentIds = existingStudents.map((s) => s.id);
-  const teacherIds = existingTeachers.map((t) => t.id);
+  await cleanupDemoData(
+    existingStudents.map((s) => s.id),
+    existingTeachers.map((t) => t.id),
+  );
 
-  if (studentIds.length > 0 || teacherIds.length > 0) {
-    console.log('  ♻️  Eliminando demo anterior...');
-
-    // 1. StudentTasks de los enrollments de demo
-    const demoEnrollments = await prisma.studentOnSubjectOnGroup.findMany({
-      where: { idStudent: { in: studentIds } },
-      select: { id: true },
-    });
-    const enrollmentIds = demoEnrollments.map((e) => e.id);
-    if (enrollmentIds.length > 0) {
-      await prisma.studentTask.deleteMany({ where: { idStudentEnrollment: { in: enrollmentIds } } });
-      await prisma.assistance.deleteMany({ where: { idStudentEnrollment: { in: enrollmentIds } } });
-    }
-
-    // 2. Tasks de los assignments de demo
-    const demoAssignments = await prisma.teacherOnSubjectOnGroup.findMany({
-      where: { idTeacher: { in: teacherIds } },
-      select: { id: true },
-    });
-    const assignmentIds = demoAssignments.map((a) => a.id);
-    if (assignmentIds.length > 0) {
-      // StudentTasks de tareas del profesor demo (por si acaso)
-      const demoTasks = await prisma.task.findMany({
-        where: { idTeacherAssignment: { in: assignmentIds } },
-        select: { id: true },
-      });
-      const taskIds = demoTasks.map((t) => t.id);
-      if (taskIds.length > 0) {
-        await prisma.studentTask.deleteMany({ where: { idTask: { in: taskIds } } });
-      }
-      await prisma.task.deleteMany({ where: { idTeacherAssignment: { in: assignmentIds } } });
-    }
-
-    await prisma.studentOnSubjectOnGroup.deleteMany({ where: { idStudent: { in: studentIds } } });
-    await prisma.teacherOnSubjectOnGroup.deleteMany({ where: { idTeacher: { in: teacherIds } } });
-    await prisma.student.deleteMany({ where: { id: { in: studentIds } } });
-    await prisma.teacher.deleteMany({ where: { id: { in: teacherIds } } });
-  }
-
-  // ─── PROFESOR ───────────────────────────────────────────────────────────
+  // ─── USUARIOS ───────────────────────────────────────────────────────────
   console.log('  👨‍🏫 Creando profesor demo...');
   const profesor = await prisma.teacher.create({
     data: {
-      email:      'profesor.demo@ziryab.es',
-      name:       'Antonio',
-      surname:    'Demo',
-      ndSurname:  'Expo',
-      birthDate:  new Date('1985-06-15'),
-      dni:        '00000001D',
+      email: 'profesor.demo@ziryab.es',
+      name: 'Antonio',
+      surname: 'Demo',
+      ndSurname: 'Expo',
+      birthDate: new Date('1985-06-15'),
+      dni: '00000001D',
       firebaseUID: FIREBASE_UID_PROFESOR,
     },
   });
 
-  // ─── ALUMNOS ─────────────────────────────────────────────────────────────
   console.log('  👨‍🎓 Creando alumnos demo...');
   const alumno1 = await prisma.student.create({
     data: {
-      email:      'alumno1.demo@ziryab.es',
-      name:       'Lucía',
-      surname:    'Demo',
-      ndSurname:  'Uno',
-      birthDate:  new Date('2005-03-10'),
-      dni:        '00000002A',
+      email: 'alumno1.demo@ziryab.es',
+      name: 'Lucía',
+      surname: 'Demo',
+      ndSurname: 'Uno',
+      birthDate: new Date('2005-03-10'),
+      dni: '00000002A',
       firebaseUID: FIREBASE_UID_ALUMNO_1,
     },
   });
 
   const alumno2 = await prisma.student.create({
     data: {
-      email:      'alumno2.demo@ziryab.es',
-      name:       'Carlos',
-      surname:    'Demo',
-      ndSurname:  'Dos',
-      birthDate:  new Date('2005-09-22'),
-      dni:        '00000003A',
+      email: 'alumno2.demo@ziryab.es',
+      name: 'Carlos',
+      surname: 'Demo',
+      ndSurname: 'Dos',
+      birthDate: new Date('2005-09-22'),
+      dni: '00000003A',
       firebaseUID: FIREBASE_UID_ALUMNO_2,
     },
   });
 
-  // ─── CURSO + ASIGNATURA ──────────────────────────────────────────────────
+  // ─── CURSO, ASIGNATURA, GRUPO ───────────────────────────────────────────
   console.log('  📚 Creando curso y asignatura demo...');
   const curso = await prisma.course.upsert({
     where: { name: 'DAM - Demo TFG' },
     update: {},
     create: {
-      name:        'DAM - Demo TFG',
-      description: 'Ciclo de desarrollo de aplicaciones multiplataforma (caso de demo)',
-      duration:    2,
+      name: 'DAM - Demo TFG',
+      description: 'Ciclo DAM — datos de prueba para Android',
+      duration: 2,
     },
   });
 
-  // upsert no funciona con @@unique([name, idCourse, grade]) directamente en Prisma
-  // así que hacemos findFirst + create/update manual
   let asignatura = await prisma.subject.findFirst({
     where: { name: 'Programación Móvil', idCourse: curso.id, grade: '2' },
   });
   if (!asignatura) {
     asignatura = await prisma.subject.create({
       data: {
-        name:        'Programación Móvil',
-        grade:       '2',
-        hours:       6,
-        description: 'Desarrollo de aplicaciones Android con Kotlin y Jetpack Compose',
-        idCourse:    curso.id,
+        name: 'Programación Móvil',
+        grade: '2',
+        hours: 6,
+        description: 'Android con Kotlin y Jetpack Compose',
+        idCourse: curso.id,
       },
     });
   }
 
-  // ─── GRUPO ───────────────────────────────────────────────────────────────
   console.log('  👥 Creando grupo demo...');
   let grupo = await prisma.group.findFirst({ where: { name: '2DAM-Demo' } });
   if (!grupo) {
@@ -174,101 +262,315 @@ async function main() {
     });
   }
 
-  // ─── ASSIGNMENT (profesor → asignatura + grupo) ──────────────────────────
+  const classLabel = buildClassLabel('2', curso.name, grupo.name);
+
+  // ─── ASSIGNMENT + MATRÍCULAS ────────────────────────────────────────────
   console.log('  📋 Asignando profesor a asignatura...');
   const assignment = await prisma.teacherOnSubjectOnGroup.create({
     data: {
-      idTeacher:  profesor.id,
-      idSubject:  asignatura.id,
-      idGroup:    grupo.id,
-      schoolYear: schoolYear,
-      status:     AssignmentStatus.ACTIVE,
+      idTeacher: profesor.id,
+      idSubject: asignatura.id,
+      idGroup: grupo.id,
+      schoolYear: SCHOOL_YEAR,
+      status: AssignmentStatus.ACTIVE,
     },
   });
 
-  // ─── ENROLLMENTS (alumnos → asignatura + grupo) ──────────────────────────
   console.log('  🎓 Matriculando alumnos...');
   const enrollment1 = await prisma.studentOnSubjectOnGroup.create({
     data: {
-      idStudent:  alumno1.id,
-      idGroup:    grupo.id,
-      idSubject:  asignatura.id,
-      schoolYear: schoolYear,
-      status:     EnrollmentStatus.ENROLLED,
+      idStudent: alumno1.id,
+      idGroup: grupo.id,
+      idSubject: asignatura.id,
+      schoolYear: SCHOOL_YEAR,
+      status: EnrollmentStatus.ENROLLED,
     },
   });
 
   const enrollment2 = await prisma.studentOnSubjectOnGroup.create({
     data: {
-      idStudent:  alumno2.id,
-      idGroup:    grupo.id,
-      idSubject:  asignatura.id,
-      schoolYear: schoolYear,
-      status:     EnrollmentStatus.ENROLLED,
+      idStudent: alumno2.id,
+      idGroup: grupo.id,
+      idSubject: asignatura.id,
+      schoolYear: SCHOOL_YEAR,
+      status: EnrollmentStatus.ENROLLED,
     },
   });
 
-  // ─── TAREAS ───────────────────────────────────────────────────────────────
+  // ─── HORARIO SEMANAL ──────────────────────────────────────────────────────
+  console.log('  🗓️  Creando horario semanal...');
+  const todayDay = JS_DAY_TO_ENUM[new Date().getDay()];
+
+  const scheduleBase = {
+    idTeacherAssignment: assignment.id,
+    label: classLabel,
+  };
+
+  const scheduleMon = await prisma.weekSchedule.create({
+    data: { ...scheduleBase, weekDay: DayOfWeek.MONDAY, startTime: '09:00', finishTime: '10:30' },
+  });
+
+  const scheduleWed = await prisma.weekSchedule.create({
+    data: { ...scheduleBase, weekDay: DayOfWeek.WEDNESDAY, startTime: '09:00', finishTime: '10:30' },
+  });
+
+  const scheduleFri = await prisma.weekSchedule.create({
+    data: { ...scheduleBase, weekDay: DayOfWeek.FRIDAY, startTime: '10:00', finishTime: '11:30' },
+  });
+
+  // Franja amplia el día actual → facilita GET /api/sessions/active en la demo
+  const scheduleToday = await prisma.weekSchedule.create({
+    data: { ...scheduleBase, weekDay: todayDay, startTime: '08:00', finishTime: '20:00' },
+  });
+
+  // ─── SESIONES DE CLASE ────────────────────────────────────────────────────
+  console.log('  📅 Creando sesiones de clase...');
+  const sessionPastMon = await prisma.sessionClass.create({
+    data: {
+      idSchedule: scheduleMon.id,
+      date: lastDateForWeekDay(DayOfWeek.MONDAY, 1),
+      status: SessionStatus.COMPLETED,
+      apointments: 'Repaso de RecyclerView',
+    },
+  });
+
+  const sessionPastWed = await prisma.sessionClass.create({
+    data: {
+      idSchedule: scheduleWed.id,
+      date: lastDateForWeekDay(DayOfWeek.WEDNESDAY, 1),
+      status: SessionStatus.COMPLETED,
+      apointments: 'Práctica MVVM',
+    },
+  });
+
+  const sessionPastFri = await prisma.sessionClass.create({
+    data: {
+      idSchedule: scheduleFri.id,
+      date: lastDateForWeekDay(DayOfWeek.FRIDAY, 2),
+      status: SessionStatus.COMPLETED,
+    },
+  });
+
+  const sessionToday = await prisma.sessionClass.create({
+    data: {
+      idSchedule: scheduleToday.id,
+      date: startOfDay(new Date()),
+      status: SessionStatus.SCHEDULED,
+      apointments: 'Sesión demo — pasar lista',
+    },
+  });
+
+  // ─── ASISTENCIAS ──────────────────────────────────────────────────────────
+  console.log('  ✅ Creando asistencias...');
+  await prisma.assistance.createMany({
+    data: [
+      { idSession: sessionPastMon.id, idStudentEnrollment: enrollment1.id, status: AssistanceStatus.PRESENT },
+      { idSession: sessionPastMon.id, idStudentEnrollment: enrollment2.id, status: AssistanceStatus.PRESENT },
+      { idSession: sessionPastWed.id, idStudentEnrollment: enrollment1.id, status: AssistanceStatus.PRESENT },
+      { idSession: sessionPastWed.id, idStudentEnrollment: enrollment2.id, status: AssistanceStatus.LATE },
+      {
+        idSession: sessionPastFri.id,
+        idStudentEnrollment: enrollment1.id,
+        status: AssistanceStatus.ABSENT,
+        justificationUri: 'uploads/demo/justificante-lucia.pdf',
+        justificationStatus: JustificationStatus.PENDING,
+      },
+      { idSession: sessionPastFri.id, idStudentEnrollment: enrollment2.id, status: AssistanceStatus.PRESENT },
+      { idSession: sessionToday.id, idStudentEnrollment: enrollment1.id, status: AssistanceStatus.PRESENT },
+      { idSession: sessionToday.id, idStudentEnrollment: enrollment2.id, status: AssistanceStatus.PRESENT },
+    ],
+  });
+
+  // ─── ANUNCIOS (tablón) ────────────────────────────────────────────────────
+  console.log('  📢 Creando anuncios del tablón...');
+  await prisma.announcement.createMany({
+    data: [
+      {
+        title: 'Bienvenidos al curso demo',
+        body: 'Usad las cuentas alumno1/alumno2 para probar temario, horario y asistencias.',
+        createdByUserId: profesor.id,
+      },
+      {
+        title: 'Recordatorio entrega práctica',
+        body: 'La práctica de RecyclerView + Retrofit vence la semana que viene.',
+        createdByUserId: profesor.id,
+      },
+    ],
+  });
+
+  // ─── GRUPO DE TAREAS + TAREAS (todos los TaskType) ────────────────────────
   console.log('  📝 Creando tareas demo...');
-  const now      = new Date();
-  const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1);
-  const nextWeek = new Date(now); nextWeek.setDate(now.getDate() + 7);
-  const passed   = new Date(now); passed.setDate(now.getDate() - 3);   // ya pasada (para demo)
+  const taskGroup = await prisma.taskGroup.create({
+    data: { name: 'Bloque 2 — Programación Móvil (demo)' },
+  });
 
-  const tarea1 = await prisma.task.create({
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+  const nextWeek = new Date(now);
+  nextWeek.setDate(now.getDate() + 7);
+  const passed = new Date(now);
+  passed.setDate(now.getDate() - 5);
+  const passedRecent = new Date(now);
+  passedRecent.setDate(now.getDate() - 2);
+
+  const tareaPractice = await prisma.task.create({
     data: {
       idTeacherAssignment: assignment.id,
-      title:               'Práctica 1 — RecyclerView con Retrofit',
-      description:         'Implementar una pantalla de lista consumiendo un endpoint REST con Retrofit y mostrando los datos en un LazyColumn de Jetpack Compose.',
-      type:                TaskType.PRACTICE,
-      startDate:           now,
-      dueDate:             nextWeek,
-      isPublished:         true,
+      idTaskGroup: taskGroup.id,
+      title: 'Práctica 1 — RecyclerView con Retrofit',
+      description: 'Lista con LazyColumn consumiendo un endpoint REST.',
+      type: TaskType.PRACTICE,
+      startDate: now,
+      dueDate: nextWeek,
+      isPublished: true,
       allowLateSubmission: false,
-      schoolYear:          schoolYear,
+      schoolYear: SCHOOL_YEAR,
     },
   });
 
-  const tarea2 = await prisma.task.create({
+  const tareaTheory = await prisma.task.create({
     data: {
       idTeacherAssignment: assignment.id,
-      title:               'Teoría — Arquitectura MVVM',
-      description:         'Leer el material adjunto sobre el patrón MVVM, Repository y StateFlow en Android. Elaborar un esquema de capas con ejemplos propios.',
-      type:                TaskType.THEORY,
-      startDate:           now,
-      dueDate:             nextWeek,
-      isPublished:         true,
+      idTaskGroup: taskGroup.id,
+      title: 'Teoría — Arquitectura MVVM',
+      description: 'Esquema de capas ViewModel + Repository + StateFlow.',
+      type: TaskType.THEORY,
+      startDate: now,
+      dueDate: nextWeek,
+      isPublished: true,
       allowLateSubmission: true,
-      schoolYear:          schoolYear,
+      schoolYear: SCHOOL_YEAR,
     },
   });
 
-  const tarea3 = await prisma.task.create({
+  const tareaExam = await prisma.task.create({
     data: {
       idTeacherAssignment: assignment.id,
-      title:               'Examen Parcial — Kotlin Coroutines',
-      description:         'Examen teórico-práctico sobre Coroutines, Flow y manejo de estados asíncronos en ViewModels.',
-      type:                TaskType.EXAM,
-      startDate:           passed,
-      dueDate:             passed,    // ya pasada → alumno puede ver sin entregar
-      isPublished:         true,
+      title: 'Examen Parcial — Kotlin Coroutines',
+      description: 'Coroutines, Flow y estados asíncronos en ViewModels.',
+      type: TaskType.EXAM,
+      startDate: passed,
+      dueDate: passed,
+      isPublished: true,
       allowLateSubmission: false,
-      schoolYear:          schoolYear,
+      schoolYear: SCHOOL_YEAR,
     },
   });
 
-  // ─── STUDENT TASKS (estado inicial: PENDING para todos) ──────────────────
-  console.log('  📬 Creando student tasks...');
+  const tareaProject = await prisma.task.create({
+    data: {
+      idTeacherAssignment: assignment.id,
+      title: 'Proyecto — App Ziryab (mínimo viable)',
+      description: 'Entregar APK o enlace con login, horario y temario.',
+      type: TaskType.PROJECT,
+      startDate: now,
+      dueDate: nextWeek,
+      isPublished: true,
+      allowLateSubmission: true,
+      schoolYear: SCHOOL_YEAR,
+    },
+  });
+
+  const tareaHomework = await prisma.task.create({
+    data: {
+      idTeacherAssignment: assignment.id,
+      title: 'Deberes — Material Design 3',
+      description: 'Adaptar la pantalla de perfil al tema Material 3.',
+      type: TaskType.HOMEWORK,
+      startDate: passedRecent,
+      dueDate: tomorrow,
+      isPublished: true,
+      allowLateSubmission: false,
+      schoolYear: SCHOOL_YEAR,
+    },
+  });
+
+  // ─── ENTREGAS (estados variados) ──────────────────────────────────────────
+  console.log('  📬 Creando entregas de alumnos...');
   await prisma.studentTask.createMany({
     data: [
-      // Alumno 1 → las 3 tareas
-      { idTask: tarea1.id, idStudentEnrollment: enrollment1.id, status: 'PENDING' },
-      { idTask: tarea2.id, idStudentEnrollment: enrollment1.id, status: 'PENDING' },
-      { idTask: tarea3.id, idStudentEnrollment: enrollment1.id, status: 'PENDING' },
-      // Alumno 2 → las 3 tareas
-      { idTask: tarea1.id, idStudentEnrollment: enrollment2.id, status: 'PENDING' },
-      { idTask: tarea2.id, idStudentEnrollment: enrollment2.id, status: 'PENDING' },
-      { idTask: tarea3.id, idStudentEnrollment: enrollment2.id, status: 'PENDING' },
+      {
+        idTask: tareaPractice.id,
+        idStudentEnrollment: enrollment1.id,
+        status: SubmissionStatus.GRADED,
+        submissionDate: passedRecent,
+        score: 8.5,
+        feedback: 'Buen uso de Retrofit y estados de carga.',
+      },
+      {
+        idTask: tareaTheory.id,
+        idStudentEnrollment: enrollment1.id,
+        status: SubmissionStatus.PENDING,
+      },
+      {
+        idTask: tareaExam.id,
+        idStudentEnrollment: enrollment1.id,
+        status: SubmissionStatus.NOT_SUBMITTED,
+      },
+      {
+        idTask: tareaProject.id,
+        idStudentEnrollment: enrollment1.id,
+        status: SubmissionStatus.SUBMITTED,
+        submissionDate: now,
+        attachmentUrl: 'uploads/demo/entrega-lucia-proyecto.zip',
+      },
+      {
+        idTask: tareaHomework.id,
+        idStudentEnrollment: enrollment1.id,
+        status: SubmissionStatus.SUBMITTED,
+        submissionDate: passedRecent,
+      },
+      {
+        idTask: tareaPractice.id,
+        idStudentEnrollment: enrollment2.id,
+        status: SubmissionStatus.LATE,
+        submissionDate: now,
+        score: 6.0,
+        feedback: 'Entrega fuera de plazo; revisar fechas límite.',
+      },
+      {
+        idTask: tareaTheory.id,
+        idStudentEnrollment: enrollment2.id,
+        status: SubmissionStatus.SUBMITTED,
+        submissionDate: passedRecent,
+      },
+      {
+        idTask: tareaExam.id,
+        idStudentEnrollment: enrollment2.id,
+        status: SubmissionStatus.PENDING,
+      },
+      {
+        idTask: tareaProject.id,
+        idStudentEnrollment: enrollment2.id,
+        status: SubmissionStatus.PENDING,
+      },
+      {
+        idTask: tareaHomework.id,
+        idStudentEnrollment: enrollment2.id,
+        status: SubmissionStatus.PENDING,
+      },
+    ],
+  });
+
+  // ─── NOTIFICACIONES ─────────────────────────────────────────────────────────
+  console.log('  🔔 Creando notificaciones de ejemplo...');
+  await prisma.notification.createMany({
+    data: [
+      {
+        recipientFirebaseUID: FIREBASE_UID_ALUMNO_1,
+        title: 'Nueva tarea publicada',
+        message: 'Teoría — Arquitectura MVVM',
+        type: 'TASK',
+        isRead: false,
+      },
+      {
+        recipientFirebaseUID: FIREBASE_UID_PROFESOR,
+        title: 'Justificante pendiente',
+        message: 'Lucía Demo tiene una falta por revisar.',
+        type: 'ASSISTANCE',
+        isRead: false,
+      },
     ],
   });
 
@@ -276,41 +578,33 @@ async function main() {
   console.log('');
   console.log('✅ Seed de demo completado:');
   console.log('');
-  console.log('  👨‍🏫 Profesor:');
-  console.log(`     Email    : profesor.demo@ziryab.es`);
-  console.log(`     Password : Demo2026!`);
-  console.log(`     Firebase : ${FIREBASE_UID_PROFESOR}`);
+  console.log('  👨‍🏫 Profesor : profesor.demo@ziryab.es / Demo2026!');
+  console.log('  👨‍🎓 Alumno 1 : alumno1.demo@ziryab.es  / Demo2026!  (Lucía)');
+  console.log('  👨‍🎓 Alumno 2 : alumno2.demo@ziryab.es  / Demo2026!  (Carlos)');
+  console.log(`  📅 Curso lectivo : ${SCHOOL_YEAR}`);
+  console.log(`  📚 Asignatura    : Programación Móvil (${grupo.name})`);
+  console.log('  🗓️  Horario       : 4 franjas (Lun/Mié/Vie + hoy 08:00–20:00)');
+  console.log('  📅 Sesiones      : 4 (3 pasadas + hoy)');
+  console.log('  ✅ Asistencias   : 8 (PRESENT/LATE/ABSENT + justificante PENDING)');
+  console.log('  📢 Anuncios      : 2');
+  console.log('  📝 Tareas        : 5 (PRACTICE, THEORY, EXAM, PROJECT, HOMEWORK)');
+  console.log('  📬 Entregas      : 10 con estados variados');
+  console.log('  🔔 Notificaciones: 2');
   console.log('');
-  console.log('  👨‍🎓 Alumno 1:');
-  console.log(`     Email    : alumno1.demo@ziryab.es`);
-  console.log(`     Password : Demo2026!`);
-  console.log(`     Firebase : ${FIREBASE_UID_ALUMNO_1}`);
-  console.log('');
-  console.log('  👨‍🎓 Alumno 2:');
-  console.log(`     Email    : alumno2.demo@ziryab.es`);
-  console.log(`     Password : Demo2026!`);
-  console.log(`     Firebase : ${FIREBASE_UID_ALUMNO_2}`);
-  console.log('');
-  console.log('  📚 Asignatura : Programación Móvil (2DAM-Demo)');
-  console.log('  📝 Tareas     : 3 (PRACTICE, THEORY, EXAM)');
-  console.log('  📬 StudentTasks: 6 en PENDING (2 alumnos × 3 tareas)');
-  console.log('');
-  console.log('  ⚡ IDs útiles para la demo:');
-  console.log(`     Tarea PRACTICE  id = ${tarea1.id}  ("Práctica 1 — RecyclerView con Retrofit")`);
-  console.log(`     Tarea THEORY    id = ${tarea2.id}  ("Teoría — Arquitectura MVVM")`);
-  console.log(`     Tarea EXAM      id = ${tarea3.id}  ("Examen Parcial — Kotlin Coroutines")`);
-  console.log(`     Enrollment Lucía  id = ${enrollment1.id}`);
-  console.log(`     Enrollment Carlos id = ${enrollment2.id}`);
+  console.log('  ⚡ IDs útiles:');
+  console.log(`     Assignment (profesor) id = ${assignment.id}`);
+  console.log(`     Enrollment Lucía      id = ${enrollment1.id}`);
+  console.log(`     Enrollment Carlos     id = ${enrollment2.id}`);
+  console.log(`     Sesión de hoy         id = ${sessionToday.id}`);
+  console.log(`     Horario hoy (activo)  id = ${scheduleToday.id}  (${todayDay} 08:00–20:00)`);
   console.log('');
 
   if (
-    FIREBASE_UID_PROFESOR === 'PENDIENTE_FIREBASE_UID_PROFESOR' ||
-    FIREBASE_UID_ALUMNO_1 === 'PENDIENTE_FIREBASE_UID_ALUMNO1' ||
-    FIREBASE_UID_ALUMNO_2 === 'PENDIENTE_FIREBASE_UID_ALUMNO2'
+    FIREBASE_UID_PROFESOR.startsWith('PENDIENTE') ||
+    FIREBASE_UID_ALUMNO_1.startsWith('PENDIENTE') ||
+    FIREBASE_UID_ALUMNO_2.startsWith('PENDIENTE')
   ) {
-    console.log('  ⚠️  ATENCIÓN: Aún tienes los UIDs placeholder.');
-    console.log('     El login en la app fallará hasta que los sustituyas por los UIDs reales de Firebase.');
-    console.log('     Ver instrucciones en el bloque de comentario al inicio del archivo.');
+    console.log('  ⚠️  Sustituye los UIDs placeholder por los de Firebase Console.');
   }
 }
 
@@ -325,34 +619,12 @@ main()
 
 /*
  * ═══════════════════════════════════════════════════════
- *  INSTRUCCIONES FIREBASE — qué hacer tú antes del seed
+ *  INSTRUCCIONES FIREBASE
  * ═══════════════════════════════════════════════════════
  *
- *  1. Ve a https://console.firebase.google.com
- *  2. Selecciona el proyecto del TFG.
- *  3. En el menú lateral: Authentication → Users → "Add user".
- *
- *  Crea estos 3 usuarios (email + contraseña):
- *
- *    Email                        Contraseña
- *    ─────────────────────────── ──────────
- *    profesor.demo@ziryab.es      Demo2026!
- *    alumno1.demo@ziryab.es       Demo2026!
- *    alumno2.demo@ziryab.es       Demo2026!
- *
- *  4. Una vez creados, haz clic en cada uno → verás el campo "User UID".
- *     Copia ese UID (cadena de ~28 caracteres).
- *
- *  5. Pégalos en las constantes al inicio de este archivo:
- *     FIREBASE_UID_PROFESOR  ← UID de profesor.demo@ziryab.es
- *     FIREBASE_UID_ALUMNO_1  ← UID de alumno1.demo@ziryab.es
- *     FIREBASE_UID_ALUMNO_2  ← UID de alumno2.demo@ziryab.es
- *
- *  6. Guarda y ejecuta: npm run seed:demo
- *
- *  ¿Por qué hace falta el UID de Firebase?
- *  El backend verifica el token de Firebase en cada login y lo cruza con
- *  el campo `firebaseUID` de la tabla Student/Teacher. Sin ese UID real,
- *  Firebase emite el token pero el backend no encuentra al usuario en BD
- *  y devuelve 401.
+ *  1. Firebase Console → Authentication → Add user
+ *  2. Crear: profesor.demo@ziryab.es, alumno1.demo@ziryab.es, alumno2.demo@ziryab.es
+ *     Contraseña para los tres: Demo2026!
+ *  3. Copiar cada User UID a las constantes FIREBASE_UID_* de arriba
+ *  4. npm run seed:demo
  */

@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service.js';
+import { logger } from '../../utils/logger.js';
 
 export class AuthController {
   /**
@@ -135,8 +136,8 @@ export class AuthController {
    * Login de un usuario existente
    */
   static async login(req: Request, res: Response) {
+    const { token, email, password } = req.body;
     try {
-      const { token, email, password } = req.body;
       const isLegacyTestLogin =
         process.env.NODE_ENV === 'test' &&
         !token &&
@@ -175,9 +176,22 @@ export class AuthController {
       });
     } catch (error) {
       const msg = (error as Error).message;
-      if (msg.includes('Credenciales inválidas') || msg.includes('Usuario no encontrado')) {
+      logger.warn(`Login fallido (${email ?? 'sin email'}): ${msg}`);
+
+      if (
+        msg.includes('Credenciales inválidas') ||
+        msg.includes('Usuario no encontrado')
+      ) {
         return res.status(401).json({
-          message: 'Credenciales inválidas',
+          message:
+            'Usuario no encontrado en la base de datos. Si usas cuentas demo, ejecuta npm run seed:demo.',
+          error: msg,
+        });
+      }
+      if (msg.includes('Token de Firebase inválido')) {
+        return res.status(401).json({
+          message: 'Token de Firebase inválido o caducado. Vuelve a iniciar sesión.',
+          error: msg,
         });
       }
       return res.status(400).json({

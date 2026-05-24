@@ -4,6 +4,18 @@ import dotenv from 'dotenv';
 // ✅ IMPORTANTE: Cargar las variables de entorno ANTES de parsear
 dotenv.config();
 
+/**
+ * Red con proxy SSL (universidad, WiFi público): Firebase Admin no puede verificar
+ * el certificado al llamar a Google (UNABLE_TO_VERIFY_LEAF_SIGNATURE).
+ * Solo desarrollo; en .env: SKIP_TLS_VERIFY=true
+ */
+if (process.env.NODE_ENV !== 'production' && process.env.SKIP_TLS_VERIFY === 'true') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  console.warn(
+    '⚠️  SKIP_TLS_VERIFY=true — verificación TLS desactivada (solo desarrollo local)',
+  );
+}
+
 // Define el esquema con Zod
 const envSchema = z.object({
   // Database

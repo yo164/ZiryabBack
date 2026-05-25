@@ -23,8 +23,8 @@ import usersRoutes from './modules/users/users.routes.js';
 import notificationsRoutes from './modules/notifications/notifications.routes.js';
 import announcementsRoutes from './modules/announcements/announcements.routes.js';
 import issueRoutes from './modules/issue/issue.routes.js';
-
 import gradeRoutes from './modules/grade/grade.routes.js';
+import assignmentsRoutes from './modules/assignments/assignments.routes.js';
 
 
 import courseRouter from './modules/course/course.routes.js';
@@ -95,6 +95,7 @@ app.get('/', (_req, res) => {
       tasks: '/api/tasks',
       assignments: '/api/assignments',
       issues: '/api/issues',
+      grades: '/api/grades',
     },
   });
 });
@@ -129,6 +130,8 @@ app.use('/api/student-tasks', studentTaskRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/issues', issueRoutes);
+app.use('/api/grades', gradeRoutes);
+app.use('/api/assignments', assignmentsRoutes);
 
 
 

@@ -341,3 +341,77 @@ export const findOrCreateSessionForSubjectAndTeacher = async (
     },
   });
 };
+
+export const bulkGenerate = async (label: string, schoolYear: string) => {
+  const [startYearStr, endYearStr] = schoolYear.split('-');
+  if (!startYearStr || !endYearStr) {
+    throw new Error('schoolYear debe ser formato "YYYY-YYYY" (ej: "2024-2025")');
+  }
+
+  const startYear = parseInt(startYearStr, 10);
+  const endYear = parseInt(endYearStr, 10);
+  if (Number.isNaN(startYear) || Number.isNaN(endYear)) {
+    throw new Error('schoolYear contiene años inválidos');
+  }
+
+  // Rango de calendario escolar: septiembre (startYear) a junio (endYear)
+  const startDate = new Date(startYear, 8, 1); // September 1st
+  const endDate = new Date(endYear, 5, 30); // June 30th
+
+  // Buscar todas las WeekSchedule con este label
+  const weekSchedules = await prisma.weekSchedule.findMany({
+    where: { label },
+  });
+
+  if (weekSchedules.length === 0) {
+    throw new Error(`No se encontraron franjas horarias para esta clase (label: "${label}")`);
+  }
+
+  // Generar fechas para cada weekDay en el rango
+  const sessionsToCreate: Prisma.SessionClassCreateManyInput[] = [];
+
+  for (const schedule of weekSchedules) {
+    // Día de la semana (0=Sunday, 1=Monday, ..., 6=Saturday en JavaScript)
+    const dayOfWeekMap: Record<DayOfWeek, number> = {
+      MONDAY: 1,
+      TUESDAY: 2,
+      WEDNESDAY: 3,
+      THURSDAY: 4,
+      FRIDAY: 5,
+      SATURDAY: 6,
+      SUNDAY: 0,
+    };
+    const targetDayOfWeek = dayOfWeekMap[schedule.weekDay];
+
+    let currentDate = new Date(startDate);
+    // Ajustar a la primera ocurrencia del weekDay deseado
+    while (currentDate.getDay() !== targetDayOfWeek) {
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // Generar sesiones para cada semana en el rango
+    while (currentDate <= endDate) {
+      sessionsToCreate.push({
+        date: new Date(currentDate),
+        status: 'SCHEDULED',
+        idSchedule: schedule.id,
+      });
+      currentDate.setDate(currentDate.getDate() + 7);
+    }
+  }
+
+  if (sessionsToCreate.length === 0) {
+    throw new Error('No se pudieron generar sesiones para este rango de fechas');
+  }
+
+  // Crear sesiones en lotes, ignorando duplicados
+  const result = await prisma.sessionClass.createMany({
+    data: sessionsToCreate,
+    skipDuplicates: true,
+  });
+
+  return {
+    created: result.count,
+    skipped: sessionsToCreate.length - result.count,
+  };
+};

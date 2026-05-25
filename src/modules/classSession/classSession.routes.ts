@@ -109,6 +109,44 @@ router.post(
 router.post('/bulk-suspend', auth, authorize(['ADMIN']), classSessionController.bulkSuspend);
 
 /**
+ * @swagger
+ * /api/sessions/bulk-generate:
+ *   post:
+ *     summary: Generar sesiones en lote para una clase
+ *     description: ADMIN/TEACHER. Genera SessionClass para cada WeekSchedule de una clase en el rango del año escolar (sept-junio).
+ *     tags: [Sessions]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [label, schoolYear]
+ *             properties:
+ *               label: { type: string, example: "1º DAM - Mañana" }
+ *               schoolYear: { type: string, example: "2024-2025" }
+ *     responses:
+ *       200:
+ *         description: Sesiones generadas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 created: { type: integer, example: 120 }
+ *                 skipped: { type: integer, example: 0 }
+ *                 message: { type: string }
+ *       400:
+ *         description: Error en la generación
+ *       401:
+ *         description: No autorizado
+ */
+router.post('/bulk-generate', auth, authorize(['ADMIN', 'TEACHER']), classSessionController.bulkGenerate);
+
+/**
  * @route   GET /api/sessions/:id
  * @desc    Obtener una sesión por ID
  * @access  Admin, Teacher

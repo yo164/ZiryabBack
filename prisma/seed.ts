@@ -1,48 +1,367 @@
 import { PrismaClient } from "@prisma/client";
-
-
+import { buildClassLabelFromAssignment } from "../src/utils/classLabel.js";
 
 const prisma = new PrismaClient();
+
+/** Textos de tareas THEORY/PRACTICE según el nombre real de la asignatura. */
+function normalizeSubjectName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+type SubjectTaskCopy = {
+  theoryTitle: string;
+  theoryDescription: string;
+  practiceTitle: string;
+  practiceDescription: string;
+};
+
+function subjectTaskCopy(subjectName: string): SubjectTaskCopy {
+  const n = normalizeSubjectName(subjectName);
+
+  if (n.includes("ipe")) {
+    return {
+      theoryTitle: `Material IPE — ${subjectName}`,
+      theoryDescription:
+        "Orientación laboral, empleabilidad y competencias transversales del módulo (no contenido técnico de otras asignaturas).",
+      practiceTitle: `Actividad IPE — ${subjectName}`,
+      practiceDescription:
+        "Elaborar un CV adaptado al sector del ciclo y un informe breve con ofertas de empleo reales consultadas.",
+    };
+  }
+
+  if (n.includes("sostenibilidad")) {
+    return {
+      theoryTitle: `Temario sostenibilidad — ${subjectName}`,
+      theoryDescription:
+        "Criterios de sostenibilidad, economía circular y impacto ambiental en el ámbito productivo.",
+      practiceTitle: `Caso práctico — ${subjectName}`,
+      practiceDescription:
+        "Analizar un caso real de empresa del sector aplicando medidas de sostenibilidad (informe corto).",
+    };
+  }
+
+  if (n.includes("digitalizacion")) {
+    return {
+      theoryTitle: `Recursos digitalización — ${subjectName}`,
+      theoryDescription:
+        "Transformación digital, herramientas colaborativas y buenas prácticas en entornos productivos.",
+      practiceTitle: `Ejercicio digitalización — ${subjectName}`,
+      practiceDescription:
+        "Documentar una pequeña mejora digital aplicable al taller o empresa de referencia del ciclo.",
+    };
+  }
+
+  if (n.includes("ingles")) {
+    return {
+      theoryTitle: `English materials — ${subjectName}`,
+      theoryDescription:
+        "Vocabulary and reading comprehension for professional English in IT/telecom contexts.",
+      practiceTitle: `Writing task — ${subjectName}`,
+      practiceDescription:
+        "Write a short professional email or technical description in English (150–200 words).",
+    };
+  }
+
+  if (n.includes("proyecto intermodular") || n === "optativa") {
+    return {
+      theoryTitle: `Guía del proyecto — ${subjectName}`,
+      theoryDescription:
+        "Criterios de evaluación, entregables y calendario del proyecto intermodular u optativa.",
+      practiceTitle: `Avance de proyecto — ${subjectName}`,
+      practiceDescription:
+        "Entregar memoria parcial o prototipo según las fases definidas por el tutor del proyecto.",
+    };
+  }
+
+  if (
+    n.includes("base de datos") ||
+    n.includes("bases de datos") ||
+    n.includes("gestion de bases") ||
+    n.includes("gestores de bases de datos") ||
+    n.includes("acceso a datos")
+  ) {
+    return {
+      theoryTitle: `Apuntes BBDD — ${subjectName}`,
+      theoryDescription:
+        "Modelo relacional, SQL, normalización y operaciones con el gestor visto en el módulo.",
+      practiceTitle: `Práctica SQL — ${subjectName}`,
+      practiceDescription:
+        "Diseñar el esquema solicitado y entregar el script SQL con consultas de ejemplo comentadas.",
+    };
+  }
+
+  if (
+    n.includes("desarrollo web") ||
+    n.includes("despliegue de aplicaciones web") ||
+    n.includes("diseño de interfaces") ||
+    n.includes("desarrollo de interfaces") ||
+    n.includes("aplicaciones web") ||
+    n.includes("implantacion de aplicaciones web") ||
+    n.includes("lenguaje de marcas")
+  ) {
+    return {
+      theoryTitle: `Documentación web — ${subjectName}`,
+      theoryDescription:
+        "Apuntes de HTML, CSS, JavaScript o tecnologías del stack web del módulo.",
+      practiceTitle: `Entrega web — ${subjectName}`,
+      practiceDescription:
+        "Completar la página o componente indicado en clase y publicar la URL o el repositorio.",
+    };
+  }
+
+  if (n.includes("entornos de desarrollo")) {
+    return {
+      theoryTitle: `IDE y herramientas — ${subjectName}`,
+      theoryDescription:
+        "Configuración del entorno, depuración, control de versiones y flujo de trabajo del desarrollador.",
+      practiceTitle: `Práctica entorno — ${subjectName}`,
+      practiceDescription:
+        "Configurar el proyecto base en el IDE y entregar capturas del depurador o del repositorio Git.",
+    };
+  }
+
+  if (
+    n.includes("programacion") ||
+    n.includes("servicios y procesos") ||
+    n.includes("multimedia y dispositivos")
+  ) {
+    return {
+      theoryTitle: `Apuntes programación — ${subjectName}`,
+      theoryDescription:
+        "Sintaxis, estructuras de control, POO y patrones básicos del lenguaje usado en el módulo.",
+      practiceTitle: `Ejercicios de código — ${subjectName}`,
+      practiceDescription:
+        "Implementar los ejercicios propuestos y subir el proyecto o ficheros fuente indicados.",
+    };
+  }
+
+  if (
+    n.includes("sistemas informaticos") ||
+    n.includes("sistemas operativos") ||
+    n.includes("implantacion de sistemas") ||
+    n.includes("administracion de sistemas operativos")
+  ) {
+    return {
+      theoryTitle: `Arquitectura y SO — ${subjectName}`,
+      theoryDescription:
+        "Hardware, sistemas operativos, virtualización o administración según el temario del módulo.",
+      practiceTitle: `Práctica de sistemas — ${subjectName}`,
+      practiceDescription:
+        "Realizar la instalación, configuración o script de administración pedido en el enunciado.",
+    };
+  }
+
+  if (
+    n.includes("redes") ||
+    n.includes("servicios de red") ||
+    n.includes("servicios en red") ||
+    n.includes("seguridad y alta disponibilidad") ||
+    n.includes("seguridad informatica") ||
+    n.includes("planificacion y administracion de redes")
+  ) {
+    return {
+      theoryTitle: `Teoría de redes — ${subjectName}`,
+      theoryDescription:
+        "Topologías, protocolos, direccionamiento y servicios de red del temario.",
+      practiceTitle: `Laboratorio de redes — ${subjectName}`,
+      practiceDescription:
+        "Configurar el escenario de red (Packet Tracer, GNS3 o equipos reales) y entregar evidencias.",
+    };
+  }
+
+  if (
+    n.includes("hardware") ||
+    n.includes("montaje") ||
+    n.includes("equipos microinformaticos") ||
+    n.includes("ofimatica")
+  ) {
+    return {
+      theoryTitle: `Material de taller — ${subjectName}`,
+      theoryDescription:
+        "Componentes, montaje, mantenimiento preventivo u ofimática según el módulo.",
+      practiceTitle: `Ficha de práctica — ${subjectName}`,
+      practiceDescription:
+        "Completar el montaje, checklist o documento ofimático solicitado en el taller.",
+    };
+  }
+
+  if (
+    n.includes("electronica") ||
+    n.includes("circuitos") ||
+    n.includes("equipos programables") ||
+    n.includes("mantenimiento electronico") ||
+    n.includes("mantenimiento de equipos") ||
+    n.includes("tecnicas y proceso de montaje")
+  ) {
+    return {
+      theoryTitle: `Fundamentos electrónicos — ${subjectName}`,
+      theoryDescription:
+        "Componentes, mediciones, esquemas y normativa aplicable al módulo de electrónica.",
+      practiceTitle: `Práctica de electrónica — ${subjectName}`,
+      practiceDescription:
+        "Montar o simular el circuito del enunciado y entregar esquema, fotos y mediciones.",
+    };
+  }
+
+  if (
+    n.includes("telecomunicacion") ||
+    n.includes("telefonia") ||
+    n.includes("domotica") ||
+    n.includes("megafonia") ||
+    n.includes("radiocomunicaciones") ||
+    n.includes("circuito cerrado") ||
+    n.includes("instalaciones electricas") ||
+    n.includes("infraestructuras comunes") ||
+    n.includes("infraestructuras de redes de datos")
+  ) {
+    return {
+      theoryTitle: `Normativa e instalaciones — ${subjectName}`,
+      theoryDescription:
+        "Cableado, reglamentación, planos y criterios de instalación del ámbito telecomunicaciones.",
+      practiceTitle: `Actuación en instalación — ${subjectName}`,
+      practiceDescription:
+        "Elaborar croquis, presupuesto simplificado o informe de la instalación práctica del módulo.",
+    };
+  }
+
+  if (n.includes("gestion empresarial") || n.includes("erp")) {
+    return {
+      theoryTitle: `Sistemas ERP — ${subjectName}`,
+      theoryDescription:
+        "Procesos de negocio, módulos ERP y flujos administrativos del software estudiado.",
+      practiceTitle: `Caso ERP — ${subjectName}`,
+      practiceDescription:
+        "Registrar las operaciones del caso práctico en el ERP y entregar capturas o exportación.",
+    };
+  }
+
+  return {
+    theoryTitle: `Temario — ${subjectName}`,
+    theoryDescription: `Material de apoyo y documentación del módulo ${subjectName}.`,
+    practiceTitle: `Práctica — ${subjectName}`,
+    practiceDescription: `Actividad práctica y entregable correspondiente a ${subjectName}.`,
+  };
+}
+
+/** Título y descripción de examen según la asignatura. */
+function examTaskCopy(subjectName: string): { title: string; description: string } {
+  const n = normalizeSubjectName(subjectName);
+
+  if (n.includes("ipe")) {
+    return {
+      title: `Examen IPE — ${subjectName}`,
+      description:
+        "Prueba sobre orientación laboral, competencias transversales y preparación de entrevistas del módulo IPE.",
+    };
+  }
+  if (n.includes("ingles")) {
+    return {
+      title: `Exam — ${subjectName}`,
+      description:
+        "Written test: professional vocabulary and short answers in English related to the module.",
+    };
+  }
+  if (
+    n.includes("base de datos") ||
+    n.includes("bases de datos") ||
+    n.includes("gestion de bases") ||
+    n.includes("gestores de bases de datos") ||
+    n.includes("acceso a datos")
+  ) {
+    return {
+      title: `Examen BBDD — ${subjectName}`,
+      description:
+        "Examen parcial: modelo relacional, consultas SQL y normalización del temario de base de datos.",
+    };
+  }
+  if (
+    n.includes("programacion") ||
+    n.includes("servicios y procesos") ||
+    n.includes("multimedia y dispositivos") ||
+    n.includes("desarrollo web") ||
+    n.includes("entornos de desarrollo")
+  ) {
+    return {
+      title: `Examen — ${subjectName}`,
+      description:
+        "Examen parcial de programación: ejercicios de código y preguntas teóricas del módulo.",
+    };
+  }
+  if (
+    n.includes("redes") ||
+    n.includes("seguridad") ||
+    n.includes("sistemas operativos") ||
+    n.includes("servicios de red") ||
+    n.includes("servicios en red")
+  ) {
+    return {
+      title: `Examen — ${subjectName}`,
+      description:
+        "Examen parcial sobre configuración, protocolos y escenarios de red del temario.",
+    };
+  }
+  if (
+    n.includes("electronica") ||
+    n.includes("circuitos") ||
+    n.includes("telecomunicacion") ||
+    n.includes("instalaciones")
+  ) {
+    return {
+      title: `Examen — ${subjectName}`,
+      description:
+        "Examen parcial: esquemas, mediciones, normativa y criterios técnicos del módulo.",
+    };
+  }
+
+  return {
+    title: `Examen — ${subjectName}`,
+    description: `Examen parcial del módulo ${subjectName}. Consultar temario y prácticas del curso.`,
+  };
+}
 
 async function main() {
   console.log('🌱 Iniciando seed...');
 
 
   console.log('Limpiando datos existentes');
-  // Limpiar datos existentes
+  // Hijos primero (orden por FKs del schema actual)
+  await prisma.assistance.deleteMany();
+  await prisma.studentTask.deleteMany();
+  await prisma.sessionClass.deleteMany();
+  await prisma.task.deleteMany();
+  await prisma.weekSchedule.deleteMany();
   await prisma.studentOnSubjectOnGroup.deleteMany();
   await prisma.teacherOnSubjectOnGroup.deleteMany();
+  await prisma.notification.deleteMany();
+  await prisma.issue.deleteMany();
+  await prisma.taskGroup.deleteMany();
   await prisma.group.deleteMany();
   await prisma.subject.deleteMany();
   await prisma.course.deleteMany();
   await prisma.student.deleteMany();
   await prisma.teacher.deleteMany();
   await prisma.admin.deleteMany();
-  await prisma.weekSchedule.deleteMany();
-  await prisma.sessionClass.deleteMany();
-  await prisma.assistance.deleteMany();
-  await prisma.task.deleteMany();
-  await prisma.studentTask.deleteMany();
-  await prisma.announcement.deleteMany();
-  //borrado de horariosemanal, sesion clase y asistencia
 
-
-  console.log('Reiniciando secuencia de asignación de Ids');
+  console.log('Reiniciando secuencias de IDs');
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentTask_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "SessionClass_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Task_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "WeekSchedule_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TeacherOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Notification_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Issue_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TaskGroup_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Group_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Subject_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Course_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Student_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Teacher_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Admin_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Course_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Subject_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Group_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TeacherOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "WeekSchedule_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "SessionClass_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Assistance_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Task_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentTask_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Announcement_id_seq" RESTART WITH 1;`);
-  //reinicio de conteo de id falta horario semanal, sesion clase yy asistencia 
 
 
   const acaYear = "2024-2025";
@@ -211,6 +530,296 @@ async function main() {
         dni: '12345693P',
         firebaseUID: 'iPHNwCEdq9V48B0wVR3eIhEmmPu1'
 
+      },
+      // 17–36: 7 clases nuevas × 3 alumnos (ASIR tarde, SMR/IT/ME mañana y tarde). Sustituir firebaseUID en Firebase.
+      {
+        email: 'estudiante17@ziryab.es',
+        name: 'Andrés',
+        surname: 'Jiménez',
+        ndSurname: 'Castro',
+        birthDate: new Date('2005-02-12'),
+        dni: '12345694Q',
+        firebaseUID: 'TgwGg8y2xsZgmQtgJQyZMVHDLW93'
+      },
+      {
+        email: 'estudiante18@ziryab.es',
+        name: 'Laura',
+        surname: 'Iglesias',
+        ndSurname: 'Rubio',
+        birthDate: new Date('2005-06-21'),
+        dni: '12345695R',
+        firebaseUID: 'dKxGy8QhS5MCX4J7tMNWHVtvcTP2'
+      },
+      {
+        email: 'estudiante19@ziryab.es',
+        name: 'Marcos',
+        surname: 'Moya',
+        ndSurname: 'Delgado',
+        birthDate: new Date('2005-09-03'),
+        dni: '12345696S',
+        firebaseUID: 'kKuIFUJQDZRn0MhsKnkXKRlXLQJ2'
+      },
+      {
+        email: 'estudiante20@ziryab.es',
+        name: 'Paula',
+        surname: 'Peña',
+        ndSurname: 'Ramos',
+        birthDate: new Date('2005-04-07'),
+        dni: '12345697T',
+        firebaseUID: 'lybcLodHB5hsR1UtogLm0o6ty0e2'
+      },
+      {
+        email: 'estudiante21@ziryab.es',
+        name: 'Hugo',
+        surname: 'Blanco',
+        ndSurname: 'Suárez',
+        birthDate: new Date('2005-11-28'),
+        dni: '12345698U',
+        firebaseUID: '8YvPa1EtCyPSL7SL67dOoVSTOD13'
+      },
+      {
+        email: 'estudiante22@ziryab.es',
+        name: 'Cristina',
+        surname: 'Martín',
+        ndSurname: 'Núñez',
+        birthDate: new Date('2005-01-16'),
+        dni: '12345699V',
+        firebaseUID: 'Tzdp4oNnkvf1u4XCmQGWgsM3gHK2'
+      },
+      {
+        email: 'estudiante23@ziryab.es',
+        name: 'Iván',
+        surname: 'Vázquez',
+        ndSurname: 'Serrano',
+        birthDate: new Date('2005-08-08'),
+        dni: '12345700W',
+        firebaseUID: 'Eh330fXGEiWaROCQgd0XRGPH3hk2'
+      },
+      {
+        email: 'estudiante24@ziryab.es',
+        name: 'Marta',
+        surname: 'Romero',
+        ndSurname: 'Pastor',
+        birthDate: new Date('2005-03-25'),
+        dni: '12345701X',
+        firebaseUID: 'b36CGlQ0UsYkOq6ec9Uo1znoEff1'
+      },
+      {
+        email: 'estudiante25@ziryab.es',
+        name: 'Óscar',
+        surname: 'Aguirre',
+        ndSurname: 'Gutiérrez',
+        birthDate: new Date('2005-07-14'),
+        dni: '12345702Y',
+        firebaseUID: 'K5RzIeZH8TawgqhB1gpWcLWnfpk1'
+      },
+      {
+        email: 'estudiante26@ziryab.es',
+        name: 'Alba',
+        surname: 'Ortega',
+        ndSurname: 'Campos',
+        birthDate: new Date('2005-12-19'),
+        dni: '12345703Z',
+        firebaseUID: 'Xhh9wVex6phRbHLeLY06fjKOvBy1'
+      },
+      {
+        email: 'estudiante27@ziryab.es',
+        name: 'Daniel',
+        surname: 'Reyes',
+        ndSurname: 'Flores',
+        birthDate: new Date('2005-05-02'),
+        dni: '12345704A',
+        firebaseUID: 'FN4W1CjSu8YN1jeVpyTjkWgxYmm1'
+      },
+      {
+        email: 'estudiante28@ziryab.es',
+        name: 'Irene',
+        surname: 'Medina',
+        ndSurname: 'Cortés',
+        birthDate: new Date('2005-10-30'),
+        dni: '12345705B',
+        firebaseUID: 'uwqc6nm3RCOCygJzVpWBtbZGYDU2'
+      },
+      {
+        email: 'estudiante29@ziryab.es',
+        name: 'Adrián',
+        surname: 'León',
+        ndSurname: 'Herrero',
+        birthDate: new Date('2005-02-22'),
+        dni: '12345706C',
+        firebaseUID: 'kXfMPYB6CYPsDW12xgi91oAvndp2'
+      },
+      {
+        email: 'estudiante30@ziryab.es',
+        name: 'Beatriz',
+        surname: 'Méndez',
+        ndSurname: 'Guerrero',
+        birthDate: new Date('2005-06-11'),
+        dni: '12345707D',
+        firebaseUID: 'f20crWZj3JTqhW0GqV5DJK7hNe43'
+      },
+      {
+        email: 'estudiante31@ziryab.es',
+        name: 'Rubén',
+        surname: 'Sanz',
+        ndSurname: 'Prieto',
+        birthDate: new Date('2005-09-17'),
+        dni: '12345708E',
+        firebaseUID: 's0QSxbLGQzRw4GZvBhyVXaI9a4l2'
+      },
+      {
+        email: 'estudiante32@ziryab.es',
+        name: 'Noelia',
+        surname: 'Calvo',
+        ndSurname: 'Márquez',
+        birthDate: new Date('2005-04-29'),
+        dni: '12345709F',
+        firebaseUID: 'uHWrJyCTswMsDskfwaqLCpxupmE2'
+      },
+      {
+        email: 'estudiante33@ziryab.es',
+        name: 'Víctor',
+        surname: 'Gallego',
+        ndSurname: 'Ibáñez',
+        birthDate: new Date('2005-11-05'),
+        dni: '12345710G',
+        firebaseUID: 'nTcUPMcqgJWNEJZcEbJ5LObOszq1'
+      },
+      {
+        email: 'estudiante34@ziryab.es',
+        name: 'Silvia',
+        surname: 'Pascual',
+        ndSurname: 'Santana',
+        birthDate: new Date('2005-01-08'),
+        dni: '12345711H',
+        firebaseUID: 'NozdILkX6JXyWQhBs7siCBdEq8p1'
+      },
+      {
+        email: 'estudiante35@ziryab.es',
+        name: 'Álvaro',
+        surname: 'Benítez',
+        ndSurname: 'Rivas',
+        birthDate: new Date('2005-08-26'),
+        dni: '12345712I',
+        firebaseUID: 'anW191avEvUPh8LPJeNYkxcaRgk2'
+      },
+      {
+        email: 'estudiante36@ziryab.es',
+        name: 'Carmen',
+        surname: 'Carrasco',
+        ndSurname: 'Lozano',
+        birthDate: new Date('2005-03-19'),
+        dni: '12345713J',
+        firebaseUID: 'TyUR5o8pYIMFcwm4y0Z319MTib92'
+      },
+      // 37–48: 2º curso (8 clases × 3 alumnos). Sustituir firebaseUID en Firebase.
+      {
+        email: 'estudiante37@ziryab.es',
+        name: 'Raúl',
+        surname: 'Herrera',
+        ndSurname: 'Vega',
+        birthDate: new Date('2004-05-10'),
+        dni: '12345714K',
+        firebaseUID: 'SEEDSTUDENT37PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante38@ziryab.es',
+        name: 'Elena',
+        surname: 'Navarro',
+        ndSurname: 'Paredes',
+        birthDate: new Date('2004-08-22'),
+        dni: '12345715L',
+        firebaseUID: 'SEEDSTUDENT38PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante39@ziryab.es',
+        name: 'Jorge',
+        surname: 'Muñoz',
+        ndSurname: 'Cabrera',
+        birthDate: new Date('2004-12-03'),
+        dni: '12345716M',
+        firebaseUID: 'SEEDSTUDENT39PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante40@ziryab.es',
+        name: 'Claudia',
+        surname: 'Soto',
+        ndSurname: 'Miranda',
+        birthDate: new Date('2004-02-17'),
+        dni: '12345717N',
+        firebaseUID: 'SEEDSTUDENT40PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante41@ziryab.es',
+        name: 'Pablo',
+        surname: 'Castillo',
+        ndSurname: 'Ríos',
+        birthDate: new Date('2004-09-28'),
+        dni: '12345718O',
+        firebaseUID: 'SEEDSTUDENT41PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante42@ziryab.es',
+        name: 'Lucía',
+        surname: 'Garrido',
+        ndSurname: 'Soler',
+        birthDate: new Date('2004-11-14'),
+        dni: '12345719P',
+        firebaseUID: 'SEEDSTUDENT42PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante43@ziryab.es',
+        name: 'Diego',
+        surname: 'Lorenzo',
+        ndSurname: 'Méndez',
+        birthDate: new Date('2004-06-06'),
+        dni: '12345720Q',
+        firebaseUID: 'SEEDSTUDENT43PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante44@ziryab.es',
+        name: 'Andrea',
+        surname: 'Pozo',
+        ndSurname: 'Salazar',
+        birthDate: new Date('2004-01-25'),
+        dni: '12345721R',
+        firebaseUID: 'SEEDSTUDENT44PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante45@ziryab.es',
+        name: 'Roberto',
+        surname: 'Cruz',
+        ndSurname: 'Parra',
+        birthDate: new Date('2004-10-09'),
+        dni: '12345722S',
+        firebaseUID: 'SEEDSTUDENT45PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante46@ziryab.es',
+        name: 'Nerea',
+        surname: 'Velasco',
+        ndSurname: 'Aguilar',
+        birthDate: new Date('2004-04-13'),
+        dni: '12345723T',
+        firebaseUID: 'SEEDSTUDENT46PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante47@ziryab.es',
+        name: 'Sergio',
+        surname: 'Bravo',
+        ndSurname: 'Fuentes',
+        birthDate: new Date('2004-07-31'),
+        dni: '12345724U',
+        firebaseUID: 'SEEDSTUDENT47PENDINGFIREBASE00'
+      },
+      {
+        email: 'estudiante48@ziryab.es',
+        name: 'Patricia',
+        surname: 'Montes',
+        ndSurname: 'Crespo',
+        birthDate: new Date('2004-03-07'),
+        dni: '12345725V',
+        firebaseUID: 'SEEDSTUDENT48PENDINGFIREBASE00'
       }
       ]
     });
@@ -386,6 +995,124 @@ async function main() {
           dni: '89012359V',
           firebaseUID: 'H4NvRLX4HFd4Z7Ixs9ZI0R5ru4s1',
         },
+        // 19–29: plantilla ampliada seed TFG. Sustituir firebaseUID en Firebase.
+        {
+          email: 'profesor19@ziryab.es',
+          name: 'Alberto',
+          surname: 'Méndez',
+          ndSurname: 'Ortega',
+          birthDate: new Date('1984-04-08'),
+          dni: '89012360W',
+          firebaseUID: 'SEEDTEACHER19PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor20@ziryab.es',
+          name: 'Cristina',
+          surname: 'Delgado',
+          ndSurname: 'Ramos',
+          birthDate: new Date('1990-10-21'),
+          dni: '89012361X',
+          firebaseUID: 'SEEDTEACHER20PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor21@ziryab.es',
+          name: 'Fernando',
+          surname: 'Iglesias',
+          ndSurname: 'Campos',
+          birthDate: new Date('1981-02-27'),
+          dni: '89012362Y',
+          firebaseUID: 'SEEDTEACHER21PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor22@ziryab.es',
+          name: 'Mónica',
+          surname: 'Vargas',
+          ndSurname: 'Peña',
+          birthDate: new Date('1987-07-16'),
+          dni: '89012363Z',
+          firebaseUID: 'SEEDTEACHER22PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor23@ziryab.es',
+          name: 'Iván',
+          surname: 'Herrero',
+          ndSurname: 'León',
+          birthDate: new Date('1983-12-01'),
+          dni: '89012364A',
+          firebaseUID: 'SEEDTEACHER23PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor24@ziryab.es',
+          name: 'Rosa',
+          surname: 'Aguilar',
+          ndSurname: 'Núñez',
+          birthDate: new Date('1992-05-19'),
+          dni: '89012365B',
+          firebaseUID: 'SEEDTEACHER24PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor25@ziryab.es',
+          name: 'Óscar',
+          surname: 'Prieto',
+          ndSurname: 'Sanz',
+          birthDate: new Date('1986-09-09'),
+          dni: '89012366C',
+          firebaseUID: 'SEEDTEACHER25PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor26@ziryab.es',
+          name: 'Teresa',
+          surname: 'Blanco',
+          ndSurname: 'Medina',
+          birthDate: new Date('1980-11-30'),
+          dni: '89012367D',
+          firebaseUID: 'SEEDTEACHER26PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor27@ziryab.es',
+          name: 'Marc',
+          surname: 'Fuentes',
+          ndSurname: 'Cortés',
+          birthDate: new Date('1988-03-12'),
+          dni: '89012368E',
+          firebaseUID: 'SEEDTEACHER27PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor28@ziryab.es',
+          name: 'Lucía',
+          surname: 'Reyes',
+          ndSurname: 'Gallego',
+          birthDate: new Date('1991-08-24'),
+          dni: '89012369F',
+          firebaseUID: 'SEEDTEACHER28PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor29@ziryab.es',
+          name: 'Héctor',
+          surname: 'Pascual',
+          ndSurname: 'Benítez',
+          birthDate: new Date('1985-01-07'),
+          dni: '89012370G',
+          firebaseUID: 'SEEDTEACHER29PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor30@ziryab.es',
+          name: 'Carlos',
+          surname: 'Ibáñez',
+          ndSurname: 'Muñoz',
+          birthDate: new Date('1984-04-16'),
+          dni: '89012371H',
+          firebaseUID: 'SEEDTEACHER30PENDINGFIREBASE00',
+        },
+        {
+          email: 'profesor31@ziryab.es',
+          name: 'Isabel',
+          surname: 'Navarro',
+          ndSurname: 'Romero',
+          birthDate: new Date('1989-10-28'),
+          dni: '89012372I',
+          firebaseUID: 'SEEDTEACHER31PENDINGFIREBASE00',
+        },
       ]
     });
 
@@ -442,6 +1169,16 @@ async function main() {
           name: 'SMR',
           description: 'Sistemas microinformáticos y redes',
           duration: 2
+        },
+        {
+          name: 'IT',
+          description: 'Instalaciones de telecomunicaciones',
+          duration: 2
+        },
+        {
+          name: 'ME',
+          description: 'Mantenimiento electrónico',
+          duration: 2
         }
       ]
     });
@@ -488,10 +1225,10 @@ async function main() {
           idCourse: 1
         },
         {
-          name: 'IPE 1',
+          name: 'IPE',
           grade: '1',
           hours: 3,
-          description: 'Asignatura de IPE',
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
           idCourse: 1
         },
         {
@@ -544,10 +1281,10 @@ async function main() {
           idCourse: 2
         },
         {
-          name: 'IPE 1',
+          name: 'IPE',
           grade: '1',
           hours: 3,
-          description: 'Asignatura de ',
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
           idCourse: 2
         },
         {
@@ -600,10 +1337,10 @@ async function main() {
           idCourse: 3
         },
         {
-          name: 'IPE 1',
+          name: 'IPE',
           grade: '1',
           hours: 3,
-          description: 'Asignatura de ',
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
           idCourse: 3
         },
         {
@@ -649,10 +1386,10 @@ async function main() {
           idCourse: 4
         },
         {
-          name: 'IPE 1',
+          name: 'IPE',
           grade: '1',
           hours: 3,
-          description: 'Asignatura de ',
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
           idCourse: 4
         },
         {
@@ -669,6 +1406,476 @@ async function main() {
           description: 'Asignatura de ',
           idCourse: 4
         },
+        // IT — 1º curso (idCourse 5)
+        {
+          name: 'Infraestructuras comunes de telecomunicación en viviendas y edificios',
+          grade: '1',
+          hours: 4,
+          description: 'Asignatura de Infraestructuras comunes de telecomunicación en viviendas y edificios',
+          idCourse: 5
+        },
+        {
+          name: 'Electrónica aplicada',
+          grade: '1',
+          hours: 6,
+          description: 'Asignatura de Electrónica aplicada',
+          idCourse: 5
+        },
+        {
+          name: 'Equipos microinformáticos',
+          grade: '1',
+          hours: 4,
+          description: 'Asignatura de Equipos microinformáticos',
+          idCourse: 5
+        },
+        {
+          name: 'Infraestructuras de redes de datos y sistemas de telefonía',
+          grade: '1',
+          hours: 6,
+          description: 'Asignatura de Infraestructuras de redes de datos y sistemas de telefonía',
+          idCourse: 5
+        },
+        {
+          name: 'Instalaciones eléctricas básicas',
+          grade: '1',
+          hours: 5,
+          description: 'Asignatura de Instalaciones eléctricas básicas',
+          idCourse: 5
+        },
+        {
+          name: 'IPE',
+          grade: '1',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
+          idCourse: 5
+        },
+        {
+          name: 'Sostenibilidad aplicada al sistema productivo',
+          grade: '1',
+          hours: 1,
+          description: 'Asignatura de Sostenibilidad aplicada al sistema productivo',
+          idCourse: 5
+        },
+        {
+          name: 'Digitalización aplicada al sistema productivo',
+          grade: '1',
+          hours: 1,
+          description: 'Asignatura de Digitalización aplicada al sistema productivo',
+          idCourse: 5
+        },
+        // ME — 1º curso (idCourse 6)
+        {
+          name: 'Circuitos electrónicos analógicos',
+          grade: '1',
+          hours: 7,
+          description: 'Asignatura de Circuitos electrónicos analógicos',
+          idCourse: 6
+        },
+        {
+          name: 'Equipos programables',
+          grade: '1',
+          hours: 6,
+          description: 'Asignatura de Equipos programables',
+          idCourse: 6
+        },
+        {
+          name: 'Mantenimiento de equipos de voz y datos',
+          grade: '1',
+          hours: 5,
+          description: 'Asignatura de Mantenimiento de equipos de voz y datos',
+          idCourse: 6
+        },
+        {
+          name: 'Técnicas y proceso de montaje y mantenimiento de equipos electrónicos',
+          grade: '1',
+          hours: 5,
+          description: 'Asignatura de Técnicas y proceso de montaje y mantenimiento de equipos electrónicos',
+          idCourse: 6
+        },
+        {
+          name: 'Infraestructuras y desarrollo del mantenimiento electrónico',
+          grade: '1',
+          hours: 2,
+          description: 'Asignatura de Infraestructuras y desarrollo del mantenimiento electrónico',
+          idCourse: 6
+        },
+        {
+          name: 'IPE',
+          grade: '1',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad',
+          idCourse: 6
+        },
+        {
+          name: 'Sostenibilidad aplicada al sistema productivo',
+          grade: '1',
+          hours: 1,
+          description: 'Asignatura de Sostenibilidad aplicada al sistema productivo',
+          idCourse: 6
+        },
+        {
+          name: 'Digitalización aplicada al sistema productivo',
+          grade: '1',
+          hours: 1,
+          description: 'Asignatura de Digitalización aplicada al sistema productivo',
+          idCourse: 6
+        },
+        // DAM — 2º curso (idCourse 1)
+        {
+          name: 'Acceso a datos',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Acceso a datos',
+          idCourse: 1
+        },
+        {
+          name: 'Desarrollo de interfaces',
+          grade: '2',
+          hours: 6,
+          description: 'Asignatura de Desarrollo de interfaces',
+          idCourse: 1
+        },
+        {
+          name: 'Programación multimedia y dispositivos móviles',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Programación multimedia y dispositivos móviles',
+          idCourse: 1
+        },
+        {
+          name: 'Programación de servicios y procesos',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Programación de servicios y procesos',
+          idCourse: 1
+        },
+        {
+          name: 'Sistemas de gestión empresarial',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Sistemas de gestión empresarial',
+          idCourse: 1
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 1
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 1
+        },
+        {
+          name: 'Proyecto Intermodular de Desarrollo de Aplicaciones Multiplataforma',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Desarrollo de Aplicaciones Multiplataforma',
+          idCourse: 1
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 1
+        },
+        // DAW — 2º curso (idCourse 2)
+        {
+          name: 'Desarrollo web en entorno cliente',
+          grade: '2',
+          hours: 6,
+          description: 'Asignatura de Desarrollo web en entorno cliente',
+          idCourse: 2
+        },
+        {
+          name: 'Desarrollo web en entorno servidor',
+          grade: '2',
+          hours: 7,
+          description: 'Asignatura de Desarrollo web en entorno servidor',
+          idCourse: 2
+        },
+        {
+          name: 'Despliegue de aplicaciones web',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Despliegue de aplicaciones web',
+          idCourse: 2
+        },
+        {
+          name: 'Diseño de interfaces web',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Diseño de interfaces web',
+          idCourse: 2
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 2
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 2
+        },
+        {
+          name: 'Proyecto intermodular de desarrollo de aplicaciones web',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto intermodular de desarrollo de aplicaciones web',
+          idCourse: 2
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 2
+        },
+        // ASIR — 2º curso (idCourse 3)
+        {
+          name: 'Administración de sistemas operativos',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Administración de sistemas operativos',
+          idCourse: 3
+        },
+        {
+          name: 'Servicios de red e internet',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Servicios de red e internet',
+          idCourse: 3
+        },
+        {
+          name: 'Implantación de aplicaciones web',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Implantación de aplicaciones web',
+          idCourse: 3
+        },
+        {
+          name: 'Administración de sistemas gestores de bases de datos',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Administración de sistemas gestores de bases de datos',
+          idCourse: 3
+        },
+        {
+          name: 'Seguridad y alta disponibilidad',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Seguridad y alta disponibilidad',
+          idCourse: 3
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 3
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 3
+        },
+        {
+          name: 'Proyecto Intermodular de Administración de Sistemas Informáticos en Red',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Administración de Sistemas Informáticos en Red',
+          idCourse: 3
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 3
+        },
+        // SMR — 2º curso (idCourse 4)
+        {
+          name: 'Aplicaciones web',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Aplicaciones web',
+          idCourse: 4
+        },
+        {
+          name: 'Seguridad informática',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Seguridad informática',
+          idCourse: 4
+        },
+        {
+          name: 'Servicios en red',
+          grade: '2',
+          hours: 6,
+          description: 'Asignatura de Servicios en red',
+          idCourse: 4
+        },
+        {
+          name: 'Sistemas operativos en red',
+          grade: '2',
+          hours: 6,
+          description: 'Asignatura de Sistemas operativos en red',
+          idCourse: 4
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 4
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 4
+        },
+        {
+          name: 'Proyecto Intermodular de Sistemas Microinformáticos y Redes',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Sistemas Microinformáticos y Redes',
+          idCourse: 4
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 4
+        },
+        // IT — 2º curso (idCourse 5)
+        {
+          name: 'Instalaciones domóticas',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Instalaciones domóticas',
+          idCourse: 5
+        },
+        {
+          name: 'Instalaciones de megafonía y sonorización',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Instalaciones de megafonía y sonorización',
+          idCourse: 5
+        },
+        {
+          name: 'Circuito cerrado de televisión y seguridad electrónica',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Circuito cerrado de televisión y seguridad electrónica',
+          idCourse: 5
+        },
+        {
+          name: 'Instalaciones de radiocomunicaciones',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Instalaciones de radiocomunicaciones',
+          idCourse: 5
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 5
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 5
+        },
+        {
+          name: 'Proyecto Intermodular de Instalaciones de Telecomunicaciones',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Instalaciones de Telecomunicaciones',
+          idCourse: 5
+        },
+        {
+          name: 'Inglés Profesional GM',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional GM',
+          idCourse: 5
+        },
+        // ME — 2º curso (idCourse 6)
+        {
+          name: 'Mantenimiento de equipos y radiocomunicaciones',
+          grade: '2',
+          hours: 5,
+          description: 'Asignatura de Mantenimiento de equipos y radiocomunicaciones',
+          idCourse: 6
+        },
+        {
+          name: 'Mantenimiento de equipos de electrónica industrial',
+          grade: '2',
+          hours: 7,
+          description: 'Asignatura de Mantenimiento de equipos de electrónica industrial',
+          idCourse: 6
+        },
+        {
+          name: 'Mantenimiento de equipos de audio',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Mantenimiento de equipos de audio',
+          idCourse: 6
+        },
+        {
+          name: 'Mantenimiento de equipos de vídeo',
+          grade: '2',
+          hours: 4,
+          description: 'Asignatura de Mantenimiento de equipos de vídeo',
+          idCourse: 6
+        },
+        {
+          name: 'IPE II',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Itinerario personal para la empleabilidad II',
+          idCourse: 6
+        },
+        {
+          name: 'Optativa',
+          grade: '2',
+          hours: 3,
+          description: 'Asignatura de Optativa',
+          idCourse: 6
+        },
+        {
+          name: 'Proyecto Intermodular de Mantenimiento Electrónico',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Proyecto Intermodular de Mantenimiento Electrónico',
+          idCourse: 6
+        },
+        {
+          name: 'Inglés Profesional',
+          grade: '2',
+          hours: 2,
+          description: 'Asignatura de Inglés Profesional',
+          idCourse: 6
+        },
       ]
     });
 
@@ -684,6 +1891,14 @@ async function main() {
         },
         {
           name: 'Tarde',
+          capacity: 20
+        },
+        {
+          name: 'A',
+          capacity: 20
+        },
+        {
+          name: 'B',
           capacity: 20
         }
       ]
@@ -1211,7 +2426,7 @@ async function main() {
           idGroup: 1,
           idSubject: 16,
           schoolYear: acaYear
-        }/*
+        },
         //Estudiante 10 en DAW grupo tarde
         {
           idStudent: 10,
@@ -1505,7 +2720,1660 @@ async function main() {
           idGroup: 1,
           idSubject: 24,
           schoolYear: acaYear
-        },*/
+        },
+        // Estudiante 16 en SMR grupo mañana
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 25,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 26,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 27,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 28,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 29,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 30,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 16,
+          idGroup: 1,
+          idSubject: 31,
+          schoolYear: acaYear
+        },
+        // Estudiante 17 en SMR grupo mañana
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 25,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 26,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 27,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 28,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 29,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 30,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 17,
+          idGroup: 1,
+          idSubject: 31,
+          schoolYear: acaYear
+        },
+        // Estudiante 18 en SMR grupo mañana
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 25,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 26,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 27,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 28,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 29,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 30,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 18,
+          idGroup: 1,
+          idSubject: 31,
+          schoolYear: acaYear
+        },
+        // Estudiante 19 en IT grupo mañana
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 32,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 33,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 34,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 35,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 36,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 37,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 38,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 19,
+          idGroup: 1,
+          idSubject: 39,
+          schoolYear: acaYear
+        },
+        // Estudiante 20 en IT grupo mañana
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 32,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 33,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 34,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 35,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 36,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 37,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 38,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 20,
+          idGroup: 1,
+          idSubject: 39,
+          schoolYear: acaYear
+        },
+        // Estudiante 21 en IT grupo mañana
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 32,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 33,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 34,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 35,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 36,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 37,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 38,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 21,
+          idGroup: 1,
+          idSubject: 39,
+          schoolYear: acaYear
+        },
+        // Estudiante 22 en ME grupo mañana
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 40,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 41,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 42,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 43,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 44,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 45,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 46,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 22,
+          idGroup: 1,
+          idSubject: 47,
+          schoolYear: acaYear
+        },
+        // Estudiante 23 en ME grupo mañana
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 40,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 41,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 42,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 43,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 44,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 45,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 46,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 23,
+          idGroup: 1,
+          idSubject: 47,
+          schoolYear: acaYear
+        },
+        // Estudiante 24 en ME grupo mañana
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 40,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 41,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 42,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 43,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 44,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 45,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 46,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 24,
+          idGroup: 1,
+          idSubject: 47,
+          schoolYear: acaYear
+        },
+        // Estudiante 25 en DAM 2º grupo mañana
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 25,
+          idGroup: 1,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 26 en DAM 2º grupo mañana
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 26,
+          idGroup: 1,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 27 en DAM 2º grupo mañana
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 27,
+          idGroup: 1,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 28 en DAM 2º grupo tarde
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 28,
+          idGroup: 2,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 29 en DAM 2º grupo tarde
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 29,
+          idGroup: 2,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 30 en DAM 2º grupo tarde
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 48,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 49,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 50,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 51,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 52,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 53,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 54,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 55,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 30,
+          idGroup: 2,
+          idSubject: 56,
+          schoolYear: acaYear
+        },
+        // Estudiante 31 en DAW 2º grupo mañana
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 31,
+          idGroup: 1,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 32 en DAW 2º grupo mañana
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 32,
+          idGroup: 1,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 33 en DAW 2º grupo mañana
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 33,
+          idGroup: 1,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 34 en DAW 2º grupo tarde
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 34,
+          idGroup: 2,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 35 en DAW 2º grupo tarde
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 35,
+          idGroup: 2,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 36 en DAW 2º grupo tarde
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 57,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 58,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 59,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 60,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 61,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 62,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 63,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 36,
+          idGroup: 2,
+          idSubject: 64,
+          schoolYear: acaYear
+        },
+        // Estudiante 37 en ASIR 2º grupo mañana
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 65,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 66,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 67,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 68,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 69,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 70,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 71,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 72,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 37,
+          idGroup: 1,
+          idSubject: 73,
+          schoolYear: acaYear
+        },
+        // Estudiante 38 en ASIR 2º grupo mañana
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 65,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 66,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 67,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 68,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 69,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 70,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 71,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 72,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 38,
+          idGroup: 1,
+          idSubject: 73,
+          schoolYear: acaYear
+        },
+        // Estudiante 39 en ASIR 2º grupo mañana
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 65,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 66,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 67,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 68,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 69,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 70,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 71,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 72,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 39,
+          idGroup: 1,
+          idSubject: 73,
+          schoolYear: acaYear
+        },
+        // Estudiante 40 en SMR 2º grupo mañana
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 74,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 75,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 76,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 77,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 78,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 79,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 80,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 40,
+          idGroup: 1,
+          idSubject: 81,
+          schoolYear: acaYear
+        },
+        // Estudiante 41 en SMR 2º grupo mañana
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 74,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 75,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 76,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 77,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 78,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 79,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 80,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 41,
+          idGroup: 1,
+          idSubject: 81,
+          schoolYear: acaYear
+        },
+        // Estudiante 42 en SMR 2º grupo mañana
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 74,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 75,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 76,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 77,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 78,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 79,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 80,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 42,
+          idGroup: 1,
+          idSubject: 81,
+          schoolYear: acaYear
+        },
+        // Estudiante 43 en IT 2º grupo mañana
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 82,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 83,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 84,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 85,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 86,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 87,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 88,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 43,
+          idGroup: 1,
+          idSubject: 89,
+          schoolYear: acaYear
+        },
+        // Estudiante 44 en IT 2º grupo mañana
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 82,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 83,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 84,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 85,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 86,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 87,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 88,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 44,
+          idGroup: 1,
+          idSubject: 89,
+          schoolYear: acaYear
+        },
+        // Estudiante 45 en IT 2º grupo mañana
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 82,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 83,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 84,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 85,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 86,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 87,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 88,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 45,
+          idGroup: 1,
+          idSubject: 89,
+          schoolYear: acaYear
+        },
+        // Estudiante 46 en ME 2º grupo mañana
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 90,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 91,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 92,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 93,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 94,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 95,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 96,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 46,
+          idGroup: 1,
+          idSubject: 97,
+          schoolYear: acaYear
+        },
+        // Estudiante 47 en ME 2º grupo mañana
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 90,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 91,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 92,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 93,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 94,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 95,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 96,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 47,
+          idGroup: 1,
+          idSubject: 97,
+          schoolYear: acaYear
+        },
+        // Estudiante 48 en ME 2º grupo mañana
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 90,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 91,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 92,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 93,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 94,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 95,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 96,
+          schoolYear: acaYear
+        },
+        {
+          idStudent: 48,
+          idGroup: 1,
+          idSubject: 97,
+          schoolYear: acaYear
+        },
       ]
     });
 
@@ -1518,56 +4386,56 @@ async function main() {
     prisma.teacherOnSubjectOnGroup.createMany({
       data: [
         //DAM MAÑANA
-        //profesor 1 programación DAM mañana (juanarrow)
+        //profesor 1 programación DAM mañana
         {
           idTeacher: 1,
           idSubject: 1,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 2 bbdd DAM mañana (eva)
+        //profesor 2 bbdd DAM mañana 
         {
           idTeacher: 2,
           idSubject: 2,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 3 sistemas DAM mañana (gregorio)
+        //profesor 3 sistemas DAM mañana 
         {
           idTeacher: 3,
           idSubject: 3,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 4 Lenguaje de marcas DAM mañana (el bajas)
+        //profesor 4 Lenguaje de marcas DAM mañana 
         {
           idTeacher: 4,
           idSubject: 4,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 5 Entornos de desarrollo DAM mañana (fernando parra)
+        //profesor 5 Entornos de desarrollo DAM mañana 
         {
           idTeacher: 5,
           idSubject: 5,
           idGroup: 1,
           schoolYear: acaYear
         },
-        // profesor 6 Ipe Dam mañana (rosamunda)
+        // profesor 6 Ipe Dam mañana 
         {
           idTeacher: 6,
           idSubject: 6,
           idGroup: 1,
           schoolYear: acaYear
         },
-        // profesor 7 sostenibilidad dam mañana (el bizco)
+        // profesor 7 sostenibilidad dam mañana 
         {
           idTeacher: 7,
           idSubject: 7,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 2 digitalización dam mañana (eva)
+        //profesor 2 digitalización dam mañana 
         {
           idTeacher: 2,
           idSubject: 8,
@@ -1583,9 +4451,9 @@ async function main() {
           schoolYear: acaYear
         },
 //cambio para seguridad 
-        //profesor 2 da base de daots en 1 daw de mañana
+        //profesor 30 da base de datos en 1 daw de mañana
         {
-          idTeacher: 2,
+          idTeacher: 30,
           idSubject: 10,
           idGroup: 1,
           schoolYear: acaYear
@@ -1601,26 +4469,26 @@ async function main() {
         {
           idTeacher: 10,
           idSubject: 12,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 5 da edes en 1 daw mañana
+        //profesor 16 da edes en 1 daw mañana
         {
-          idTeacher: 5,
+          idTeacher: 16,
           idSubject: 13,
           idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor 6 da ipe en 1 daw mañana
+        //profesor 31 da ipe en 1 daw mañana
         {
-          idTeacher: 6,
+          idTeacher: 31,
           idSubject: 14,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
-        //profesor7 da sostenibilidad en 1 daw mañana
+        //profesor 20 da sostenibilidad en 1 daw mañana
         {
-          idTeacher: 7,
+          idTeacher: 20,
           idSubject: 15,
           idGroup: 1,
           schoolYear: acaYear
@@ -1644,7 +4512,7 @@ async function main() {
         {
           idTeacher: 12,
           idSubject: 18,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
 
@@ -1674,7 +4542,7 @@ async function main() {
         {
           idTeacher: 6,
           idSubject: 22,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor 7 da sostenibilidad en 1 asir mañana
@@ -1703,7 +4571,7 @@ async function main() {
         {
           idTeacher: 13,
           idSubject: 26,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor 12 da redes locales en 1 smr mañana
@@ -1717,7 +4585,7 @@ async function main() {
         {
           idTeacher: 11,
           idSubject: 28,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor 6 da ipe en 1 smr de mañana
@@ -1731,7 +4599,7 @@ async function main() {
         {
           idTeacher: 7,
           idSubject: 30,
-          idGroup: 2,
+          idGroup: 1,
           schoolYear: acaYear
         },
         //profesor 3 da digitalizacion 1 smr mañana
@@ -1785,16 +4653,16 @@ async function main() {
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 18 da digitalización en dam tarde
+        //profesor 7 da sotenibilidad en dam tarde
         {
-          idTeacher: 18,
+          idTeacher: 7,
           idSubject: 7,
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 7 da sostenibilidad dam tarde
+        //profesor 18 da digitalizacion en dam tarde
         {
-          idTeacher: 7,
+          idTeacher: 18,
           idSubject: 8,
           idGroup: 2,
           schoolYear: acaYear
@@ -1807,9 +4675,9 @@ async function main() {
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 18 da base de datos daw tarde
+        //profesor 30 da base de datos daw tarde
         {
-          idTeacher: 18,
+          idTeacher: 30,
           idSubject: 10,
           idGroup: 2,
           schoolYear: acaYear
@@ -1821,9 +4689,9 @@ async function main() {
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 18 da lenguaje de marcas en daw tarde
+        //profesor 10 da lenguaje de marcas en daw tarde
         {
-          idTeacher: 18,
+          idTeacher: 10,
           idSubject: 12,
           idGroup: 2,
           schoolYear: acaYear
@@ -1835,27 +4703,620 @@ async function main() {
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 17 da ipe en daw tarde
+        //profesor 31 da ipe en daw tarde
         {
-          idTeacher: 17,
+          idTeacher: 31,
           idSubject: 14,
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 18 da digitalización daw tarde
+        //profesor 20 da sostenibilidad daw tarde
         {
-          idTeacher: 18,
+          idTeacher: 20,
           idSubject: 15,
           idGroup: 2,
           schoolYear: acaYear
         },
-        //profesor 7 da sostenibilidad en daw tarde
+        //profesor 4 da digitalizacion en daw tarde
         {
-          idTeacher: 7,
+          idTeacher: 4,
           idSubject: 16,
           idGroup: 2,
           schoolYear: acaYear
-        }
+        },
+
+
+        //IT MAÑANA
+        //profesor 19 da infraestructuras telecomunicacion en 1 it mañana
+        {
+          idTeacher: 19,
+          idSubject: 32,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 21 da electronica aplicada en 1 it mañana
+        {
+          idTeacher: 21,
+          idSubject: 33,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 22 da equipos microinformaticos en 1 it mañana
+        {
+          idTeacher: 22,
+          idSubject: 34,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 25 da infraestructuras redes en 1 it mañana
+        {
+          idTeacher: 25,
+          idSubject: 35,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 26 da instalaciones electricas en 1 it mañana
+        {
+          idTeacher: 26,
+          idSubject: 36,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 17 da ipe en 1 it mañana
+        {
+          idTeacher: 17,
+          idSubject: 37,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 7 da sostenibilidad en 1 it mañana
+        {
+          idTeacher: 7,
+          idSubject: 38,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 28 da digitalizacion en 1 it mañana
+        {
+          idTeacher: 28,
+          idSubject: 39,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //ME MAÑANA
+        //profesor 23 da circuitos analogicos en 1 me mañana
+        {
+          idTeacher: 23,
+          idSubject: 40,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 24 da equipos programables en 1 me mañana
+        {
+          idTeacher: 24,
+          idSubject: 41,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 29 da mantenimiento voz y datos en 1 me mañana
+        {
+          idTeacher: 29,
+          idSubject: 42,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 27 da montaje equipos electronicos en 1 me mañana
+        {
+          idTeacher: 27,
+          idSubject: 43,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 26 da infraestructuras mantenimiento en 1 me mañana
+        {
+          idTeacher: 26,
+          idSubject: 44,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 17 da ipe en 1 me mañana
+        {
+          idTeacher: 17,
+          idSubject: 45,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 7 da sostenibilidad en 1 me mañana
+        {
+          idTeacher: 7,
+          idSubject: 46,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 28 da digitalizacion en 1 me mañana
+        {
+          idTeacher: 28,
+          idSubject: 47,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //DAM 2 MAÑANA
+        //profesor 2 da acceso a datos en 2 dam mañana
+        {
+          idTeacher: 2,
+          idSubject: 48,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 8 da desarrollo interfaces en 2 dam mañana
+        {
+          idTeacher: 8,
+          idSubject: 49,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 1 da programacion multimedia en 2 dam mañana
+        {
+          idTeacher: 1,
+          idSubject: 50,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 5 da programacion servicios en 2 dam mañana
+        {
+          idTeacher: 5,
+          idSubject: 51,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 14 da sistemas gestion empresarial en 2 dam mañana
+        {
+          idTeacher: 14,
+          idSubject: 52,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 6 da ipe ii en 2 dam mañana
+        {
+          idTeacher: 6,
+          idSubject: 53,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 3 da optativa en 2 dam mañana
+        {
+          idTeacher: 3,
+          idSubject: 54,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 18 da proyecto intermodular en 2 dam mañana
+        {
+          idTeacher: 18,
+          idSubject: 55,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 21 da ingles en 2 dam mañana
+        {
+          idTeacher: 21,
+          idSubject: 56,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //DAM TARDE
+        //profesor 16 da acceso a datos en 2 dam tarde
+        {
+          idTeacher: 16,
+          idSubject: 48,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 14 da desarrollo interfaces en 2 dam tarde
+        {
+          idTeacher: 14,
+          idSubject: 49,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 15 da programacion multimedia en 2 dam tarde
+        {
+          idTeacher: 15,
+          idSubject: 50,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 5 da programacion servicios en 2 dam tarde
+        {
+          idTeacher: 5,
+          idSubject: 51,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 13 da sistemas gestion empresarial en 2 dam tarde
+        {
+          idTeacher: 13,
+          idSubject: 52,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 6 da ipe ii en 2 dam tarde
+        {
+          idTeacher: 6,
+          idSubject: 53,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 2 da optativa en 2 dam tarde
+        {
+          idTeacher: 2,
+          idSubject: 54,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 18 da proyecto intermodular en 2 dam tarde
+        {
+          idTeacher: 18,
+          idSubject: 55,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 22 da ingles en 2 dam tarde
+        {
+          idTeacher: 22,
+          idSubject: 56,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //DAW 2 MAÑANA
+        //profesor 1 da desarrollo web cliente en 2 daw mañana
+        {
+          idTeacher: 1,
+          idSubject: 57,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 16 da desarrollo web servidor en 2 daw mañana
+        {
+          idTeacher: 16,
+          idSubject: 58,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 16 da despliegue aplicaciones web en 2 daw mañana
+        {
+          idTeacher: 16,
+          idSubject: 59,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 10 da diseño interfaces web en 2 daw mañana
+        {
+          idTeacher: 10,
+          idSubject: 60,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 daw mañana
+        {
+          idTeacher: 20,
+          idSubject: 61,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 9 da optativa en 2 daw mañana
+        {
+          idTeacher: 9,
+          idSubject: 62,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 15 da proyecto intermodular en 2 daw mañana
+        {
+          idTeacher: 15,
+          idSubject: 63,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 21 da ingles en 2 daw mañana
+        {
+          idTeacher: 21,
+          idSubject: 64,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //DAW TARDE
+        //profesor 15 da desarrollo web cliente en 2 daw tarde
+        {
+          idTeacher: 15,
+          idSubject: 57,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 18 da desarrollo web servidor en 2 daw tarde
+        {
+          idTeacher: 18,
+          idSubject: 58,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 16 da despliegue aplicaciones web en 2 daw tarde
+        {
+          idTeacher: 16,
+          idSubject: 59,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 10 da diseño interfaces web en 2 daw tarde
+        {
+          idTeacher: 10,
+          idSubject: 60,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 17 da ipe ii en 2 daw tarde
+        {
+          idTeacher: 17,
+          idSubject: 61,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 9 da optativa en 2 daw tarde
+        {
+          idTeacher: 9,
+          idSubject: 62,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 13 da proyecto intermodular en 2 daw tarde
+        {
+          idTeacher: 13,
+          idSubject: 63,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //profesor 22 da ingles en 2 daw tarde
+        {
+          idTeacher: 22,
+          idSubject: 64,
+          idGroup: 2,
+          schoolYear: acaYear
+        },
+        //ASIR 2 MAÑANA
+        //profesor 22 da administracion sistemas operativos en 2 asir mañana
+        {
+          idTeacher: 22,
+          idSubject: 65,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 2 da servicios red en 2 asir mañana
+        {
+          idTeacher: 2,
+          idSubject: 66,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 7 da implantacion aplicaciones web en 2 asir mañana
+        {
+          idTeacher: 7,
+          idSubject: 67,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 3 da administracion sgbd en 2 asir mañana
+        {
+          idTeacher: 3,
+          idSubject: 68,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 2 da seguridad alta disponibilidad en 2 asir mañana
+        {
+          idTeacher: 2,
+          idSubject: 69,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 asir mañana
+        {
+          idTeacher: 20,
+          idSubject: 70,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 4 da optativa en 2 asir mañana
+        {
+          idTeacher: 4,
+          idSubject: 71,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 21 da proyecto intermodular en 2 asir mañana
+        {
+          idTeacher: 21,
+          idSubject: 72,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 22 da ingles en 2 asir mañana
+        {
+          idTeacher: 22,
+          idSubject: 73,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //SMR 2 MAÑANA
+        //profesor 6 da aplicaciones web en 2 smr mañana
+        {
+          idTeacher: 6,
+          idSubject: 74,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 13 da seguridad informatica en 2 smr mañana
+        {
+          idTeacher: 13,
+          idSubject: 75,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 14 da servicios en red en 2 smr mañana
+        {
+          idTeacher: 14,
+          idSubject: 76,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 7 da sistemas operativos en red en 2 smr mañana
+        {
+          idTeacher: 7,
+          idSubject: 77,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 smr mañana
+        {
+          idTeacher: 20,
+          idSubject: 78,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 5 da optativa en 2 smr mañana
+        {
+          idTeacher: 5,
+          idSubject: 79,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 18 da proyecto intermodular en 2 smr mañana
+        {
+          idTeacher: 18,
+          idSubject: 80,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 22 da ingles en 2 smr mañana
+        {
+          idTeacher: 22,
+          idSubject: 81,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //IT 2 MAÑANA
+        //profesor 19 da instalaciones domoticas en 2 it mañana
+        {
+          idTeacher: 19,
+          idSubject: 82,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 23 da megafonia en 2 it mañana
+        {
+          idTeacher: 23,
+          idSubject: 83,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 22 da cctv en 2 it mañana
+        {
+          idTeacher: 22,
+          idSubject: 84,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 25 da telefonia en 2 it mañana
+        {
+          idTeacher: 25,
+          idSubject: 85,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 it mañana
+        {
+          idTeacher: 20,
+          idSubject: 86,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 5 da optativa en 2 it mañana
+        {
+          idTeacher: 5,
+          idSubject: 87,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 28 da proyecto intermodular en 2 it mañana
+        {
+          idTeacher: 28,
+          idSubject: 88,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 29 da ingles en 2 it mañana
+        {
+          idTeacher: 29,
+          idSubject: 89,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //ME 2 MAÑANA
+        //profesor 3 da configuracion mecatronica en 2 me mañana
+        {
+          idTeacher: 3,
+          idSubject: 90,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 4 da maquinas electricas en 2 me mañana
+        {
+          idTeacher: 4,
+          idSubject: 91,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 27 da instalaciones frio en 2 me mañana
+        {
+          idTeacher: 27,
+          idSubject: 92,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 26 da mantenimiento industrial en 2 me mañana
+        {
+          idTeacher: 26,
+          idSubject: 93,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 20 da ipe ii en 2 me mañana
+        {
+          idTeacher: 20,
+          idSubject: 94,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 8 da optativa en 2 me mañana
+        {
+          idTeacher: 8,
+          idSubject: 95,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 28 da proyecto intermodular en 2 me mañana
+        {
+          idTeacher: 28,
+          idSubject: 96,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
+        //profesor 29 da ingles en 2 me mañana
+        {
+          idTeacher: 29,
+          idSubject: 97,
+          idGroup: 1,
+          schoolYear: acaYear
+        },
 
       ]
     });
@@ -1863,6 +5324,29 @@ async function main() {
 
     //Creando horarios
     console.log('Creando Horarios...');
+
+    const assignmentsForWeekLabels = await prisma.teacherOnSubjectOnGroup.findMany({
+      include: {
+        subject: { include: { course: true } },
+        group: true,
+      },
+    });
+    const labelByAssignmentId = new Map(
+      assignmentsForWeekLabels.map((a) => [
+        a.id,
+        buildClassLabelFromAssignment(a),
+      ]),
+    );
+    const hazLabel = (idTeacherAssignment: number): string => {
+      const label = labelByAssignmentId.get(idTeacherAssignment);
+      if (label === undefined) {
+        throw new Error(
+          `seed: idTeacherAssignment ${idTeacherAssignment} sin assignment (label no calculable)`,
+        );
+      }
+      return label;
+    };
+
   const weekSchedule = await
     prisma.weekSchedule.createMany({
       data: [
@@ -1870,3399 +5354,3847 @@ async function main() {
         //un lunes 
         {
           idTeacherAssignment: 1,
-          weekDay: 1,
+          label: hazLabel(1),
+          weekDay: 'MONDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 1,
+          label: hazLabel(1),
+          weekDay: 'MONDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 2,
-          weekDay: 1,
+          label: hazLabel(2),
+          weekDay: 'MONDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 2,
-          weekDay: 1,
+          label: hazLabel(2),
+          weekDay: 'MONDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 1,
+          label: hazLabel(3),
+          weekDay: 'MONDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 1,
+          label: hazLabel(3),
+          weekDay: 'MONDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         //un martes
         {
           idTeacherAssignment: 2,
-          weekDay: 2,
+          label: hazLabel(2),
+          weekDay: 'TUESDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 2,
-          weekDay: 2,
+          label: hazLabel(2),
+          weekDay: 'TUESDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 2,
-          weekDay: 2,
+          label: hazLabel(2),
+          weekDay: 'TUESDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 6,
-          weekDay: 2,
+          label: hazLabel(6),
+          weekDay: 'TUESDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 6,
-          weekDay: 2,
+          label: hazLabel(6),
+          weekDay: 'TUESDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 6,
-          weekDay: 2,
+          label: hazLabel(6),
+          weekDay: 'TUESDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         //un miercoles
         {
           idTeacherAssignment: 2,
-          weekDay: 3,
+          label: hazLabel(2),
+          weekDay: 'WEDNESDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 4,
-          weekDay: 3,
+          label: hazLabel(4),
+          weekDay: 'WEDNESDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 3,
+          label: hazLabel(1),
+          weekDay: 'WEDNESDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 3,
+          label: hazLabel(1),
+          weekDay: 'WEDNESDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 3,
+          label: hazLabel(1),
+          weekDay: 'WEDNESDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 8,
-          weekDay: 3,
+          label: hazLabel(8),
+          weekDay: 'WEDNESDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         //un jueves
         {
           idTeacherAssignment: 7,
-          weekDay: 4,
+          label: hazLabel(7),
+          weekDay: 'THURSDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 4,
-          weekDay: 4,
+          label: hazLabel(4),
+          weekDay: 'THURSDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 4,
-          weekDay: 4,
+          label: hazLabel(4),
+          weekDay: 'THURSDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 5,
-          weekDay: 4,
+          label: hazLabel(5),
+          weekDay: 'THURSDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 5,
-          weekDay: 4,
+          label: hazLabel(5),
+          weekDay: 'THURSDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 5,
-          weekDay: 4,
+          label: hazLabel(5),
+          weekDay: 'THURSDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
         //un viernes
         {
           idTeacherAssignment: 1,
-          weekDay: 5,
+          label: hazLabel(1),
+          weekDay: 'FRIDAY',
           startTime: '08:15',
           finishTime: '09:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 5,
+          label: hazLabel(1),
+          weekDay: 'FRIDAY',
           startTime: '09:15',
           finishTime: '10:15',
         },
         {
           idTeacherAssignment: 1,
-          weekDay: 5,
+          label: hazLabel(1),
+          weekDay: 'FRIDAY',
           startTime: '10:15',
           finishTime: '11:15',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 5,
+          label: hazLabel(3),
+          weekDay: 'FRIDAY',
           startTime: '11:45',
           finishTime: '12:45',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 5,
+          label: hazLabel(3),
+          weekDay: 'FRIDAY',
           startTime: '12:45',
           finishTime: '13:45',
         },
         {
           idTeacherAssignment: 3,
-          weekDay: 5,
+          label: hazLabel(3),
+          weekDay: 'FRIDAY',
           startTime: '13:45',
           finishTime: '14:45',
         },
-        // DAM TARDE - Grupo 2
-{ idTeacherAssignment: 32, weekDay: 1, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 32, weekDay: 1, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 1, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 1, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 37, weekDay: 1, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 39, weekDay: 1, startTime: '20:30', finishTime: '21:30' },
+        // 1 DAM TARDE 
+        {
+          idTeacherAssignment: 32,
+          label: hazLabel(32),
+          weekDay: 'MONDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 32,
+          label: hazLabel(32),
+          weekDay: 'MONDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 33,
+          label: hazLabel(33),
+          weekDay: 'MONDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 34,
+          label: hazLabel(34),
+          weekDay: 'MONDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 37,
+          label: hazLabel(37),
+          weekDay: 'MONDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 39,
+          label: hazLabel(39),
+          weekDay: 'MONDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
 
-{ idTeacherAssignment: 32, weekDay: 2, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 33, weekDay: 2, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 2, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 2, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 35, weekDay: 2, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 38, weekDay: 2, startTime: '20:30', finishTime: '21:30' },
+        {
+          idTeacherAssignment: 32,
+          label: hazLabel(32),
+          weekDay: 'TUESDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 33,
+          label: hazLabel(33),
+          weekDay: 'TUESDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 33,
+          label: hazLabel(33),
+          weekDay: 'TUESDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 34,
+          label: hazLabel(34),
+          weekDay: 'TUESDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 35,
+          label: hazLabel(35),
+          weekDay: 'TUESDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 38,
+          label: hazLabel(38),
+          weekDay: 'TUESDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
 
-{ idTeacherAssignment: 32, weekDay: 3, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 32, weekDay: 3, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 3, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 3, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 35, weekDay: 3, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 36, weekDay: 3, startTime: '20:30', finishTime: '21:30' },
+        {
+          idTeacherAssignment: 32,
+          label: hazLabel(32),
+          weekDay: 'WEDNESDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 32,
+          label: hazLabel(32),
+          weekDay: 'WEDNESDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 33,
+          label: hazLabel(33),
+          weekDay: 'WEDNESDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 34,
+          label: hazLabel(34),
+          weekDay: 'WEDNESDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 35,
+          label: hazLabel(35),
+          weekDay: 'WEDNESDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 36,
+          label: hazLabel(36),
+          weekDay: 'WEDNESDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
 
-{ idTeacherAssignment: 32, weekDay: 4, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 33, weekDay: 4, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 34, weekDay: 4, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 35, weekDay: 4, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 36, weekDay: 4, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 37, weekDay: 4, startTime: '20:30', finishTime: '21:30' },
+        {
+          idTeacherAssignment: 32,
+          label: hazLabel(32),
+          weekDay: 'THURSDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 33,
+          label: hazLabel(33),
+          weekDay: 'THURSDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 34,
+          label: hazLabel(34),
+          weekDay: 'THURSDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 35,
+          label: hazLabel(35),
+          weekDay: 'THURSDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 36,
+          label: hazLabel(36),
+          weekDay: 'THURSDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 37,
+          label: hazLabel(37),
+          weekDay: 'THURSDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
 
-{ idTeacherAssignment: 32, weekDay: 5, startTime: '15:15', finishTime: '16:15' },
-{ idTeacherAssignment: 32, weekDay: 5, startTime: '16:15', finishTime: '17:15' },
-{ idTeacherAssignment: 33, weekDay: 5, startTime: '17:15', finishTime: '18:15' },
-{ idTeacherAssignment: 34, weekDay: 5, startTime: '18:30', finishTime: '19:30' },
-{ idTeacherAssignment: 36, weekDay: 5, startTime: '19:30', finishTime: '20:30' },
-{ idTeacherAssignment: 37, weekDay: 5, startTime: '20:30', finishTime: '21:30' }/*,
+        {
+          idTeacherAssignment: 32,
+          label: hazLabel(32),
+          weekDay: 'FRIDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 32,
+          label: hazLabel(32),
+          weekDay: 'FRIDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 33,
+          label: hazLabel(33),
+          weekDay: 'FRIDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 34,
+          label: hazLabel(34),
+          weekDay: 'FRIDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 36,
+          label: hazLabel(36),
+          weekDay: 'FRIDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 37,
+          label: hazLabel(37),
+          weekDay: 'FRIDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
 
           //ahora el horario de otra clase (por ejemplo 1 daw mañana)
-          {
-            idTeacherAssignment: 1,
-            weekDay: 1,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 1,
-            weekDay: 1,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 1,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 1,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 3,
-            weekDay: 1,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 3,
-            weekDay: 1,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+          //un lunes
+        {
+          idTeacherAssignment: 9,
+          label: hazLabel(9),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 9,
+          label: hazLabel(9),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 10,
+          label: hazLabel(10),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 10,
+          label: hazLabel(10),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 11,
+          label: hazLabel(11),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 11,
+          label: hazLabel(11),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
           //un martes
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
+        {
+          idTeacherAssignment: 10,
+          label: hazLabel(10),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 10,
+          label: hazLabel(10),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 10,
+          label: hazLabel(10),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 14,
+          label: hazLabel(14),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 14,
+          label: hazLabel(14),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 14,
+          label: hazLabel(14),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
           //un miercoles
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+        {
+          idTeacherAssignment: 10,
+          label: hazLabel(10),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 12,
+          label: hazLabel(12),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 9,
+          label: hazLabel(9),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 9,
+          label: hazLabel(9),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 9,
+          label: hazLabel(9),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 16,
+          label: hazLabel(16),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
           //un jueves
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+        {
+          idTeacherAssignment: 15,
+          label: hazLabel(15),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 12,
+          label: hazLabel(12),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 12,
+          label: hazLabel(12),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 13,
+          label: hazLabel(13),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 13,
+          label: hazLabel(13),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 13,
+          label: hazLabel(13),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
           //un viernes
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+        {
+          idTeacherAssignment: 9,
+          label: hazLabel(9),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 9,
+          label: hazLabel(9),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 9,
+          label: hazLabel(9),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 11,
+          label: hazLabel(11),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 11,
+          label: hazLabel(11),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 11,
+          label: hazLabel(11),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
           //ahora el horario semanal que corresponderá a otra clase ejemplo(1 asir mañana)
-          {
-            idTeacherAssignment: 1,
-            weekDay: 1,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 1,
-            weekDay: 1,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 1,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 1,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 3,
-            weekDay: 1,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 3,
-            weekDay: 1,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+          //un lunes
+        {
+          idTeacherAssignment: 20,
+          label: hazLabel(20),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 18,
+          label: hazLabel(18),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 18,
+          label: hazLabel(18),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 17,
+          label: hazLabel(17),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 17,
+          label: hazLabel(17),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 17,
+          label: hazLabel(17),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
           //un martes
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
+        {
+          idTeacherAssignment: 21,
+          label: hazLabel(21),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 19,
+          label: hazLabel(19),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 17,
+          label: hazLabel(17),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 18,
+          label: hazLabel(18),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 21,
+          label: hazLabel(21),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 19,
+          label: hazLabel(19),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
           //un miercoles
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+        {
+          idTeacherAssignment: 22,
+          label: hazLabel(22),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 22,
+          label: hazLabel(22),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 21,
+          label: hazLabel(21),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 17,
+          label: hazLabel(17),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 20,
+          label: hazLabel(20),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 21,
+          label: hazLabel(21),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
           //un jueves
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+        {
+          idTeacherAssignment: 17,
+          label: hazLabel(17),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 21,
+          label: hazLabel(21),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 17,
+          label: hazLabel(17),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 18,
+          label: hazLabel(18),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 20,
+          label: hazLabel(20),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 21,
+          label: hazLabel(21),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
           //un viernes
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
-          //ahora el horario semanal que corresponderá a otra clase 1smr mañana
-          {
-            idTeacherAssignment: 1,
-            weekDay: 1,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 1,
-            weekDay: 1,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 1,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 1,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 3,
-            weekDay: 1,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 3,
-            weekDay: 1,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+        {
+          idTeacherAssignment: 22,
+          label: hazLabel(22),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 18,
+          label: hazLabel(18),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 24,
+          label: hazLabel(24),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 19,
+          label: hazLabel(19),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 23,
+          label: hazLabel(23),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 18,
+          label: hazLabel(18),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+//ahora el horario semanal que corresponderá a otra clase 1smr mañana
+          //un lunes
+        {
+          idTeacherAssignment: 25,
+          label: hazLabel(25),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 25,
+          label: hazLabel(25),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 25,
+          label: hazLabel(25),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 27,
+          label: hazLabel(27),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 26,
+          label: hazLabel(26),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 27,
+          label: hazLabel(27),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
           //un martes
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 2,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
+        {
+          idTeacherAssignment: 28,
+          label: hazLabel(28),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 28,
+          label: hazLabel(28),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 26,
+          label: hazLabel(26),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 30,
+          label: hazLabel(30),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 26,
+          label: hazLabel(26),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 28,
+          label: hazLabel(28),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
           //un miercoles
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 3,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+        {
+          idTeacherAssignment: 26,
+          label: hazLabel(26),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 27,
+          label: hazLabel(27),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 29,
+          label: hazLabel(29),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 26,
+          label: hazLabel(26),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 28,
+          label: hazLabel(28),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 29,
+          label: hazLabel(29),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
           //un jueves
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 4,
-            startTime: '13:45',
-            finishTime: '14:45',
-          },
+        {
+          idTeacherAssignment: 31,
+          label: hazLabel(31),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 27,
+          label: hazLabel(27),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 29,
+          label: hazLabel(29),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 28,
+          label: hazLabel(28),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 25,
+          label: hazLabel(25),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 27,
+          label: hazLabel(27),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
           //un viernes
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '8:15',
-            finishTime: '9:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '9:15',
-            finishTime: '10:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '10:15',
-            finishTime: '11:15',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '11:45',
-            finishTime: '12:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '12:45',
-            finishTime: '13:45',
-          },
-          {
-            idTeacherAssignment: 2,
-            weekDay: 5,
-            startTime: '13:45',
-            finishTime: '14:45',
-          }*/
+        {
+          idTeacherAssignment: 25,
+          label: hazLabel(25),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 25,
+          label: hazLabel(25),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 27,
+          label: hazLabel(27),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 25,
+          label: hazLabel(25),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 27,
+          label: hazLabel(27),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 26,
+          label: hazLabel(26),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+//1 DAW TARDE
+          //un lunes
+        {
+          idTeacherAssignment: 40,
+          label: hazLabel(40),
+          weekDay: 'MONDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 40,
+          label: hazLabel(40),
+          weekDay: 'MONDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 41,
+          label: hazLabel(41),
+          weekDay: 'MONDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 42,
+          label: hazLabel(42),
+          weekDay: 'MONDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 45,
+          label: hazLabel(45),
+          weekDay: 'MONDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 47,
+          label: hazLabel(47),
+          weekDay: 'MONDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+          //un martes
+        {
+          idTeacherAssignment: 40,
+          label: hazLabel(40),
+          weekDay: 'TUESDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 41,
+          label: hazLabel(41),
+          weekDay: 'TUESDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 41,
+          label: hazLabel(41),
+          weekDay: 'TUESDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 42,
+          label: hazLabel(42),
+          weekDay: 'TUESDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 43,
+          label: hazLabel(43),
+          weekDay: 'TUESDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 46,
+          label: hazLabel(46),
+          weekDay: 'TUESDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+          //un miercoles
+        {
+          idTeacherAssignment: 40,
+          label: hazLabel(40),
+          weekDay: 'WEDNESDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 40,
+          label: hazLabel(40),
+          weekDay: 'WEDNESDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 41,
+          label: hazLabel(41),
+          weekDay: 'WEDNESDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 42,
+          label: hazLabel(42),
+          weekDay: 'WEDNESDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 43,
+          label: hazLabel(43),
+          weekDay: 'WEDNESDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 44,
+          label: hazLabel(44),
+          weekDay: 'WEDNESDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+          //un jueves
+        {
+          idTeacherAssignment: 40,
+          label: hazLabel(40),
+          weekDay: 'THURSDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 41,
+          label: hazLabel(41),
+          weekDay: 'THURSDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 42,
+          label: hazLabel(42),
+          weekDay: 'THURSDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 43,
+          label: hazLabel(43),
+          weekDay: 'THURSDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 44,
+          label: hazLabel(44),
+          weekDay: 'THURSDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 45,
+          label: hazLabel(45),
+          weekDay: 'THURSDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+          //un viernes
+        {
+          idTeacherAssignment: 40,
+          label: hazLabel(40),
+          weekDay: 'FRIDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 40,
+          label: hazLabel(40),
+          weekDay: 'FRIDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 41,
+          label: hazLabel(41),
+          weekDay: 'FRIDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 42,
+          label: hazLabel(42),
+          weekDay: 'FRIDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 44,
+          label: hazLabel(44),
+          weekDay: 'FRIDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 45,
+          label: hazLabel(45),
+          weekDay: 'FRIDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+
+          //1 IT MAÑANA
+          //un lunes
+        {
+          idTeacherAssignment: 48,
+          label: hazLabel(48),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 49,
+          label: hazLabel(49),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 50,
+          label: hazLabel(50),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 51,
+          label: hazLabel(51),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 52,
+          label: hazLabel(52),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 53,
+          label: hazLabel(53),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 54,
+          label: hazLabel(54),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 55,
+          label: hazLabel(55),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 48,
+          label: hazLabel(48),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 49,
+          label: hazLabel(49),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 50,
+          label: hazLabel(50),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 51,
+          label: hazLabel(51),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 52,
+          label: hazLabel(52),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 53,
+          label: hazLabel(53),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 48,
+          label: hazLabel(48),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 49,
+          label: hazLabel(49),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 50,
+          label: hazLabel(50),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 51,
+          label: hazLabel(51),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 52,
+          label: hazLabel(52),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 53,
+          label: hazLabel(53),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 48,
+          label: hazLabel(48),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 49,
+          label: hazLabel(49),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 50,
+          label: hazLabel(50),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 51,
+          label: hazLabel(51),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 52,
+          label: hazLabel(52),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 49,
+          label: hazLabel(49),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 51,
+          label: hazLabel(51),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 52,
+          label: hazLabel(52),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 49,
+          label: hazLabel(49),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 51,
+          label: hazLabel(51),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+//1 ME MAÑANA
+          //un lunes
+        {
+          idTeacherAssignment: 56,
+          label: hazLabel(56),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 57,
+          label: hazLabel(57),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 58,
+          label: hazLabel(58),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 59,
+          label: hazLabel(59),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 61,
+          label: hazLabel(61),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 60,
+          label: hazLabel(60),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 63,
+          label: hazLabel(63),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 62,
+          label: hazLabel(62),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 56,
+          label: hazLabel(56),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 57,
+          label: hazLabel(57),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 58,
+          label: hazLabel(58),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 59,
+          label: hazLabel(59),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 61,
+          label: hazLabel(61),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 60,
+          label: hazLabel(60),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 56,
+          label: hazLabel(56),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 57,
+          label: hazLabel(57),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 58,
+          label: hazLabel(58),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 59,
+          label: hazLabel(59),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 61,
+          label: hazLabel(61),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 56,
+          label: hazLabel(56),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 57,
+          label: hazLabel(57),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 58,
+          label: hazLabel(58),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 59,
+          label: hazLabel(59),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 56,
+          label: hazLabel(56),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 57,
+          label: hazLabel(57),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 58,
+          label: hazLabel(58),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 59,
+          label: hazLabel(59),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 56,
+          label: hazLabel(56),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 57,
+          label: hazLabel(57),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 56,
+          label: hazLabel(56),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+//2 DAM MAÑANA
+          //un lunes
+        {
+          idTeacherAssignment: 64,
+          label: hazLabel(64),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 67,
+          label: hazLabel(67),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 65,
+          label: hazLabel(65),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 66,
+          label: hazLabel(66),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 68,
+          label: hazLabel(68),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 69,
+          label: hazLabel(69),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 70,
+          label: hazLabel(70),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 71,
+          label: hazLabel(71),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 72,
+          label: hazLabel(72),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 64,
+          label: hazLabel(64),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 65,
+          label: hazLabel(65),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 66,
+          label: hazLabel(66),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 67,
+          label: hazLabel(67),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 68,
+          label: hazLabel(68),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 70,
+          label: hazLabel(70),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 69,
+          label: hazLabel(69),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 71,
+          label: hazLabel(71),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 72,
+          label: hazLabel(72),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 64,
+          label: hazLabel(64),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 65,
+          label: hazLabel(65),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 66,
+          label: hazLabel(66),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 68,
+          label: hazLabel(68),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 69,
+          label: hazLabel(69),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 70,
+          label: hazLabel(70),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 67,
+          label: hazLabel(67),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 64,
+          label: hazLabel(64),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 68,
+          label: hazLabel(68),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 65,
+          label: hazLabel(65),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 65,
+          label: hazLabel(65),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 65,
+          label: hazLabel(65),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+//2 DAM TARDE
+          //un lunes
+        {
+          idTeacherAssignment: 74,
+          label: hazLabel(74),
+          weekDay: 'MONDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 74,
+          label: hazLabel(74),
+          weekDay: 'MONDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 77,
+          label: hazLabel(77),
+          weekDay: 'MONDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 74,
+          label: hazLabel(74),
+          weekDay: 'MONDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 73,
+          label: hazLabel(73),
+          weekDay: 'MONDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 79,
+          label: hazLabel(79),
+          weekDay: 'MONDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 78,
+          label: hazLabel(78),
+          weekDay: 'TUESDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 77,
+          label: hazLabel(77),
+          weekDay: 'TUESDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 76,
+          label: hazLabel(76),
+          weekDay: 'TUESDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 74,
+          label: hazLabel(74),
+          weekDay: 'TUESDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 75,
+          label: hazLabel(75),
+          weekDay: 'TUESDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 73,
+          label: hazLabel(73),
+          weekDay: 'TUESDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 81,
+          label: hazLabel(81),
+          weekDay: 'WEDNESDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 80,
+          label: hazLabel(80),
+          weekDay: 'WEDNESDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 79,
+          label: hazLabel(79),
+          weekDay: 'WEDNESDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 78,
+          label: hazLabel(78),
+          weekDay: 'WEDNESDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 77,
+          label: hazLabel(77),
+          weekDay: 'WEDNESDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 75,
+          label: hazLabel(75),
+          weekDay: 'WEDNESDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 76,
+          label: hazLabel(76),
+          weekDay: 'THURSDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 73,
+          label: hazLabel(73),
+          weekDay: 'THURSDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 74,
+          label: hazLabel(74),
+          weekDay: 'THURSDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 81,
+          label: hazLabel(81),
+          weekDay: 'THURSDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 80,
+          label: hazLabel(80),
+          weekDay: 'THURSDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 79,
+          label: hazLabel(79),
+          weekDay: 'THURSDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 78,
+          label: hazLabel(78),
+          weekDay: 'FRIDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 77,
+          label: hazLabel(77),
+          weekDay: 'FRIDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 76,
+          label: hazLabel(76),
+          weekDay: 'FRIDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 74,
+          label: hazLabel(74),
+          weekDay: 'FRIDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 75,
+          label: hazLabel(75),
+          weekDay: 'FRIDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 73,
+          label: hazLabel(73),
+          weekDay: 'FRIDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+//2 DAW MAÑANA
+          //un lunes
+        {
+          idTeacherAssignment: 83,
+          label: hazLabel(83),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 83,
+          label: hazLabel(83),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 82,
+          label: hazLabel(82),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 85,
+          label: hazLabel(85),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 83,
+          label: hazLabel(83),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 82,
+          label: hazLabel(82),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 85,
+          label: hazLabel(85),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 83,
+          label: hazLabel(83),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 82,
+          label: hazLabel(82),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 87,
+          label: hazLabel(87),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 86,
+          label: hazLabel(86),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 85,
+          label: hazLabel(85),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 83,
+          label: hazLabel(83),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 82,
+          label: hazLabel(82),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 89,
+          label: hazLabel(89),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 88,
+          label: hazLabel(88),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 87,
+          label: hazLabel(87),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 86,
+          label: hazLabel(86),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 85,
+          label: hazLabel(85),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 84,
+          label: hazLabel(84),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 83,
+          label: hazLabel(83),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 82,
+          label: hazLabel(82),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 89,
+          label: hazLabel(89),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 88,
+          label: hazLabel(88),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 87,
+          label: hazLabel(87),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 86,
+          label: hazLabel(86),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 85,
+          label: hazLabel(85),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 84,
+          label: hazLabel(84),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 83,
+          label: hazLabel(83),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 82,
+          label: hazLabel(82),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+//2 DAW TARDE
+          //un lunes
+        {
+          idTeacherAssignment: 91,
+          label: hazLabel(91),
+          weekDay: 'MONDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 93,
+          label: hazLabel(93),
+          weekDay: 'MONDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 90,
+          label: hazLabel(90),
+          weekDay: 'MONDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 92,
+          label: hazLabel(92),
+          weekDay: 'MONDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 95,
+          label: hazLabel(95),
+          weekDay: 'MONDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 94,
+          label: hazLabel(94),
+          weekDay: 'MONDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 96,
+          label: hazLabel(96),
+          weekDay: 'TUESDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 97,
+          label: hazLabel(97),
+          weekDay: 'TUESDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 90,
+          label: hazLabel(90),
+          weekDay: 'TUESDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 91,
+          label: hazLabel(91),
+          weekDay: 'TUESDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 92,
+          label: hazLabel(92),
+          weekDay: 'TUESDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 93,
+          label: hazLabel(93),
+          weekDay: 'TUESDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 94,
+          label: hazLabel(94),
+          weekDay: 'WEDNESDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 95,
+          label: hazLabel(95),
+          weekDay: 'WEDNESDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 96,
+          label: hazLabel(96),
+          weekDay: 'WEDNESDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 97,
+          label: hazLabel(97),
+          weekDay: 'WEDNESDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 90,
+          label: hazLabel(90),
+          weekDay: 'WEDNESDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 91,
+          label: hazLabel(91),
+          weekDay: 'WEDNESDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 93,
+          label: hazLabel(93),
+          weekDay: 'THURSDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 94,
+          label: hazLabel(94),
+          weekDay: 'THURSDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 95,
+          label: hazLabel(95),
+          weekDay: 'THURSDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 90,
+          label: hazLabel(90),
+          weekDay: 'THURSDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 93,
+          label: hazLabel(93),
+          weekDay: 'THURSDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 91,
+          label: hazLabel(91),
+          weekDay: 'THURSDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 91,
+          label: hazLabel(91),
+          weekDay: 'FRIDAY',
+          startTime: '15:15',
+          finishTime: '16:15',
+        },
+        {
+          idTeacherAssignment: 93,
+          label: hazLabel(93),
+          weekDay: 'FRIDAY',
+          startTime: '16:15',
+          finishTime: '17:15',
+        },
+        {
+          idTeacherAssignment: 90,
+          label: hazLabel(90),
+          weekDay: 'FRIDAY',
+          startTime: '17:15',
+          finishTime: '18:15',
+        },
+        {
+          idTeacherAssignment: 91,
+          label: hazLabel(91),
+          weekDay: 'FRIDAY',
+          startTime: '18:30',
+          finishTime: '19:30',
+        },
+        {
+          idTeacherAssignment: 91,
+          label: hazLabel(91),
+          weekDay: 'FRIDAY',
+          startTime: '19:30',
+          finishTime: '20:30',
+        },
+        {
+          idTeacherAssignment: 90,
+          label: hazLabel(90),
+          weekDay: 'FRIDAY',
+          startTime: '20:30',
+          finishTime: '21:30',
+        },
+//2 ASIR MAÑANA
+          //un lunes
+        {
+          idTeacherAssignment: 98,
+          label: hazLabel(98),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 99,
+          label: hazLabel(99),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 100,
+          label: hazLabel(100),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 101,
+          label: hazLabel(101),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 102,
+          label: hazLabel(102),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 103,
+          label: hazLabel(103),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 104,
+          label: hazLabel(104),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 105,
+          label: hazLabel(105),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 106,
+          label: hazLabel(106),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 98,
+          label: hazLabel(98),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 99,
+          label: hazLabel(99),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 100,
+          label: hazLabel(100),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 101,
+          label: hazLabel(101),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 102,
+          label: hazLabel(102),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 103,
+          label: hazLabel(103),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 104,
+          label: hazLabel(104),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 105,
+          label: hazLabel(105),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 106,
+          label: hazLabel(106),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 98,
+          label: hazLabel(98),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 99,
+          label: hazLabel(99),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 100,
+          label: hazLabel(100),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 101,
+          label: hazLabel(101),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 102,
+          label: hazLabel(102),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 103,
+          label: hazLabel(103),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 104,
+          label: hazLabel(104),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 98,
+          label: hazLabel(98),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 99,
+          label: hazLabel(99),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 100,
+          label: hazLabel(100),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 98,
+          label: hazLabel(98),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 99,
+          label: hazLabel(99),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+//2 SMR MAÑANA
+          //un lunes
+        {
+          idTeacherAssignment: 107,
+          label: hazLabel(107),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 108,
+          label: hazLabel(108),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 109,
+          label: hazLabel(109),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 110,
+          label: hazLabel(110),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 111,
+          label: hazLabel(111),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 112,
+          label: hazLabel(112),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 113,
+          label: hazLabel(113),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 114,
+          label: hazLabel(114),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 107,
+          label: hazLabel(107),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 108,
+          label: hazLabel(108),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 110,
+          label: hazLabel(110),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 109,
+          label: hazLabel(109),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 111,
+          label: hazLabel(111),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 112,
+          label: hazLabel(112),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 113,
+          label: hazLabel(113),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 114,
+          label: hazLabel(114),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 107,
+          label: hazLabel(107),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 108,
+          label: hazLabel(108),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 109,
+          label: hazLabel(109),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 110,
+          label: hazLabel(110),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 111,
+          label: hazLabel(111),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 107,
+          label: hazLabel(107),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 109,
+          label: hazLabel(109),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 108,
+          label: hazLabel(108),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 110,
+          label: hazLabel(110),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 112,
+          label: hazLabel(112),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 110,
+          label: hazLabel(110),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 109,
+          label: hazLabel(109),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 109,
+          label: hazLabel(109),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 110,
+          label: hazLabel(110),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+//2 IT MAÑANA
+          //un lunes
+        {
+          idTeacherAssignment: 118,
+          label: hazLabel(118),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 117,
+          label: hazLabel(117),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 116,
+          label: hazLabel(116),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 115,
+          label: hazLabel(115),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 118,
+          label: hazLabel(118),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 117,
+          label: hazLabel(117),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 116,
+          label: hazLabel(116),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 115,
+          label: hazLabel(115),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 120,
+          label: hazLabel(120),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 119,
+          label: hazLabel(119),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 118,
+          label: hazLabel(118),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 117,
+          label: hazLabel(117),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 116,
+          label: hazLabel(116),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 115,
+          label: hazLabel(115),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 122,
+          label: hazLabel(122),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 121,
+          label: hazLabel(121),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 119,
+          label: hazLabel(119),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 120,
+          label: hazLabel(120),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 118,
+          label: hazLabel(118),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 117,
+          label: hazLabel(117),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 116,
+          label: hazLabel(116),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 115,
+          label: hazLabel(115),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 122,
+          label: hazLabel(122),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 121,
+          label: hazLabel(121),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 119,
+          label: hazLabel(119),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 118,
+          label: hazLabel(118),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 120,
+          label: hazLabel(120),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 117,
+          label: hazLabel(117),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 116,
+          label: hazLabel(116),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 115,
+          label: hazLabel(115),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+//2 ME MAÑANA
+          //un lunes
+        {
+          idTeacherAssignment: 123,
+          label: hazLabel(123),
+          weekDay: 'MONDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 124,
+          label: hazLabel(124),
+          weekDay: 'MONDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 125,
+          label: hazLabel(125),
+          weekDay: 'MONDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 126,
+          label: hazLabel(126),
+          weekDay: 'MONDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 128,
+          label: hazLabel(128),
+          weekDay: 'MONDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 129,
+          label: hazLabel(129),
+          weekDay: 'MONDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un martes
+        {
+          idTeacherAssignment: 127,
+          label: hazLabel(127),
+          weekDay: 'TUESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 130,
+          label: hazLabel(130),
+          weekDay: 'TUESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 123,
+          label: hazLabel(123),
+          weekDay: 'TUESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 124,
+          label: hazLabel(124),
+          weekDay: 'TUESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 125,
+          label: hazLabel(125),
+          weekDay: 'TUESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 126,
+          label: hazLabel(126),
+          weekDay: 'TUESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un miercoles
+        {
+          idTeacherAssignment: 128,
+          label: hazLabel(128),
+          weekDay: 'WEDNESDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 127,
+          label: hazLabel(127),
+          weekDay: 'WEDNESDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 129,
+          label: hazLabel(129),
+          weekDay: 'WEDNESDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 130,
+          label: hazLabel(130),
+          weekDay: 'WEDNESDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 123,
+          label: hazLabel(123),
+          weekDay: 'WEDNESDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 124,
+          label: hazLabel(124),
+          weekDay: 'WEDNESDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un jueves
+        {
+          idTeacherAssignment: 125,
+          label: hazLabel(125),
+          weekDay: 'THURSDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 126,
+          label: hazLabel(126),
+          weekDay: 'THURSDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 128,
+          label: hazLabel(128),
+          weekDay: 'THURSDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 127,
+          label: hazLabel(127),
+          weekDay: 'THURSDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 123,
+          label: hazLabel(123),
+          weekDay: 'THURSDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 124,
+          label: hazLabel(124),
+          weekDay: 'THURSDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
+          //un viernes
+        {
+          idTeacherAssignment: 125,
+          label: hazLabel(125),
+          weekDay: 'FRIDAY',
+          startTime: '08:15',
+          finishTime: '09:15',
+        },
+        {
+          idTeacherAssignment: 126,
+          label: hazLabel(126),
+          weekDay: 'FRIDAY',
+          startTime: '09:15',
+          finishTime: '10:15',
+        },
+        {
+          idTeacherAssignment: 123,
+          label: hazLabel(123),
+          weekDay: 'FRIDAY',
+          startTime: '10:15',
+          finishTime: '11:15',
+        },
+        {
+          idTeacherAssignment: 124,
+          label: hazLabel(124),
+          weekDay: 'FRIDAY',
+          startTime: '11:45',
+          finishTime: '12:45',
+        },
+        {
+          idTeacherAssignment: 124,
+          label: hazLabel(124),
+          weekDay: 'FRIDAY',
+          startTime: '12:45',
+          finishTime: '13:45',
+        },
+        {
+          idTeacherAssignment: 124,
+          label: hazLabel(124),
+          weekDay: 'FRIDAY',
+          startTime: '13:45',
+          finishTime: '14:45',
+        },
+
       ]
     });
 
 
     //CLASS SESSIONS
     console.log('Creando Class Sessions...');
-  const classSession = await
-    prisma.sessionClass.createMany({
-      data: [
-        // ========== SEMANA 1: 15-19 Septiembre 2025 ==========
 
-        // === GRUPO 1 (1 DAM MAÑANA) - LUNES 15 Sept ===
-        // Los primeros 6 registros del weekSchedule (idSchedule 1-6) corresponden al lunes del grupo 1
-        {
-          date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 1 // Lunes 8:15-9:15, idTeacherAssignment: 1
-        },
-        {
-          date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 2 // Lunes 9:15-10:15, idTeacherAssignment: 1
-        },
-        {
-          date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 3 // Lunes 10:15-11:15, idTeacherAssignment: 2
-        },
-        {
-          date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 4 // Lunes 11:45-12:45, idTeacherAssignment: 2
-        },
-        {
-          date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 5 // Lunes 12:45-13:45, idTeacherAssignment: 3
-        },
-        {
-          date: new Date('2025-09-15T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 6 // Lunes 13:45-14:45, idTeacherAssignment: 3
-        },
+    const weekSchedulesForSessions = await prisma.weekSchedule.findMany({
+      orderBy: { id: 'asc' },
+      select: { id: true, weekDay: true },
+    });
 
-        // === GRUPO 1 (1 DAM MAÑANA) - MARTES 16 Sept ===
-        // idSchedule 7-12
-        {
-          date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 7
-        },
-        {
-          date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 8
-        },
-        {
-          date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 9
-        },
-        {
-          date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 10
-        },
-        {
-          date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 11
-        },
-        {
-          date: new Date('2025-09-16T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 12
-        },
+    const CLASS_SESSION_WEEKS = 4;
+    const WEEK1_MONDAY = new Date('2025-09-15T00:00:00.000Z');
+    const DAY_OFFSET: Record<string, number> = {
+      MONDAY: 0,
+      TUESDAY: 1,
+      WEDNESDAY: 2,
+      THURSDAY: 3,
+      FRIDAY: 4,
+    };
 
-        // === GRUPO 1 (1 DAM MAÑANA) - MIÉRCOLES 17 Sept ===
-        // idSchedule 13-18
-        {
-          date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 13
-        },
-        {
-          date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 14
-        },
-        {
-          date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 15
-        },
-        {
-          date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 16
-        },
-        {
-          date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 17
-        },
-        {
-          date: new Date('2025-09-17T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 18
-        },
+    function classSessionDate(weekIndex: number, weekDay: string): Date {
+      const d = new Date(WEEK1_MONDAY);
+      d.setUTCDate(d.getUTCDate() + weekIndex * 7 + DAY_OFFSET[weekDay]);
+      return d;
+    }
 
-        // === GRUPO 1 (1 DAM MAÑANA) - JUEVES 18 Sept ===
-        // idSchedule 19-24
-        {
-          date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 19
-        },
-        {
-          date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 20
-        },
-        {
-          date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 21
-        },
-        {
-          date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 22
-        },
-        {
-          date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 23
-        },
-        {
-          date: new Date('2025-09-18T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 24
-        },
+    /** 16 bloques × 30 franjas = 480 weekSchedule (1º y 2º, mañana/tarde). */
+    const SLOTS_PER_CLASS_BLOCK = 30;
+    const CLASS_BLOCK_LABELS = [
+      '1º DAM mañana',
+      '1º DAM tarde',
+      '1º DAW mañana',
+      '1º ASIR mañana',
+      '1º SMR mañana',
+      '1º DAW tarde',
+      '1º IT mañana',
+      '1º ME mañana',
+      '2º DAM mañana',
+      '2º DAM tarde',
+      '2º DAW mañana',
+      '2º DAW tarde',
+      '2º ASIR mañana',
+      '2º SMR mañana',
+      '2º IT mañana',
+      '2º ME mañana',
+    ] as const;
 
-        // === GRUPO 1 (1 DAM MAÑANA) - VIERNES 19 Sept ===
-        // idSchedule 25-30
-        {
-          date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 25
-        },
-        {
-          date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 26
-        },
-        {
-          date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 27
-        },
-        {
-          date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 28
-        },
-        {
-          date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 29
-        },
-        {
-          date: new Date('2025-09-19T00:00:00.000Z'),
-          status: 'PROGRAMADA',
-          apointments: '',
-          idSchedule: 30
-        }/*,
+    const classBlockCount = Math.floor(
+      weekSchedulesForSessions.length / SLOTS_PER_CLASS_BLOCK,
+    );
+    if (classBlockCount !== CLASS_BLOCK_LABELS.length) {
+      throw new Error(
+        'weekSchedule: se esperaban ' +
+          CLASS_BLOCK_LABELS.length +
+          ' bloques de ' +
+          SLOTS_PER_CLASS_BLOCK +
+          ' franjas, hay ' +
+          classBlockCount,
+      );
+    }
 
-    // === GRUPO 2 (1 DAW MAÑANA) - LUNES 15 Sept ===
-    // idSchedule 31-36
-    {
-      date: '2025-09-15T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 31
-    },
-    {
-      date: '2025-09-15T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 32
-    },
-    {
-      date: '2025-09-15T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 33
-    },
-    {
-      date: '2025-09-15T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 34
-    },
-    {
-      date: '2025-09-15T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 35
-    },
-    {
-      date: '2025-09-15T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 36
-    },
+    const classSessionData: {
+      date: Date;
+      status: 'SCHEDULED';
+      apointments: string;
+      idSchedule: number;
+    }[] = [];
 
-    // === GRUPO 2 (1 DAW MAÑANA) - MARTES 16 Sept ===
-    // idSchedule 37-42
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 37
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 38
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 39
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 40
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 41
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 42
-    },
+    for (let blockIndex = 0; blockIndex < classBlockCount; blockIndex++) {
+      const blockSlots = weekSchedulesForSessions.slice(
+        blockIndex * SLOTS_PER_CLASS_BLOCK,
+        blockIndex * SLOTS_PER_CLASS_BLOCK + SLOTS_PER_CLASS_BLOCK,
+      );
+      if (blockSlots.length !== SLOTS_PER_CLASS_BLOCK) {
+        throw new Error(
+          'Bloque ' +
+            CLASS_BLOCK_LABELS[blockIndex] +
+            ': se esperaban ' +
+            SLOTS_PER_CLASS_BLOCK +
+            ' franjas, hay ' +
+            blockSlots.length,
+        );
+      }
+      for (let weekIndex = 0; weekIndex < CLASS_SESSION_WEEKS; weekIndex++) {
+        for (const slot of blockSlots) {
+          classSessionData.push({
+            date: classSessionDate(weekIndex, slot.weekDay),
+            status: 'SCHEDULED',
+            apointments: '',
+            idSchedule: slot.id,
+          });
+        }
+      }
+    }
 
-    // === GRUPO 2 (1 DAW MAÑANA) - MIÉRCOLES 17 Sept ===
-    // idSchedule 43-48
-    {
-      date: '2025-09-17T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 43
-    },
-    {
-      date: '2025-09-17T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 44
-    },
-    {
-      date: '2025-09-17T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 45
-    },
-    {
-      date: '2025-09-17T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 46
-    },
-    {
-      date: '2025-09-17T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 47
-    },
-    {
-      date: '2025-09-17T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 48
-    },
-
-    // === GRUPO 2 (1 DAW MAÑANA) - JUEVES 18 Sept ===
-    // idSchedule 49-54
-    {
-      date: '2025-09-18T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 49
-    },
-    {
-      date: '2025-09-18T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 50
-    },
-    {
-      date: '2025-09-18T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 51
-    },
-    {
-      date: '2025-09-18T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 52
-    },
-    {
-      date: '2025-09-18T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 53
-    },
-    {
-      date: '2025-09-18T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 54
-    },
-
-    // === GRUPO 2 (1 DAW MAÑANA) - VIERNES 19 Sept ===
-    // idSchedule 55-60
-    {
-      date: '2025-09-19T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 55
-    },
-    {
-      date: '2025-09-19T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 56
-    },
-    {
-      date: '2025-09-19T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 57
-    },
-    {
-      date: '2025-09-19T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 58
-    },
-    {
-      date: '2025-09-19T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 59
-    },
-    {
-      date: '2025-09-19T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 60
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - LUNES 15 Sept ===
-    // idSchedule 61-66
-    {
-      date: '2025-09-15T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 61
-    },
-    {
-      date: '2025-09-15T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 62
-    },
-    {
-      date: '2025-09-15T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 63
-    },
-    {
-      date: '2025-09-15T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 64
-    },
-    {
-      date: '2025-09-15T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 65
-    },
-    {
-      date: '2025-09-15T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 66
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - MARTES 16 Sept ===
-    // idSchedule 67-72
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 67
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 68
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 69
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 70
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 71
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 72
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - MIÉRCOLES 17 Sept ===
-    // idSchedule 73-78
-    {
-      date: '2025-09-17T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 73
-    },
-    {
-      date: '2025-09-17T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 74
-    },
-    {
-      date: '2025-09-17T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 75
-    },
-    {
-      date: '2025-09-17T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 76
-    },
-    {
-      date: '2025-09-17T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 77
-    },
-    {
-      date: '2025-09-17T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 78
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - JUEVES 18 Sept ===
-    // idSchedule 79-84
-    {
-      date: '2025-09-18T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 79
-    },
-    {
-      date: '2025-09-18T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 80
-    },
-    {
-      date: '2025-09-18T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 81
-    },
-    {
-      date: '2025-09-18T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 82
-    },
-    {
-      date: '2025-09-18T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 83
-    },
-    {
-      date: '2025-09-18T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 84
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - VIERNES 19 Sept ===
-    // idSchedule 85-90
-    {
-      date: '2025-09-19T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 85
-    },
-    {
-      date: '2025-09-19T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 86
-    },
-    {
-      date: '2025-09-19T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 87
-    },
-    {
-      date: '2025-09-19T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 88
-    },
-    {
-      date: '2025-09-19T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 89
-    },
-    {
-      date: '2025-09-19T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 90
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - LUNES 15 Sept ===
-    // idSchedule 91-96
-    {
-      date: '2025-09-15T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 91
-    },
-    {
-      date: '2025-09-15T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 92
-    },
-    {
-      date: '2025-09-15T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 93
-    },
-    {
-      date: '2025-09-15T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 94
-    },
-    {
-      date: '2025-09-15T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 95
-    },
-    {
-      date: '2025-09-15T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 96
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - MARTES 16 Sept ===
-    // idSchedule 97-102
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 97
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 98
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 99
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 100
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 101
-    },
-    {
-      date: '2025-09-16T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 102
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - MIÉRCOLES 17 Sept ===
-    // idSchedule 103-108
-    {
-      date: '2025-09-17T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 103
-    },
-    {
-      date: '2025-09-17T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 104
-    },
-    {
-      date: '2025-09-17T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 105
-    },
-    {
-      date: '2025-09-17T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 106
-    },
-    {
-      date: '2025-09-17T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 107
-    },
-    {
-      date: '2025-09-17T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 108
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - JUEVES 18 Sept ===
-    // idSchedule 109-114
-    {
-      date: '2025-09-18T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 109
-    },
-    {
-      date: '2025-09-18T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 110
-    },
-    {
-      date: '2025-09-18T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 111
-    },
-    {
-      date: '2025-09-18T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 112
-    },
-    {
-      date: '2025-09-18T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 113
-    },
-    {
-      date: '2025-09-18T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 114
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - VIERNES 19 Sept ===
-    // idSchedule 115-120
-    {
-      date: '2025-09-19T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 115
-    },
-    {
-      date: '2025-09-19T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 116
-    },
-    {
-      date: '2025-09-19T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 117
-    },
-    {
-      date: '2025-09-19T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 118
-    },
-    {
-      date: '2025-09-19T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 119
-    },
-    {
-      date: '2025-09-19T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 120
-    },
-
-    // ========== SEMANA 2: 22-26 Septiembre 2025 ==========
-    
-    // === GRUPO 1 (1 DAM MAÑANA) - LUNES 22 Sept ===
-    {
-      date: '2025-09-22T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 1
-    },
-    {
-      date: '2025-09-22T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 2
-    },
-    {
-      date: '2025-09-22T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 3
-    },
-    {
-      date: '2025-09-22T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 4
-    },
-    {
-      date: '2025-09-22T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 5
-    },
-    {
-      date: '2025-09-22T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 6
-    },
-
-    // === GRUPO 1 (1 DAM MAÑANA) - MARTES 23 Sept ===
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 7
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 8
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 9
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 10
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 11
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 12
-    },
-
-    // === GRUPO 1 (1 DAM MAÑANA) - MIÉRCOLES 24 Sept ===
-    {
-      date: '2025-09-24T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 13
-    },
-    {
-      date: '2025-09-24T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 14
-    },
-    {
-      date: '2025-09-24T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 15
-    },
-    {
-      date: '2025-09-24T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 16
-    },
-    {
-      date: '2025-09-24T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 17
-    },
-    {
-      date: '2025-09-24T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 18
-    },
-
-    // === GRUPO 1 (1 DAM MAÑANA) - JUEVES 25 Sept ===
-    {
-      date: '2025-09-25T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 19
-    },
-    {
-      date: '2025-09-25T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 20
-    },
-    {
-      date: '2025-09-25T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 21
-    },
-    {
-      date: '2025-09-25T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 22
-    },
-    {
-      date: '2025-09-25T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 23
-    },
-    {
-      date: '2025-09-25T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 24
-    },
-
-    // === GRUPO 1 (1 DAM MAÑANA) - VIERNES 26 Sept ===
-    {
-      date: '2025-09-26T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 25
-    },
-    {
-      date: '2025-09-26T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 26
-    },
-    {
-      date: '2025-09-26T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 27
-    },
-    {
-      date: '2025-09-26T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 28
-    },
-    {
-      date: '2025-09-26T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 29
-    },
-    {
-      date: '2025-09-26T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 30
-    },
-
-    // === GRUPO 2 (1 DAW MAÑANA) - LUNES 22 Sept ===
-    {
-      date: '2025-09-22T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 31
-    },
-    {
-      date: '2025-09-22T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 32
-    },
-    {
-      date: '2025-09-22T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 33
-    },
-    {
-      date: '2025-09-22T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 34
-    },
-    {
-      date: '2025-09-22T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 35
-    },
-    {
-      date: '2025-09-22T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 36
-    },
-
-    // === GRUPO 2 (1 DAW MAÑANA) - MARTES 23 Sept ===
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 37
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 38
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 39
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 40
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 41
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 42
-    },
-
-    // === GRUPO 2 (1 DAW MAÑANA) - MIÉRCOLES 24 Sept ===
-    {
-      date: '2025-09-24T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 43
-    },
-    {
-      date: '2025-09-24T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 44
-    },
-    {
-      date: '2025-09-24T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 45
-    },
-    {
-      date: '2025-09-24T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 46
-    },
-    {
-      date: '2025-09-24T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 47
-    },
-    {
-      date: '2025-09-24T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 48
-    },
-
-    // === GRUPO 2 (1 DAW MAÑANA) - JUEVES 25 Sept ===
-    {
-      date: '2025-09-25T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 49
-    },
-    {
-      date: '2025-09-25T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 50
-    },
-    {
-      date: '2025-09-25T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 51
-    },
-    {
-      date: '2025-09-25T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 52
-    },
-    {
-      date: '2025-09-25T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 53
-    },
-    {
-      date: '2025-09-25T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 54
-    },
-
-    // === GRUPO 2 (1 DAW MAÑANA) - VIERNES 26 Sept ===
-    {
-      date: '2025-09-26T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 55
-    },
-    {
-      date: '2025-09-26T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 56
-    },
-    {
-      date: '2025-09-26T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 57
-    },
-    {
-      date: '2025-09-26T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 58
-    },
-    {
-      date: '2025-09-26T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 59
-    },
-    {
-      date: '2025-09-26T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 60
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - LUNES 22 Sept ===
-    {
-      date: '2025-09-22T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 61
-    },
-    {
-      date: '2025-09-22T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 62
-    },
-    {
-      date: '2025-09-22T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 63
-    },
-    {
-      date: '2025-09-22T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 64
-    },
-    {
-      date: '2025-09-22T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 65
-    },
-    {
-      date: '2025-09-22T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 66
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - MARTES 23 Sept ===
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 67
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 68
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 69
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 70
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 71
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 72
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - MIÉRCOLES 24 Sept ===
-    {
-      date: '2025-09-24T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 73
-    },
-    {
-      date: '2025-09-24T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 74
-    },
-    {
-      date: '2025-09-24T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 75
-    },
-    {
-      date: '2025-09-24T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 76
-    },
-    {
-      date: '2025-09-24T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 77
-    },
-    {
-      date: '2025-09-24T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 78
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - JUEVES 25 Sept ===
-    {
-      date: '2025-09-25T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 79
-    },
-    {
-      date: '2025-09-25T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 80
-    },
-    {
-      date: '2025-09-25T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 81
-    },
-    {
-      date: '2025-09-25T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 82
-    },
-    {
-      date: '2025-09-25T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 83
-    },
-    {
-      date: '2025-09-25T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 84
-    },
-
-    // === GRUPO 3 (1 ASIR MAÑANA) - VIERNES 26 Sept ===
-    {
-      date: '2025-09-26T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 85
-    },
-    {
-      date: '2025-09-26T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 86
-    },
-    {
-      date: '2025-09-26T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 87
-    },
-    {
-      date: '2025-09-26T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 88
-    },
-    {
-      date: '2025-09-26T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 89
-    },
-    {
-      date: '2025-09-26T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 90
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - LUNES 22 Sept ===
-    {
-      date: '2025-09-22T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 91
-    },
-    {
-      date: '2025-09-22T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 92
-    },
-    {
-      date: '2025-09-22T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 93
-    },
-    {
-      date: '2025-09-22T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 94
-    },
-    {
-      date: '2025-09-22T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 95
-    },
-    {
-      date: '2025-09-22T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 96
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - MARTES 23 Sept ===
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 97
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 98
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 99
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 100
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 101
-    },
-    {
-      date: '2025-09-23T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 102
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - MIÉRCOLES 24 Sept ===
-    {
-      date: '2025-09-24T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 103
-    },
-    {
-      date: '2025-09-24T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 104
-    },
-    {
-      date: '2025-09-24T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 105
-    },
-    {
-      date: '2025-09-24T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 106
-    },
-    {
-      date: '2025-09-24T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 107
-    },
-    {
-      date: '2025-09-24T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 108
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - JUEVES 25 Sept ===
-    {
-      date: '2025-09-25T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 109
-    },
-    {
-      date: '2025-09-25T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 110
-    },
-    {
-      date: '2025-09-25T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 111
-    },
-    {
-      date: '2025-09-25T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 112
-    },
-    {
-      date: '2025-09-25T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 113
-    },
-    {
-      date: '2025-09-25T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 114
-    },
-
-    // === GRUPO 4 (1 SMR MAÑANA) - VIERNES 26 Sept ===
-    {
-      date: '2025-09-26T08:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 115
-    },
-    {
-      date: '2025-09-26T09:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 116
-    },
-    {
-      date: '2025-09-26T10:15:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 117
-    },
-    {
-      date: '2025-09-26T11:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 118
-    },
-    {
-      date: '2025-09-26T12:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 119
-    },
-    {
-      date: '2025-09-26T13:45:00.000Z',
-      status: 'PROGRAMADA',
-      apointments: '',
-      idSchedule: 120
-    }*/
-
-      ]
+    const classSession = await prisma.sessionClass.createMany({
+      data: classSessionData,
     });
 
 
-
-//ASISTENCIAS
+// ASISTENCIAS — una fila por alumno matriculado en cada sesión
     console.log('Creando Asistencias...');
-  const assistance = await
-    prisma.assistance.createMany({
-      data: [
-        // ========== SEMANA 1 - DAM (Sesiones 1-30, Estudiantes 1-3) ==========
 
-        // Sesión 1 primera hora del primer dia
-        { status: 'PRESENT', idSession: 1, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 1, idStudentEnrollment: 9 },
-        { status: 'MISSING', idSession: 1, idStudentEnrollment: 17 },
+    const enrollmentsForAssistance =
+      await prisma.studentOnSubjectOnGroup.findMany({
+        select: { id: true, idGroup: true, idSubject: true },
+      });
 
-        // Sesión 2
-        { status: 'LAG', idSession: 2, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 2, idStudentEnrollment: 9 },
-        { status: 'PRESENT', idSession: 2, idStudentEnrollment: 17 },
+    const enrollmentByGroupSubject = new Map<string, number[]>();
+    for (const e of enrollmentsForAssistance) {
+      const key = e.idGroup + ':' + e.idSubject;
+      const list = enrollmentByGroupSubject.get(key) ?? [];
+      list.push(e.id);
+      enrollmentByGroupSubject.set(key, list);
+    }
 
-        // Sesión 3
-        { status: 'PRESENT', idSession: 3, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 3, idStudentEnrollment: 10 },
-        { status: 'PRESENT', idSession: 3, idStudentEnrollment: 18 },
-
-        // Sesión 4
-        { status: 'PRESENT', idSession: 4, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 4, idStudentEnrollment: 10 },
-        { status: 'PRESENT', idSession: 4, idStudentEnrollment: 18 },
-
-        // Sesión 5
-        { status: 'PRESENT', idSession: 5, idStudentEnrollment: 3 },
-        { status: 'PRESENT', idSession: 5, idStudentEnrollment: 11 },
-        { status: 'LAG', idSession: 5, idStudentEnrollment: 19 },
-
-        // Sesión 6
-        { status: 'PRESENT', idSession: 6, idStudentEnrollment: 3 },
-        { status: 'PRESENT', idSession: 6, idStudentEnrollment: 11 },
-        { status: 'PRESENT', idSession: 6, idStudentEnrollment: 19 },
-
-        // Sesión 7
-        { status: 'PRESENT', idSession: 7, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 7, idStudentEnrollment: 10 },
-        { status: 'PRESENT', idSession: 7, idStudentEnrollment: 18 },
-
-        // Sesión 8
-        { status: 'PRESENT', idSession: 8, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 8, idStudentEnrollment: 10 },
-        { status: 'PRESENT', idSession: 8, idStudentEnrollment: 18 },
-
-        // Sesión 9
-        { status: 'PRESENT', idSession: 9, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 9, idStudentEnrollment: 10 },
-        { status: 'LAG', idSession: 9, idStudentEnrollment: 18 },
-
-        // Sesión 10
-        { status: 'PRESENT', idSession: 10, idStudentEnrollment: 6 },
-        { status: 'PRESENT', idSession: 10, idStudentEnrollment: 14 },
-        { status: 'PRESENT', idSession: 10, idStudentEnrollment: 22 },
-
-        // Sesión 11
-        { status: 'PRESENT', idSession: 11, idStudentEnrollment: 6 },
-        { status: 'PRESENT', idSession: 11, idStudentEnrollment: 14 },
-        { status: 'PRESENT', idSession: 11, idStudentEnrollment: 22 },
-
-        // Sesión 12
-        { status: 'LAG', idSession: 12, idStudentEnrollment: 6 },
-        { status: 'PRESENT', idSession: 12, idStudentEnrollment: 14 },
-        { status: 'PRESENT', idSession: 12, idStudentEnrollment: 22 },
-
-        // Sesión 13
-        { status: 'PRESENT', idSession: 13, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 13, idStudentEnrollment: 10 },
-        { status: 'PRESENT', idSession: 13, idStudentEnrollment: 18 },
-
-        // Sesión 14
-        { status: 'PRESENT', idSession: 14, idStudentEnrollment: 4 },
-        { status: 'MISSING', idSession: 14, idStudentEnrollment: 12 },
-        { status: 'PRESENT', idSession: 14, idStudentEnrollment: 20 },
-
-        // Sesión 15
-        { status: 'PRESENT', idSession: 15, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 15, idStudentEnrollment: 9 },
-        { status: 'PRESENT', idSession: 15, idStudentEnrollment: 17 },
-
-        // Sesión 16
-        { status: 'PRESENT', idSession: 16, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 16, idStudentEnrollment: 9 },
-        { status: 'LAG', idSession: 16, idStudentEnrollment: 17 },
-
-        // Sesión 17
-        { status: 'PRESENT', idSession: 17, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 17, idStudentEnrollment: 9 },
-        { status: 'PRESENT', idSession: 17, idStudentEnrollment: 17 },
-
-        // Sesión 18
-        { status: 'PRESENT', idSession: 18, idStudentEnrollment: 8 },
-        { status: 'PRESENT', idSession: 18, idStudentEnrollment: 16 },
-        { status: 'PRESENT', idSession: 18, idStudentEnrollment: 24 },
-//me he quedado aqui 8/3
-        // Sesión 19
-        { status: 'PRESENT', idSession: 19, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 19, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 19, idStudentEnrollment: 3 },
-
-        // Sesión 20
-        { status: 'MISSING', idSession: 20, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 20, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 20, idStudentEnrollment: 3 },
-
-        // Sesión 21
-        { status: 'PRESENT', idSession: 21, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 21, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 21, idStudentEnrollment: 3 },
-
-        // Sesión 22
-        { status: 'PRESENT', idSession: 22, idStudentEnrollment: 1 },
-        { status: 'LAG', idSession: 22, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 22, idStudentEnrollment: 3 },
-
-        // Sesión 23
-        { status: 'PRESENT', idSession: 23, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 23, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 23, idStudentEnrollment: 3 },
-
-        // Sesión 24
-        { status: 'PRESENT', idSession: 24, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 24, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 24, idStudentEnrollment: 3 },
-
-        // Sesión 25
-        { status: 'PRESENT', idSession: 25, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 25, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 25, idStudentEnrollment: 3 },
-
-        // Sesión 26
-        { status: 'PRESENT', idSession: 26, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 26, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 26, idStudentEnrollment: 3 },
-
-        // Sesión 27
-        { status: 'PRESENT', idSession: 27, idStudentEnrollment: 1 },
-        { status: 'LAG', idSession: 27, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 27, idStudentEnrollment: 3 },
-
-        // Sesión 28
-        { status: 'PRESENT', idSession: 28, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 28, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 28, idStudentEnrollment: 3 },
-
-        // Sesión 29
-        { status: 'PRESENT', idSession: 29, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 29, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 29, idStudentEnrollment: 3 },
-
-        // Sesión 30
-        { status: 'PRESENT', idSession: 30, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 30, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 30, idStudentEnrollment: 3 }
-
-        /*
-        // ========== SEMANA 1 - DAW (Sesiones 31-60, Estudiantes 7-9) ==========
-       
-        // Sesión 31
-        { status: 'PRESENT', idSession: 31, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 31, idStudentEnrollment: 65 },
-        { status: 'MISSING', idSession: 31, idStudentEnrollment: 73 },
-       
-        // Sesión 32
-        { status: 'LAG', idSession: 32, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 32, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 32, idStudentEnrollment: 73 },
-       
-        // Sesión 33
-        { status: 'PRESENT', idSession: 33, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 33, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 33, idStudentEnrollment: 73 },
-       
-        // Sesión 34
-        { status: 'PRESENT', idSession: 34, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 34, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 34, idStudentEnrollment: 73 },
-       
-        // Sesión 35
-        { status: 'PRESENT', idSession: 35, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 35, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 35, idStudentEnrollment: 73 },
-       
-        // Sesión 36
-        { status: 'PRESENT', idSession: 36, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 36, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 36, idStudentEnrollment: 73 },
-       
-        // Sesión 37
-        { status: 'PRESENT', idSession: 37, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 37, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 37, idStudentEnrollment: 73 },
-       
-        // Sesión 38
-        { status: 'PRESENT', idSession: 38, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 38, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 38, idStudentEnrollment: 73 },
-       
-        // Sesión 39
-        { status: 'PRESENT', idSession: 39, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 39, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 39, idStudentEnrollment: 73 },
-       
-        // Sesión 40
-        { status: 'PRESENT', idSession: 40, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 40, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 40, idStudentEnrollment: 73 },
-       
-        // Sesión 41
-        { status: 'PRESENT', idSession: 41, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 41, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 41, idStudentEnrollment: 73 },
-       
-        // Sesión 42
-        { status: 'LAG', idSession: 42, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 42, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 42, idStudentEnrollment: 73 },
-       
-        // Sesión 43
-        { status: 'PRESENT', idSession: 43, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 43, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 43, idStudentEnrollment: 73 },
-       
-        // Sesión 44
-        { status: 'PRESENT', idSession: 44, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 44, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 44, idStudentEnrollment: 73 },
-       
-        // Sesión 45
-        { status: 'PRESENT', idSession: 45, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 45, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 45, idStudentEnrollment: 73 },
-       
-        // Sesión 46
-        { status: 'PRESENT', idSession: 46, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 46, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 46, idStudentEnrollment: 73 },
-       
-        // Sesión 47
-        { status: 'PRESENT', idSession: 47, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 47, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 47, idStudentEnrollment: 73 },
-       
-        // Sesión 48
-        { status: 'PRESENT', idSession: 48, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 48, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 48, idStudentEnrollment: 73 },
-       
-        // Sesión 49
-        { status: 'PRESENT', idSession: 49, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 49, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 49, idStudentEnrollment: 73 },
-       
-        // Sesión 50
-        { status: 'MISSING', idSession: 50, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 50, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 50, idStudentEnrollment: 73 },
-       
-        // Sesión 51
-        { status: 'PRESENT', idSession: 51, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 51, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 51, idStudentEnrollment: 73 },
-       
-        // Sesión 52
-        { status: 'PRESENT', idSession: 52, idStudentEnrollment: 57 },
-        { status: 'LAG', idSession: 52, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 52, idStudentEnrollment: 73 },
-       
-        // Sesión 53
-        { status: 'PRESENT', idSession: 53, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 53, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 53, idStudentEnrollment: 73 },
-       
-        // Sesión 54
-        { status: 'PRESENT', idSession: 54, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 54, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 54, idStudentEnrollment: 73 },
-       
-        // Sesión 55
-        { status: 'PRESENT', idSession: 55, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 55, idStudentEnrollment: 65 },
-        { status: 'MISSING', idSession: 55, idStudentEnrollment: 73 },
-       
-        // Sesión 56
-        { status: 'PRESENT', idSession: 56, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 56, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 56, idStudentEnrollment: 73 },
-       
-        // Sesión 57
-        { status: 'PRESENT', idSession: 57, idStudentEnrollment: 57 },
-        { status: 'LAG', idSession: 57, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 57, idStudentEnrollment: 73 },
-       
-        // Sesión 58
-        { status: 'PRESENT', idSession: 58, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 58, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 58, idStudentEnrollment: 73 },
-       
-        // Sesión 59
-        { status: 'PRESENT', idSession: 59, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 59, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 59, idStudentEnrollment: 73 },
-       
-        // Sesión 60
-        { status: 'PRESENT', idSession: 60, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 60, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 60, idStudentEnrollment: 73 },
-    
-        // ========== SEMANA 1 - ASIR (Sesiones 61-90, Estudiantes 13-15) ==========
-       
-        // Sesión 61
-        { status: 'PRESENT', idSession: 61, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 61, idStudentEnrollment: 113 },
-        { status: 'MISSING', idSession: 61, idStudentEnrollment: 121 },
-       
-        // Sesión 62
-        { status: 'LAG', idSession: 62, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 62, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 62, idStudentEnrollment: 121 },
-       
-        // Sesión 63
-        { status: 'PRESENT', idSession: 63, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 63, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 63, idStudentEnrollment: 121 },
-       
-        // Sesión 64
-        { status: 'PRESENT', idSession: 64, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 64, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 64, idStudentEnrollment: 121 },
-       
-        // Sesión 65
-        { status: 'PRESENT', idSession: 65, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 65, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 65, idStudentEnrollment: 121 },
-       
-        // Sesión 66
-        { status: 'PRESENT', idSession: 66, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 66, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 66, idStudentEnrollment: 121 },
-       
-        // Sesión 67
-        { status: 'PRESENT', idSession: 67, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 67, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 67, idStudentEnrollment: 121 },
-       
-        // Sesión 68
-        { status: 'PRESENT', idSession: 68, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 68, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 68, idStudentEnrollment: 121 },
-       
-        // Sesión 69
-        { status: 'PRESENT', idSession: 69, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 69, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 69, idStudentEnrollment: 121 },
-       
-        // Sesión 70
-        { status: 'PRESENT', idSession: 70, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 70, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 70, idStudentEnrollment: 121 },
-       
-        // Sesión 71
-        { status: 'PRESENT', idSession: 71, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 71, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 71, idStudentEnrollment: 121 },
-       
-        // Sesión 72
-        { status: 'LAG', idSession: 72, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 72, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 72, idStudentEnrollment: 121 },
-       
-        // Sesión 73
-        { status: 'PRESENT', idSession: 73, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 73, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 73, idStudentEnrollment: 121 },
-       
-        // Sesión 74
-        { status: 'PRESENT', idSession: 74, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 74, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 74, idStudentEnrollment: 121 },
-       
-        // Sesión 75
-        { status: 'PRESENT', idSession: 75, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 75, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 75, idStudentEnrollment: 121 },
-       
-        // Sesión 76
-        { status: 'PRESENT', idSession: 76, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 76, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 76, idStudentEnrollment: 121 },
-       
-        // Sesión 77
-        { status: 'PRESENT', idSession: 77, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 77, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 77, idStudentEnrollment: 121 },
-       
-        // Sesión 78
-        { status: 'PRESENT', idSession: 78, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 78, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 78, idStudentEnrollment: 121 },
-       
-        // Sesión 79
-        { status: 'PRESENT', idSession: 79, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 79, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 79, idStudentEnrollment: 121 },
-       
-        // Sesión 80
-        { status: 'MISSING', idSession: 80, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 80, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 80, idStudentEnrollment: 121 },
-       
-        // Sesión 81
-        { status: 'PRESENT', idSession: 81, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 81, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 81, idStudentEnrollment: 121 },
-       
-        // Sesión 82
-        { status: 'PRESENT', idSession: 82, idStudentEnrollment: 105 },
-        { status: 'LAG', idSession: 82, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 82, idStudentEnrollment: 121 },
-       
-        // Sesión 83
-        { status: 'PRESENT', idSession: 83, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 83, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 83, idStudentEnrollment: 121 },
-       
-        // Sesión 84
-        { status: 'PRESENT', idSession: 84, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 84, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 84, idStudentEnrollment: 121 },
-       
-        // Sesión 85
-        { status: 'PRESENT', idSession: 85, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 85, idStudentEnrollment: 113 },
-        { status: 'MISSING', idSession: 85, idStudentEnrollment: 121 },
-       
-        // Sesión 86
-        { status: 'PRESENT', idSession: 86, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 86, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 86, idStudentEnrollment: 121 },
-       
-        // Sesión 87
-        { status: 'PRESENT', idSession: 87, idStudentEnrollment: 105 },
-        { status: 'LAG', idSession: 87, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 87, idStudentEnrollment: 121 },
-       
-        // Sesión 88
-        { status: 'PRESENT', idSession: 88, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 88, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 88, idStudentEnrollment: 121 },
-       
-        // Sesión 89
-        { status: 'PRESENT', idSession: 89, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 89, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 89, idStudentEnrollment: 121 },
-       
-        // Sesión 90
-        { status: 'PRESENT', idSession: 90, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 90, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 90, idStudentEnrollment: 121 },
-    
-        // ========== SEMANA 2 - DAM (Sesiones 121-150, Estudiantes 1-3) ==========
-       
-        // Sesión 121
-        { status: 'PRESENT', idSession: 121, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 121, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 121, idStudentEnrollment: 3 },
-       
-        // Sesión 122
-        { status: 'LAG', idSession: 122, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 122, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 122, idStudentEnrollment: 3 },
-       
-        // Sesión 123
-        { status: 'PRESENT', idSession: 123, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 123, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 123, idStudentEnrollment: 3 },
-       
-        // Sesión 124
-        { status: 'PRESENT', idSession: 124, idStudentEnrollment: 1 },
-        { status: 'MISSING', idSession: 124, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 124, idStudentEnrollment: 3 },
-       
-        // Sesión 125
-        { status: 'PRESENT', idSession: 125, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 125, idStudentEnrollment: 2 },
-        { status: 'LAG', idSession: 125, idStudentEnrollment: 3 },
-       
-        // Sesión 126
-        { status: 'PRESENT', idSession: 126, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 126, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 126, idStudentEnrollment: 3 },
-       
-        // Sesión 127
-        { status: 'PRESENT', idSession: 127, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 127, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 127, idStudentEnrollment: 3 },
-       
-        // Sesión 128
-        { status: 'PRESENT', idSession: 128, idStudentEnrollment: 1 },
-        { status: 'MISSING', idSession: 128, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 128, idStudentEnrollment: 3 },
-       
-        // Sesión 129
-        { status: 'PRESENT', idSession: 129, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 129, idStudentEnrollment: 2 },
-        { status: 'LAG', idSession: 129, idStudentEnrollment: 3 },
-       
-        // Sesión 130
-        { status: 'PRESENT', idSession: 130, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 130, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 130, idStudentEnrollment: 3 },
-       
-        // Sesión 131
-        { status: 'PRESENT', idSession: 131, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 131, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 131, idStudentEnrollment: 3 },
-       
-        // Sesión 132
-        { status: 'LAG', idSession: 132, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 132, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 132, idStudentEnrollment: 3 },
-       
-        // Sesión 133
-        { status: 'PRESENT', idSession: 133, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 133, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 133, idStudentEnrollment: 3 },
-       
-        // Sesión 134
-        { status: 'PRESENT', idSession: 134, idStudentEnrollment: 1 },
-        { status: 'MISSING', idSession: 134, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 134, idStudentEnrollment: 3 },
-       
-        // Sesión 135
-        { status: 'PRESENT', idSession: 135, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 135, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 135, idStudentEnrollment: 3 },
-       
-        // Sesión 136
-        { status: 'PRESENT', idSession: 136, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 136, idStudentEnrollment: 2 },
-        { status: 'LAG', idSession: 136, idStudentEnrollment: 3 },
-       
-        // Sesión 137
-        { status: 'PRESENT', idSession: 137, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 137, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 137, idStudentEnrollment: 3 },
-       
-        // Sesión 138
-        { status: 'PRESENT', idSession: 138, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 138, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 138, idStudentEnrollment: 3 },
-       
-        // Sesión 139
-        { status: 'PRESENT', idSession: 139, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 139, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 139, idStudentEnrollment: 3 },
-       
-        // Sesión 140
-        { status: 'MISSING', idSession: 140, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 140, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 140, idStudentEnrollment: 3 },
-       
-        // Sesión 141
-        { status: 'PRESENT', idSession: 141, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 141, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 141, idStudentEnrollment: 3 },
-       
-        // Sesión 142
-        { status: 'PRESENT', idSession: 142, idStudentEnrollment: 1 },
-        { status: 'LAG', idSession: 142, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 142, idStudentEnrollment: 3 },
-       
-        // Sesión 143
-        { status: 'PRESENT', idSession: 143, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 143, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 143, idStudentEnrollment: 3 },
-       
-        // Sesión 144
-        { status: 'PRESENT', idSession: 144, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 144, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 144, idStudentEnrollment: 3 },
-       
-        // Sesión 145
-        { status: 'PRESENT', idSession: 145, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 145, idStudentEnrollment: 2 },
-        { status: 'MISSING', idSession: 145, idStudentEnrollment: 3 },
-       
-        // Sesión 146
-        { status: 'PRESENT', idSession: 146, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 146, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 146, idStudentEnrollment: 3 },
-       
-        // Sesión 147
-        { status: 'PRESENT', idSession: 147, idStudentEnrollment: 1 },
-        { status: 'LAG', idSession: 147, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 147, idStudentEnrollment: 3 },
-       
-        // Sesión 148
-        { status: 'PRESENT', idSession: 148, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 148, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 148, idStudentEnrollment: 3 },
-       
-        // Sesión 149
-        { status: 'PRESENT', idSession: 149, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 149, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 149, idStudentEnrollment: 3 },
-       
-        // Sesión 150
-        { status: 'PRESENT', idSession: 150, idStudentEnrollment: 1 },
-        { status: 'PRESENT', idSession: 150, idStudentEnrollment: 2 },
-        { status: 'PRESENT', idSession: 150, idStudentEnrollment: 3 },
-    
-        // ========== SEMANA 2 - DAW (Sesiones 151-180, Estudiantes 7-9) ==========
-       
-        // Sesión 151
-        { status: 'PRESENT', idSession: 151, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 151, idStudentEnrollment: 65 },
-        { status: 'MISSING', idSession: 151, idStudentEnrollment: 73 },
-       
-        // Sesión 152
-        { status: 'LAG', idSession: 152, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 152, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 152, idStudentEnrollment: 73 },
-       
-        // Sesión 153
-        { status: 'PRESENT', idSession: 153, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 153, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 153, idStudentEnrollment: 73 },
-       
-        // Sesión 154
-        { status: 'PRESENT', idSession: 154, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 154, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 154, idStudentEnrollment: 73 },
-       
-        // Sesión 155
-        { status: 'PRESENT', idSession: 155, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 155, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 155, idStudentEnrollment: 73 },
-       
-        // Sesión 156
-        { status: 'PRESENT', idSession: 156, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 156, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 156, idStudentEnrollment: 73 },
-       
-        // Sesión 157
-        { status: 'PRESENT', idSession: 157, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 157, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 157, idStudentEnrollment: 73 },
-       
-        // Sesión 158
-        { status: 'PRESENT', idSession: 158, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 158, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 158, idStudentEnrollment: 73 },
-       
-        // Sesión 159
-        { status: 'PRESENT', idSession: 159, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 159, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 159, idStudentEnrollment: 73 },
-       
-        // Sesión 160
-        { status: 'PRESENT', idSession: 160, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 160, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 160, idStudentEnrollment: 73 },
-       
-        // Sesión 161
-        { status: 'PRESENT', idSession: 161, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 161, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 161, idStudentEnrollment: 73 },
-       
-        // Sesión 162
-        { status: 'LAG', idSession: 162, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 162, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 162, idStudentEnrollment: 73 },
-       
-        // Sesión 163
-        { status: 'PRESENT', idSession: 163, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 163, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 163, idStudentEnrollment: 73 },
-       
-        // Sesión 164
-        { status: 'PRESENT', idSession: 164, idStudentEnrollment: 57 },
-        { status: 'MISSING', idSession: 164, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 164, idStudentEnrollment: 73 },
-       
-        // Sesión 165
-        { status: 'PRESENT', idSession: 165, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 165, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 165, idStudentEnrollment: 73 },
-       
-        // Sesión 166
-        { status: 'PRESENT', idSession: 166, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 166, idStudentEnrollment: 65 },
-        { status: 'LAG', idSession: 166, idStudentEnrollment: 73 },
-       
-        // Sesión 167
-        { status: 'PRESENT', idSession: 167, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 167, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 167, idStudentEnrollment: 73 },
-       
-        // Sesión 168
-        { status: 'PRESENT', idSession: 168, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 168, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 168, idStudentEnrollment: 73 },
-       
-        // Sesión 169
-        { status: 'PRESENT', idSession: 169, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 169, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 169, idStudentEnrollment: 73 },
-       
-        // Sesión 170
-        { status: 'MISSING', idSession: 170, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 170, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 170, idStudentEnrollment: 73 },
-       
-        // Sesión 171
-        { status: 'PRESENT', idSession: 171, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 171, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 171, idStudentEnrollment: 73 },
-       
-        // Sesión 172
-        { status: 'PRESENT', idSession: 172, idStudentEnrollment: 57 },
-        { status: 'LAG', idSession: 172, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 172, idStudentEnrollment: 73 },
-       
-        // Sesión 173
-        { status: 'PRESENT', idSession: 173, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 173, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 173, idStudentEnrollment: 73 },
-       
-        // Sesión 174
-        { status: 'PRESENT', idSession: 174, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 174, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 174, idStudentEnrollment: 73 },
-       
-        // Sesión 175
-        { status: 'PRESENT', idSession: 175, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 175, idStudentEnrollment: 65 },
-        { status: 'MISSING', idSession: 175, idStudentEnrollment: 73 },
-       
-        // Sesión 176
-        { status: 'PRESENT', idSession: 176, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 176, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 176, idStudentEnrollment: 73 },
-       
-        // Sesión 177
-        { status: 'PRESENT', idSession: 177, idStudentEnrollment: 57 },
-        { status: 'LAG', idSession: 177, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 177, idStudentEnrollment: 73 },
-       
-        // Sesión 178
-        { status: 'PRESENT', idSession: 178, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 178, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 178, idStudentEnrollment: 73 },
-       
-        // Sesión 179
-        { status: 'PRESENT', idSession: 179, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 179, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 179, idStudentEnrollment: 73 },
-       
-        // Sesión 180
-        { status: 'PRESENT', idSession: 180, idStudentEnrollment: 57 },
-        { status: 'PRESENT', idSession: 180, idStudentEnrollment: 65 },
-        { status: 'PRESENT', idSession: 180, idStudentEnrollment: 73 },
-    
-        // ========== SEMANA 2 - ASIR (Sesiones 181-210, Estudiantes 13-15) ==========
-       
-        // Sesión 181
-        { status: 'PRESENT', idSession: 181, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 181, idStudentEnrollment: 113 },
-        { status: 'MISSING', idSession: 181, idStudentEnrollment: 121 },
-       
-        // Sesión 182
-        { status: 'LAG', idSession: 182, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 182, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 182, idStudentEnrollment: 121 },
-       
-        // Sesión 183
-        { status: 'PRESENT', idSession: 183, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 183, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 183, idStudentEnrollment: 121 },
-       
-        // Sesión 184
-        { status: 'PRESENT', idSession: 184, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 184, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 184, idStudentEnrollment: 121 },
-       
-        // Sesión 185
-        { status: 'PRESENT', idSession: 185, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 185, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 185, idStudentEnrollment: 121 },
-       
-        // Sesión 186
-        { status: 'PRESENT', idSession: 186, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 186, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 186, idStudentEnrollment: 121 },
-       
-        // Sesión 187
-        { status: 'PRESENT', idSession: 187, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 187, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 187, idStudentEnrollment: 121 },
-       
-        // Sesión 188
-        { status: 'PRESENT', idSession: 188, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 188, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 188, idStudentEnrollment: 121 },
-       
-        // Sesión 189
-        { status: 'PRESENT', idSession: 189, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 189, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 189, idStudentEnrollment: 121 },
-       
-        // Sesión 190
-        { status: 'PRESENT', idSession: 190, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 190, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 190, idStudentEnrollment: 121 },
-       
-        // Sesión 191
-        { status: 'PRESENT', idSession: 191, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 191, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 191, idStudentEnrollment: 121 },
-       
-        // Sesión 192
-        { status: 'LAG', idSession: 192, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 192, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 192, idStudentEnrollment: 121 },
-       
-        // Sesión 193
-        { status: 'PRESENT', idSession: 193, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 193, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 193, idStudentEnrollment: 121 },
-       
-        // Sesión 194
-        { status: 'PRESENT', idSession: 194, idStudentEnrollment: 105 },
-        { status: 'MISSING', idSession: 194, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 194, idStudentEnrollment: 121 },
-       
-        // Sesión 195
-        { status: 'PRESENT', idSession: 195, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 195, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 195, idStudentEnrollment: 121 },
-       
-        // Sesión 196
-        { status: 'PRESENT', idSession: 196, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 196, idStudentEnrollment: 113 },
-        { status: 'LAG', idSession: 196, idStudentEnrollment: 121 },
-       
-        // Sesión 197
-        { status: 'PRESENT', idSession: 197, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 197, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 197, idStudentEnrollment: 121 },
-       
-        // Sesión 198
-        { status: 'PRESENT', idSession: 198, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 198, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 198, idStudentEnrollment: 121 },
-       
-        // Sesión 199
-        { status: 'PRESENT', idSession: 199, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 199, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 199, idStudentEnrollment: 121 },
-       
-        // Sesión 200
-        { status: 'MISSING', idSession: 200, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 200, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 200, idStudentEnrollment: 121 },
-       
-        // Sesión 201
-        { status: 'PRESENT', idSession: 201, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 201, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 201, idStudentEnrollment: 121 },
-       
-        // Sesión 202
-        { status: 'PRESENT', idSession: 202, idStudentEnrollment: 105 },
-        { status: 'LAG', idSession: 202, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 202, idStudentEnrollment: 121 },
-       
-        // Sesión 203
-        { status: 'PRESENT', idSession: 203, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 203, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 203, idStudentEnrollment: 121 },
-       
-        // Sesión 204
-        { status: 'PRESENT', idSession: 204, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 204, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 204, idStudentEnrollment: 121 },
-       
-        // Sesión 205
-        { status: 'PRESENT', idSession: 205, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 205, idStudentEnrollment: 113 },
-        { status: 'MISSING', idSession: 205, idStudentEnrollment: 121 },
-       
-        // Sesión 206
-        { status: 'PRESENT', idSession: 206, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 206, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 206, idStudentEnrollment: 121 },
-       
-        // Sesión 207
-        { status: 'PRESENT', idSession: 207, idStudentEnrollment: 105 },
-        { status: 'LAG', idSession: 207, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 207, idStudentEnrollment: 121 },
-       
-        // Sesión 208
-        { status: 'PRESENT', idSession: 208, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 208, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 208, idStudentEnrollment: 121 },
-       
-        // Sesión 209
-        { status: 'PRESENT', idSession: 209, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 209, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 209, idStudentEnrollment: 121 },
-       
-        // Sesión 210
-        { status: 'PRESENT', idSession: 210, idStudentEnrollment: 105 },
-        { status: 'PRESENT', idSession: 210, idStudentEnrollment: 113 },
-        { status: 'PRESENT', idSession: 210, idStudentEnrollment: 121 },*/
-      ]
+    const sessionsForAssistance = await prisma.sessionClass.findMany({
+      orderBy: { id: 'asc' },
+      select: {
+        id: true,
+        schedule: {
+          select: {
+            teacherAssignment: { select: { idGroup: true, idSubject: true } },
+          },
+        },
+      },
     });
 
+    /** 1–10: 2 = falta, 8 = retraso, resto presente. Sin EXCUSED. */
+    function rollAssistanceStatus(): 'PRESENT' | 'ABSENT' | 'LATE' {
+      const roll = Math.floor(Math.random() * 10) + 1;
+      if (roll === 2) return 'ABSENT';
+      if (roll === 8) return 'LATE';
+      return 'PRESENT';
+    }
+
+    const assistanceData: {
+      status: 'PRESENT' | 'ABSENT' | 'LATE';
+      idSession: number;
+      idStudentEnrollment: number;
+    }[] = [];
+
+    for (const session of sessionsForAssistance) {
+      const assignment = session.schedule.teacherAssignment;
+      if (!assignment) continue;
+      const enrollments =
+        enrollmentByGroupSubject.get(
+          assignment.idGroup + ':' + assignment.idSubject,
+        ) ?? [];
+      for (const idStudentEnrollment of enrollments) {
+        assistanceData.push({
+          status: rollAssistanceStatus(),
+          idSession: session.id,
+          idStudentEnrollment,
+        });
+      }
+    }
+
+    const ASSISTANCE_CHUNK = 2000;
+    let assistance = { count: 0 };
+    for (let i = 0; i < assistanceData.length; i += ASSISTANCE_CHUNK) {
+      const chunk = await prisma.assistance.createMany({
+        data: assistanceData.slice(i, i + ASSISTANCE_CHUNK),
+      });
+      assistance.count += chunk.count;
+    }
 
 
-
-
-
-
-  console.log('Creando Tasks(THEORY)...');
+  console.log('Creando Tasks (THEORY + PRACTICE)...');
 
   const now = new Date();
-  const twoWeeksFromNow = new Date();
-  twoWeeksFromNow.setDate(now.getDate() + 14);
+  const courseYearEnd = new Date("2026-06-30T23:59:59.000Z");
+  const practiceDue = new Date(now);
+  practiceDue.setDate(practiceDue.getDate() + 21);
 
-  // ===========================
-  // 1. CREAR TAREAS DE TEMARIO (THEORY)
-  // ===========================
-  const theoryTasks = await prisma.task.createMany({
-    data: [
-      { idTeacherAssignment: 1, title: 'Temario - Programación', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 2, title: 'Temario - Base de Datos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 3, title: 'Temario - Sistemas Informáticos', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 4, title: 'Temario - Lenguaje de Marcas', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 5, title: 'Temario - Entornos de Desarrollo', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 6, title: 'Temario - IPE', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 7, title: 'Temario - Digitalización', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 8, title: 'Temario - Sostenibilidad', description: 'Material teórico', type: 'THEORY', startDate: now, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-    ],
+  const twoWeeksFromNow = new Date(now);
+  twoWeeksFromNow.setDate(now.getDate() + 14);
+  const examDue = new Date(twoWeeksFromNow.getTime() + 2 * 60 * 60 * 1000);
+
+  const assignmentsForTasks = await prisma.teacherOnSubjectOnGroup.findMany({
+    orderBy: { id: "asc" },
+    select: {
+      id: true,
+      schoolYear: true,
+      subject: { select: { name: true } },
+    },
   });
 
+  const taskSeedData: {
+    idTeacherAssignment: number;
+    title: string;
+    description: string;
+    type: "THEORY" | "PRACTICE";
+    startDate: Date;
+    dueDate: Date;
+    schoolYear: string;
+    isPublished: boolean;
+  }[] = [];
 
+  for (const assignment of assignmentsForTasks) {
+    const copy = subjectTaskCopy(assignment.subject.name);
+    taskSeedData.push(
+      {
+        idTeacherAssignment: assignment.id,
+        title: copy.theoryTitle,
+        description: copy.theoryDescription,
+        type: "THEORY",
+        startDate: now,
+        dueDate: courseYearEnd,
+        schoolYear: assignment.schoolYear,
+        isPublished: true,
+      },
+      {
+        idTeacherAssignment: assignment.id,
+        title: copy.practiceTitle,
+        description: copy.practiceDescription,
+        type: "PRACTICE",
+        startDate: now,
+        dueDate: practiceDue,
+        schoolYear: assignment.schoolYear,
+        isPublished: true,
+      },
+    );
+  }
+
+  const TASK_CHUNK = 2000;
+  let theoryTasks = { count: 0 };
+  let practiceTasks = { count: 0 };
+  for (let i = 0; i < taskSeedData.length; i += TASK_CHUNK) {
+    const chunk = taskSeedData.slice(i, i + TASK_CHUNK);
+    const result = await prisma.task.createMany({ data: chunk });
+    theoryTasks.count += chunk.filter((t) => t.type === "THEORY").length;
+    practiceTasks.count += chunk.filter((t) => t.type === "PRACTICE").length;
+    if (result.count !== chunk.length) {
+      throw new Error(
+        "task.createMany: se esperaban " +
+          chunk.length +
+          " filas, insertadas " +
+          result.count,
+      );
+    }
+  }
 
   // ===========================
   // 2. CREAR TAREAS DE EXAMEN (EXAM)
   // ===========================
 
-    console.log('Creando Tasks(EXAM)...');
+  console.log('Creando Tasks(EXAM)...');
 
-  const examTasks = await prisma.task.createMany({
-    data: [
-      { idTeacherAssignment: 1, title: 'Examen - Programación', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 2, title: 'Examen - Base de Datos', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 3, title: 'Examen - Sistemas Informáticos', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 4, title: 'Examen - Lenguaje de Marcas', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 5, title: 'Examen - Entornos de Desarrollo', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 6, title: 'Examen - IPE', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 7, title: 'Examen - Digitalización', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-      { idTeacherAssignment: 8, title: 'Examen - Sostenibilidad', description: 'Examen parcial', type: 'EXAM', startDate: twoWeeksFromNow, dueDate: new Date('2028-06-30'), isPublished: true, allowLateSubmission: true, schoolYear: '2024-2025' },
-    ],
-  });
+  const examTaskData: {
+    idTeacherAssignment: number;
+    title: string;
+    description: string;
+    type: "EXAM";
+    startDate: Date;
+    dueDate: Date;
+    schoolYear: string;
+    isPublished: boolean;
+  }[] = [];
 
+  for (const assignment of assignmentsForTasks) {
+    const exam = examTaskCopy(assignment.subject.name);
+    examTaskData.push({
+      idTeacherAssignment: assignment.id,
+      title: exam.title,
+      description: exam.description,
+      type: "EXAM",
+      startDate: twoWeeksFromNow,
+      dueDate: examDue,
+      schoolYear: assignment.schoolYear,
+      isPublished: true,
+    });
+  }
 
+  let examTasks = { count: 0 };
+  for (let i = 0; i < examTaskData.length; i += TASK_CHUNK) {
+    const chunk = examTaskData.slice(i, i + TASK_CHUNK);
+    const result = await prisma.task.createMany({ data: chunk });
+    examTasks.count += result.count;
+  }
 
   // ===========================
-  // 3. CREAR STUDENT TASKS
-  // Asumiendo: Tasks IDs 1-16, Enrollments IDs 1-24
-  // Ajusta los IDs de enrollments según tu BD
+  // 3. CREAR STUDENT TASKS (3 alumnos × cada Task)
   // ===========================
 
   console.log('Creando studentTasks...');
-  const studentTasks = await prisma.studentTask.createMany({
-    data: [
-      // Task 1 (Theory Programación) - 3 estudiantes
-      { idTask: 1, idStudentEnrollment: 1, status: 'PENDING' },
-      { idTask: 1, idStudentEnrollment: 9, status: 'PENDING' },
-      { idTask: 1, idStudentEnrollment: 17, status: 'PENDING' },
 
-      // Task 2 (Theory BD) - 3 estudiantes
-      { idTask: 2, idStudentEnrollment: 2, status: 'PENDING' },
-      { idTask: 2, idStudentEnrollment: 10, status: 'PENDING' },
-      { idTask: 2, idStudentEnrollment: 18, status: 'PENDING' },
+  const enrollmentsForStudentTasks =
+    await prisma.studentOnSubjectOnGroup.findMany({
+      select: { id: true, idGroup: true, idSubject: true },
+    });
 
-      // Task 3 (Theory Sistemas) - 3 estudiantes
-      { idTask: 3, idStudentEnrollment: 3, status: 'PENDING' },
-      { idTask: 3, idStudentEnrollment: 11, status: 'PENDING' },
-      { idTask: 3, idStudentEnrollment: 19, status: 'PENDING' },
+  const enrollmentByGroupSubjectForTasks = new Map<string, number[]>();
+  for (const e of enrollmentsForStudentTasks) {
+    const key = e.idGroup + ':' + e.idSubject;
+    const list = enrollmentByGroupSubjectForTasks.get(key) ?? [];
+    list.push(e.id);
+    enrollmentByGroupSubjectForTasks.set(key, list);
+  }
 
-      // Task 4 (Theory Lenguajes) - 3 estudiantes
-      { idTask: 4, idStudentEnrollment: 4, status: 'PENDING' },
-      { idTask: 4, idStudentEnrollment: 12, status: 'PENDING' },
-      { idTask: 4, idStudentEnrollment: 20, status: 'PENDING' },
-
-      // Task 5 (Theory Entornos) - 3 estudiantes
-      { idTask: 5, idStudentEnrollment: 5, status: 'PENDING' },
-      { idTask: 5, idStudentEnrollment: 13, status: 'PENDING' },
-      { idTask: 5, idStudentEnrollment: 21, status: 'PENDING' },
-
-      // Task 6 (Theory IPE) - 3 estudiantes
-      { idTask: 6, idStudentEnrollment: 6, status: 'PENDING' },
-      { idTask: 6, idStudentEnrollment: 14, status: 'PENDING' },
-      { idTask: 6, idStudentEnrollment: 22, status: 'PENDING' },
-
-      // Task 7 (Theory Digitalización) - 3 estudiantes
-      { idTask: 7, idStudentEnrollment: 7, status: 'PENDING' },
-      { idTask: 7, idStudentEnrollment: 15, status: 'PENDING' },
-      { idTask: 7, idStudentEnrollment: 23, status: 'PENDING' },
-
-      // Task 8 (Theory Sostenibilidad) - 3 estudiantes
-      { idTask: 8, idStudentEnrollment: 8, status: 'PENDING' },
-      { idTask: 8, idStudentEnrollment: 16, status: 'PENDING' },
-      { idTask: 8, idStudentEnrollment: 24, status: 'PENDING' },
-
-      // Task 9 (Exam Programación) - 3 estudiantes
-      { idTask: 9, idStudentEnrollment: 1, status: 'PENDING' },
-      { idTask: 9, idStudentEnrollment: 9, status: 'PENDING' },
-      { idTask: 9, idStudentEnrollment: 17, status: 'PENDING' },
-
-      // Task 10 (Exam BD) - 3 estudiantes
-      { idTask: 10, idStudentEnrollment: 2, status: 'PENDING' },
-      { idTask: 10, idStudentEnrollment: 10, status: 'PENDING' },
-      { idTask: 10, idStudentEnrollment: 18, status: 'PENDING' },
-
-      // Task 11 (Exam Sistemas) - 3 estudiantes
-      { idTask: 11, idStudentEnrollment: 3, status: 'PENDING' },
-      { idTask: 11, idStudentEnrollment: 11, status: 'PENDING' },
-      { idTask: 11, idStudentEnrollment: 19, status: 'PENDING' },
-
-      // Task 12 (Exam Lenguajes) - 3 estudiantes
-      { idTask: 12, idStudentEnrollment: 4, status: 'PENDING' },
-      { idTask: 12, idStudentEnrollment: 12, status: 'PENDING' },
-      { idTask: 12, idStudentEnrollment: 20, status: 'PENDING' },
-
-      // Task 13 (Exam Entornos) - 3 estudiantes
-      { idTask: 13, idStudentEnrollment: 5, status: 'PENDING' },
-      { idTask: 13, idStudentEnrollment: 13, status: 'PENDING' },
-      { idTask: 13, idStudentEnrollment: 21, status: 'PENDING' },
-
-      // Task 14 (Exam IPE) - 3 estudiantes
-      { idTask: 14, idStudentEnrollment: 6, status: 'PENDING' },
-      { idTask: 14, idStudentEnrollment: 14, status: 'PENDING' },
-      { idTask: 14, idStudentEnrollment: 22, status: 'PENDING' },
-
-      // Task 15 (Exam Digitalización) - 3 estudiantes
-      { idTask: 15, idStudentEnrollment: 7, status: 'PENDING' },
-      { idTask: 15, idStudentEnrollment: 15, status: 'PENDING' },
-      { idTask: 15, idStudentEnrollment: 23, status: 'PENDING' },
-
-      // Task 16 (Exam Sostenibilidad) - 3 estudiantes
-      { idTask: 16, idStudentEnrollment: 8, status: 'PENDING' },
-      { idTask: 16, idStudentEnrollment: 16, status: 'PENDING' },
-      { idTask: 16, idStudentEnrollment: 24, status: 'PENDING' },
-    ],
+  const tasksForStudentTasks = await prisma.task.findMany({
+    orderBy: { id: 'asc' },
+    select: {
+      id: true,
+      teacherAssignment: { select: { idGroup: true, idSubject: true } },
+    },
   });
 
+  const studentTaskData: {
+    idTask: number;
+    idStudentEnrollment: number;
+    status: 'PENDING';
+  }[] = [];
+
+  for (const task of tasksForStudentTasks) {
+    const assignment = task.teacherAssignment;
+    const enrollments =
+      enrollmentByGroupSubjectForTasks.get(
+        assignment.idGroup + ':' + assignment.idSubject,
+      ) ?? [];
+    for (const idStudentEnrollment of enrollments) {
+      studentTaskData.push({
+        idTask: task.id,
+        idStudentEnrollment,
+        status: 'PENDING',
+      });
+    }
+  }
+
+  const STUDENT_TASK_CHUNK = 2000;
+  let studentTasks = { count: 0 };
+  for (let i = 0; i < studentTaskData.length; i += STUDENT_TASK_CHUNK) {
+    const chunk = await prisma.studentTask.createMany({
+      data: studentTaskData.slice(i, i + STUDENT_TASK_CHUNK),
+    });
+    studentTasks.count += chunk.count;
+  }
 
 
 
@@ -5271,28 +9203,97 @@ async function main() {
 
 
 
-  console.log('Creando Anuncios de prueba...');
-  const announcements = await prisma.announcement.createMany({
+
+  console.log('Creando anuncios del tablón (issues)...');
+  const issues = await prisma.issue.createMany({
     data: [
       {
-        title: 'Bienvenidos al nuevo curso 2024-2025',
-        body: 'Os damos la bienvenida a todos al nuevo curso escolar en Ziryab. Esperamos que sea un año lleno de aprendizaje y éxitos.',
-        createdByUserId: 1,
-        createdAt: new Date('2026-05-15T09:00:00Z')
+        idAdmin: 1,
+        audience: 'CENTER',
+        title: '[SEED] Bienvenida al centro',
+        body: 'Anuncio de prueba para toda la comunidad educativa (CENTER).',
+        isPublished: true,
       },
       {
-        title: 'Recordatorio: Festivo Nacional el próximo Jueves',
-        body: 'Se recuerda a todo el alumnado y profesorado que el próximo jueves no habrá clases presenciales por festividad de carácter nacional.',
-        createdByUserId: 1,
-        createdAt: new Date('2026-05-17T11:30:00Z')
+        idAdmin: 1,
+        audience: 'ALL_TEACHERS',
+        title: '[SEED] Reunión de profesorado',
+        body: 'Comunicado de prueba dirigido a todos los profesores.',
+        isPublished: true,
       },
       {
-        title: 'Mantenimiento programado de la plataforma',
-        body: 'El próximo sábado de 22:00 a 24:00 la plataforma Ziryab estará fuera de servicio por tareas de mantenimiento y actualización técnica.',
-        createdByUserId: 2,
-        createdAt: new Date('2026-05-18T08:00:00Z')
-      }
-    ]
+        idAdmin: 1,
+        audience: 'ALL_STUDENTS',
+        title: '[SEED] Aviso general alumnado',
+        body: 'Anuncio de prueba para todos los alumnos.',
+        isPublished: true,
+      },
+      {
+        idAdmin: 1,
+        audience: 'GROUP',
+        idGroup: 1,
+        title: '[SEED] Aviso grupo Mañana (admin)',
+        body: 'Comunicado de prueba para el grupo Mañana emitido por administración.',
+        isPublished: true,
+      },
+      {
+        idAdmin: 1,
+        audience: 'TEACHER',
+        idTargetTeacher: 2,
+        title: '[SEED] Aviso a un profesor concreto',
+        body: 'Solo lo ve el profesor con idTargetTeacher=2.',
+        isPublished: true,
+      },
+      {
+        idAdmin: 1,
+        audience: 'COURSE',
+        idCourse: 1,
+        title: '[SEED] Información curso DAM',
+        body: 'Comunicado de prueba para todo el ciclo DAM.',
+        isPublished: true,
+      },
+      {
+        idAdmin: 1,
+        audience: 'COURSE',
+        idCourse: 1,
+        grade: '1',
+        title: '[SEED] Información 1º DAM',
+        body: 'Comunicado de prueba solo para matrículas de 1º en DAM.',
+        isPublished: true,
+      },
+      {
+        idAdmin: 1,
+        audience: 'SUBJECT_GROUP',
+        idGroup: 1,
+        idSubject: 1,
+        title: '[SEED] Programación — grupo Mañana',
+        body: 'Anuncio de prueba para la asignatura Programación en el grupo Mañana.',
+        isPublished: true,
+      },
+      {
+        idAdmin: 1,
+        audience: 'STUDENT',
+        idTargetStudent: 1,
+        title: '[SEED] Aviso a un alumno concreto',
+        body: 'Solo lo ve el alumno con idTargetStudent=1.',
+        isPublished: true,
+      },
+      {
+        idAdmin: 1,
+        audience: 'ALL_STUDENTS',
+        title: '[SEED] Borrador sin publicar',
+        body: 'Borrador de prueba (no debe aparecer en listados activos).',
+        isPublished: false,
+      },
+      {
+        idAdmin: 1,
+        audience: 'CENTER',
+        title: '[SEED] Anuncio caducado',
+        body: 'Anuncio de prueba con fecha de expiración pasada.',
+        isPublished: true,
+        expiresAt: new Date('2024-06-01'),
+      },
+    ],
   });
 
   console.log('✅ Seed completado exitosamente!');
@@ -5306,12 +9307,15 @@ async function main() {
   console.log(`👥 ${weekSchedule.count} weekSchedules creados`);
   console.log(`👥 ${classSession.count} classSessions creados`);
   console.log(`👥 ${assistance.count} assistances creados`);
-  console.log(`✅ ${theoryTasks.count} tareas de temario creadas`);
+
+
+  console.log(`✅ ${theoryTasks.count} tareas THEORY creadas`);
+  console.log(`✅ ${practiceTasks.count} tareas PRACTICE creadas`);
   console.log(`✅ ${examTasks.count} tareas de examen creadas`);
   console.log(`✅ ${studentTasks.count} StudentTasks creadas`);
-  console.log(`✅ ${announcements.count} anuncios creados`);
-}
+  console.log(`📢 ${issues.count} anuncios (issues) creados`);
 
+}
 
 main()
   .catch((e) => {

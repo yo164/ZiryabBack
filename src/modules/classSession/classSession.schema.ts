@@ -25,3 +25,10 @@ export const bulkSuspendBodySchema = z
   });
 
 export type BulkSuspendBody = z.infer<typeof bulkSuspendBodySchema>;
+
+export const bulkGenerateBodySchema = z.object({
+  label: z.string().min(1, 'label obligatorio'),
+  schoolYear: z.string().min(1, 'schoolYear obligatorio'),
+});
+
+export type BulkGenerateBody = z.infer<typeof bulkGenerateBodySchema>;

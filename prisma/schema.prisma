@@ -19,8 +19,9 @@ model Student {
   firebaseUID String   @unique
   //isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
-
-  enrollments StudentOnSubjectOnGroup[]
+  
+  enrollments      StudentOnSubjectOnGroup[]
+  issuesAsTarget   Issue[]                   @relation("IssueTargetStudent")
 }
 
 model Teacher {
@@ -39,6 +40,7 @@ model Teacher {
   assignments       TeacherOnSubjectOnGroup[]
   tutorCourseGroups CourseGroup[]
   grades            Grade[]
+  issuesAsTarget   Issue[]                   @relation("IssueTargetTeacher")
 }
 
 model Admin {
@@ -52,6 +54,8 @@ model Admin {
   role        String   @default("ADMIN")
   firebaseUID String   @unique
   createdAt  DateTime @default(now())
+
+  issues     Issue[]
 }
 
 model Course {
@@ -85,6 +89,8 @@ model CourseGroup {
 
   // Una clase = ciclo + grupo + grado únicos
   @@unique([idCourse, idGroup, grade])
+  subjects Subject[]
+  issues   Issue[]
 }
 
 model Subject {
@@ -100,8 +106,9 @@ model Subject {
 
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
+  issues             Issue[]
 
-  // Evita duplicar asignaturas en el mismo ciclo y curso
+  // NUEVO: Evita duplicar asignaturas en el mismo ciclo y curso
   @@unique([name, idCourse, grade])
   @@index([idCourse, grade]) 
 }
@@ -117,6 +124,7 @@ model Group {
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
   courseGroups       CourseGroup[]
+  issues             Issue[]
 }
 
 enum AssignmentStatus {
@@ -401,4 +409,53 @@ model Announcement {
   body            String
   createdAt       DateTime @default(now())
   createdByUserId Int
+}
+enum IssueAudience {
+  CENTER
+  ALL_TEACHERS
+  ALL_STUDENTS
+  GROUP
+  COURSE
+  SUBJECT_GROUP
+  TEACHER
+  STUDENT
+}
+
+model Issue {
+  id            Int              @id @default(autoincrement())
+
+  idAdmin       Int
+  admin         Admin            @relation(fields: [idAdmin], references: [id], onDelete: Restrict)
+
+  audience      IssueAudience
+  idGroup       Int?
+  group         Group?           @relation(fields: [idGroup], references: [id], onDelete: SetNull)
+  idCourse      Int?
+  course        Course?          @relation(fields: [idCourse], references: [id], onDelete: SetNull)
+  idSubject     Int?
+  subject       Subject?         @relation(fields: [idSubject], references: [id], onDelete: SetNull)
+  grade         String?          // "1" | "2" = curso (1º/2º). Solo audiencia COURSE. idCourse = ciclo (DAM, DAW…)
+  idTargetTeacher Int?
+  targetTeacher   Teacher?       @relation("IssueTargetTeacher", fields: [idTargetTeacher], references: [id], onDelete: SetNull)
+  idTargetStudent Int?
+  targetStudent   Student?       @relation("IssueTargetStudent", fields: [idTargetStudent], references: [id], onDelete: SetNull)
+
+  title         String
+  body          String
+  attachmentUrl String?
+
+  isPublished   Boolean          @default(false)
+  publishAt     DateTime?
+  expiresAt     DateTime?
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([audience, idGroup])
+  @@index([audience, idCourse, grade])
+  @@index([audience, idTargetTeacher])
+  @@index([audience, idTargetStudent])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@index([isPublished, publishAt])
 }

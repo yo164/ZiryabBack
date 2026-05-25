@@ -31,7 +31,11 @@ export const upsert = async (idCourse: number, idGroup: number, grade: string) =
   if (!course) throw new Error('Ciclo no encontrado');
   const group = await prisma.group.findUnique({ where: { id: idGroup } });
   if (!group) throw new Error('Grupo no encontrado');
-  if (grade !== '1' && grade !== '2') throw new Error('El grado debe ser "1" o "2"');
+  const normalizedGrade = String(grade).replace(/º/g, '').trim();
+  if (normalizedGrade !== '1' && normalizedGrade !== '2') {
+    throw new Error('El grado debe ser "1" o "2"');
+  }
+  grade = normalizedGrade;
 
   return prisma.courseGroup.upsert({
     where: { idCourse_idGroup_grade: { idCourse, idGroup, grade } },
@@ -61,7 +65,6 @@ export const eligibleTutors = async (id: number) => {
         idCourse: cg.idCourse,
         grade:    cg.grade,
       },
-      idTeacher: { not: null },
     },
     select: {
       teacher: {

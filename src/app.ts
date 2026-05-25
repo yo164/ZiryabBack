@@ -14,7 +14,6 @@ import subjectsRoutes from './modules/subjects/subjects.routes.js';
 import teachersRoutes from './modules/teachers/teachers.routes.js';
 import adminsRoutes from './modules/admin/admins.routes.js';
 import enrollmentRoutes from './modules/enrollments/enrollments.routes.js';
-import assignmentsRoutes from './modules/assignments/assignments.routes.js';
 import horariosRoutes from './modules/weekSchedule/weekSchedule.routes.js';
 import classSesionRoutes from './modules/classSession/classSession.routes.js'
 import assistanceRoutes from './modules/assistance/assistance.routes.js';
@@ -24,10 +23,12 @@ import usersRoutes from './modules/users/users.routes.js';
 import notificationsRoutes from './modules/notifications/notifications.routes.js';
 import announcementsRoutes from './modules/announcements/announcements.routes.js';
 
+import gradeRoutes from './modules/grade/grade.routes.js';
 
 
 import courseRouter from './modules/course/course.routes.js';
 import groupRouter from './modules/group/group.routes.js';
+import courseGroupRouter from './modules/course-group/course-group.routes.js';
 import studentregsitrationRouter from './modules/student-registration/student-registration.routes.js'
 //SACO UNA RAMA PARA IR HACIENDO PEQUEÑOS CAMBIOS EN LA BASE DE DATOS DE CARA A LA FUTURA ASIGNACIÓN DE UN PROFESOR A UNA ASIGNATURA IMPARTIDA EN UN GRUPO
 const app = express();
@@ -73,7 +74,7 @@ app.use(cors({
 app.use(express.json({ limit: '100kb' }));
 app.use(requestLogger);
 
-if (env.NODE_ENV !== 'test') {
+if (env.NODE_ENV === 'production') {
   app.use(generalLimiter);
 }
 
@@ -91,7 +92,6 @@ app.get('/', (_req, res) => {
       students: '/api/students',
       subjects: '/api/subjects',
       tasks: '/api/tasks',
-      assignments: '/api/assignments',
     },
   });
 });
@@ -110,10 +110,10 @@ app.use('/api/admins', adminsRoutes);
 
 app.use('/api/courses', courseRouter);
 app.use('/api/groups', groupRouter);
+app.use('/api/course-groups', courseGroupRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/studentregistration', studentregsitrationRouter);
 app.use('/api/enrollments', enrollmentRoutes);
-app.use('/api/assignments', assignmentsRoutes);
 app.use('/api/horarios-semanales', horariosRoutes);
 app.use('/api/sessions', classSesionRoutes);
 app.use('/api/assistances', assistanceRoutes)
@@ -126,6 +126,7 @@ app.use('/api/student-tasks', studentTaskRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/announcements', announcementsRoutes);
+app.use('/api/grades', gradeRoutes);
 
 
 

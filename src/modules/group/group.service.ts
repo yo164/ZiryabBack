@@ -5,8 +5,10 @@ export const findAll = async () => {
     select: {
       id: true,
       name: true,
-      createdAt: true
-    }
+      capacity: true,
+      createdAt: true,
+    },
+    orderBy: { name: 'asc' },
   });
 };
 
@@ -24,56 +26,24 @@ export const findById = async (id: number) => {
   });
 };
 
-export const create = async (data: {
-  name: string;
-}) => {
-  return prisma.group.create({
-    data,
-  });
+export const create = async (data: { name: string; capacity?: number }) => {
+  return prisma.group.create({ data });
 };
 
-export const update = async (
-  id: number,
-  data: {
-    name?: string;
-    idCourse?: number;
-  }
-) => {
+export const update = async (id: number, data: { name?: string; capacity?: number }) => {
   const exists = await prisma.group.findUnique({ where: { id } });
-  if (!exists) {
-    throw new Error('Grupo no encontrado');
-  }
-
-  return prisma.group.update({
-    where: { id },
-    data,
-  });
+  if (!exists) throw new Error('Grupo no encontrado');
+  return prisma.group.update({ where: { id }, data });
 };
 
-export const patch = async (
-  id: number,
-  data: Partial<{
-    name: string;
-  }>
-) => {
+export const patch = async (id: number, data: Partial<{ name: string; capacity: number }>) => {
   const exists = await prisma.group.findUnique({ where: { id } });
-  if (!exists) {
-    throw new Error('Grupo no encontrado');
-  }
-
-  return prisma.group.update({
-    where: { id },
-    data,
-  });
+  if (!exists) throw new Error('Grupo no encontrado');
+  return prisma.group.update({ where: { id }, data });
 };
 
 export const remove = async (id: number) => {
   const exists = await prisma.group.findUnique({ where: { id } });
-  if (!exists) {
-    throw new Error('Grupo no encontrado');
-  }
-
-  return prisma.group.delete({
-    where: { id },
-  });
+  if (!exists) throw new Error('Grupo no encontrado');
+  return prisma.group.delete({ where: { id } });
 };

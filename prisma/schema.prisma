@@ -35,8 +35,10 @@ model Teacher {
   firebaseUID String   @unique
   //isActive   Boolean  @default(true)  // NUEVO: También para profesores (bajas, jubilaciones)
   createdAt  DateTime @default(now())
-
-  assignments TeacherOnSubjectOnGroup[]
+  
+  assignments       TeacherOnSubjectOnGroup[]
+  tutorCourseGroups CourseGroup[]
+  grades            Grade[]
 }
 
 model Admin {
@@ -60,7 +62,29 @@ model Course {
   //isActive    Boolean  @default(true)  
   createdAt   DateTime @default(now())
 
-  subjects Subject[]
+  subjects     Subject[]
+  courseGroups CourseGroup[]
+}
+
+// Combinación Ciclo + Grupo + Grado (la "clase" real, ej: 1º DAM Mañana)
+model CourseGroup {
+  id        Int      @id @default(autoincrement())
+
+  idCourse  Int
+  course    Course   @relation(fields: [idCourse], references: [id], onDelete: Cascade)
+
+  idGroup   Int
+  group     Group    @relation(fields: [idGroup], references: [id], onDelete: Cascade)
+
+  grade     String   // "1" o "2" — curso dentro del ciclo
+
+  tutorId   Int?
+  tutor     Teacher? @relation(fields: [tutorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  // Una clase = ciclo + grupo + grado únicos
+  @@unique([idCourse, idGroup, grade])
 }
 
 model Subject {
@@ -83,15 +107,16 @@ model Subject {
 }
 
 model Group {
-  id       Int    @id @default(autoincrement())
-  name     String
-  //shift       String?  //"Mañana", "Tarde", "Noche" (más estructurado)
-  capacity Int? // Capacidad máxima de alumnos
-
-  createdAt DateTime @default(now())
-
+  id          Int      @id @default(autoincrement())
+  name        String
+  //shift       String?  // NUEVO: "Mañana", "Tarde", "Noche" (más estructurado)
+  capacity    Int?     // NUEVO: Capacidad máxima de alumnos
+  
+  createdAt   DateTime @default(now())
+  
   studentEnrollments StudentOnSubjectOnGroup[]
   teacherAssignments TeacherOnSubjectOnGroup[]
+  courseGroups       CourseGroup[]
 }
 
 enum AssignmentStatus {
@@ -159,11 +184,36 @@ model StudentOnSubjectOnGroup {
   // examGrades Json?
 
   Assistance   Assistance[]  @relation(name: "StudentEnrollment")
-  studentTasks StudentTask[] 
+  studentTasks StudentTask[]
+  grades       Grade[]
 
   @@unique([idStudent, idGroup, idSubject, schoolYear])
   @@index([schoolYear, status])
   @@index([idStudent, schoolYear])
+}
+
+enum EvaluationPeriod {
+  INITIAL
+  FIRST_TRIMESTER
+  SECOND_TRIMESTER
+  THIRD_TRIMESTER
+  FINAL
+}
+
+model Grade {
+  id                  Int                     @id @default(autoincrement())
+  idStudentEnrollment Int
+  studentEnrollment   StudentOnSubjectOnGroup @relation(fields: [idStudentEnrollment], references: [id], onDelete: Cascade)
+  period              EvaluationPeriod
+  value               Int?
+  observations        String?
+  idTeacher           Int
+  teacher             Teacher                 @relation(fields: [idTeacher], references: [id], onDelete: Restrict)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+
+  @@unique([idStudentEnrollment, period])
+  @@index([idTeacher])
 }
 
 // Días de la semana para el horario

@@ -193,10 +193,78 @@ router.get(
 );
 
 /**
+ * @swagger
+ * /api/assignments/tutored-by-me:
+ *   get:
+ *     summary: Grupos que tutorizo (profesor autenticado)
+ *     description: Devuelve los TeacherOnSubjectOnGroup donde isTutor=true para el profesor autenticado.
+ *     tags: [Assignments]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de asignaciones donde el profesor es tutor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: true }
+ *                 data: { type: array, items: { type: object } }
+ *                 count: { type: integer }
+ */
+router.get(
+  '/tutored-by-me',
+  auth,
+  authorize(['TEACHER', 'ADMIN']),
+  assignmentsController.getTutoredByMe,
+);
+
+/**
  * @route   GET /api/assignments
  * @desc    Listar todas las asignaciones (TeacherOnSubjectOnGroup), sin filtrar
  * @access  Admin, Teacher
  */
 router.get('/', auth, authorize(['ADMIN', 'TEACHER']), assignmentsController.getAllAssignments);
+
+/**
+ * @swagger
+ * /api/assignments/{id}:
+ *   patch:
+ *     summary: Actualizar parcialmente una asignación
+ *     description: |
+ *       Permite cambiar `status` e `isTutor`. Si `isTutor=true` y ya existe tutor
+ *       para la misma clase (subject + group + schoolYear), devuelve 409.
+ *     tags: [Assignments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [ACTIVE, SUSPENDED, ILLNESS, EXCEDENCE, WITHDRAWN, STANDBY]
+ *               isTutor:
+ *                 type: boolean
+ *                 description: Si true, valida que no exista ya tutor para esta clase en este año
+ *     responses:
+ *       200:
+ *         description: Asignación actualizada
+ *       404:
+ *         description: Asignación no encontrada
+ *       409:
+ *         description: Ya existe un tutor para esta clase en este año escolar
+ */
+router.patch('/:id', auth, authorize(['ADMIN']), assignmentsController.patchAssignment);
 
 export default router;

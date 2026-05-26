@@ -1,6 +1,6 @@
 import { AssignmentStatus } from '@prisma/client';
 import prisma from '../../config/prisma.js';
-import type { CreateAssignmentBody } from './assignments.schema.js';
+import type { CreateAssignmentBody, PatchAssignmentBody } from './assignments.schema.js';
 
 export type CreateAssignmentResult =
   | { kind: 'created'; assignment: Awaited<ReturnType<typeof prisma.teacherOnSubjectOnGroup.create>> }
@@ -152,6 +152,22 @@ export const createAssignment = async (
     return { kind: 'duplicate', existing: { id: existing.id } };
   }
 
+  if (input.isTutor) {
+    const existingTutor = await prisma.teacherOnSubjectOnGroup.findFirst({
+      where: {
+        idGroup: input.idGroup,
+        schoolYear: input.schoolYear,
+        isTutor: true,
+        subject: {
+          id: input.idSubject,
+        },
+      },
+    });
+    if (existingTutor) {
+      return { kind: 'error', message: 'Ya existe un tutor asignado a esta clase para este año escolar' };
+    }
+  }
+
   const assignment = await prisma.teacherOnSubjectOnGroup.create({
     data: {
       idTeacher: input.idTeacher,
@@ -159,11 +175,56 @@ export const createAssignment = async (
       idGroup: input.idGroup,
       schoolYear: input.schoolYear,
       status: input.status ?? AssignmentStatus.STANDBY,
+      isTutor: input.isTutor ?? false,
     },
     include: assignmentInclude,
   });
 
   return { kind: 'created', assignment };
+};
+
+export const patchAssignment = async (
+  id: number,
+  data: PatchAssignmentBody,
+): Promise<{ kind: 'updated'; assignment: Awaited<ReturnType<typeof prisma.teacherOnSubjectOnGroup.update>> } | { kind: 'notFound' } | { kind: 'error'; message: string }> => {
+  const existing = await prisma.teacherOnSubjectOnGroup.findUnique({ where: { id } });
+  if (!existing) return { kind: 'notFound' };
+
+  if (data.isTutor === true) {
+    const existingTutor = await prisma.teacherOnSubjectOnGroup.findFirst({
+      where: {
+        idGroup: existing.idGroup,
+        schoolYear: existing.schoolYear,
+        isTutor: true,
+        subject: { id: existing.idSubject },
+        NOT: { id },
+      },
+    });
+    if (existingTutor) {
+      return { kind: 'error', message: 'Ya existe un tutor asignado a esta clase para este año escolar' };
+    }
+  }
+
+  const assignment = await prisma.teacherOnSubjectOnGroup.update({
+    where: { id },
+    data,
+    include: assignmentInclude,
+  });
+
+  return { kind: 'updated', assignment };
+};
+
+export const getTutoredAssignments = async (idTeacher: number) => {
+  return prisma.teacherOnSubjectOnGroup.findMany({
+    where: { idTeacher, isTutor: true },
+    include: {
+      subject: {
+        include: { course: { select: { id: true, name: true } } },
+      },
+      group: true,
+    },
+    orderBy: [{ subject: { course: { name: 'asc' } } }, { subject: { grade: 'asc' } }],
+  });
 };
 
 export type BulkCreateRowResult = {

@@ -3,6 +3,7 @@ import * as assignmentsService from './assignments.service.js';
 import {
   createAssignmentBodySchema,
   createAssignmentsBulkBodySchema,
+  patchAssignmentBodySchema,
 } from './assignments.schema.js';
 
 export const getAllAssignments = async (_req: Request, res: Response) => {
@@ -157,6 +158,53 @@ export const postAssignment = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'Error al crear asignación',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
+
+export const patchAssignment = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id || '0', 10);
+  if (Number.isNaN(id) || id === 0) {
+    res.status(400).json({ success: false, message: 'ID de asignación inválido' });
+    return;
+  }
+
+  const parsed = patchAssignmentBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ success: false, message: 'Cuerpo inválido', errors: parsed.error.flatten() });
+    return;
+  }
+
+  try {
+    const result = await assignmentsService.patchAssignment(id, parsed.data);
+    if (result.kind === 'notFound') {
+      res.status(404).json({ success: false, message: 'Asignación no encontrada' });
+      return;
+    }
+    if (result.kind === 'error') {
+      res.status(409).json({ success: false, message: result.message });
+      return;
+    }
+    res.json({ success: true, message: 'Asignación actualizada', data: result.assignment });
+  } catch (error: unknown) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar asignación',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+    });
+  }
+};
+
+export const getTutoredByMe = async (req: Request, res: Response) => {
+  const idTeacher = (req as any).user?.id as number;
+  try {
+    const assignments = await assignmentsService.getTutoredAssignments(idTeacher);
+    res.json({ success: true, data: assignments, count: assignments.length });
+  } catch (error: unknown) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener tutorías',
       error: error instanceof Error ? error.message : 'Error desconocido',
     });
   }

@@ -9,6 +9,7 @@ export const createAssignmentBodySchema = z.object({
   idGroup: z.coerce.number().int().positive(),
   schoolYear: z.string().min(1, 'schoolYear obligatorio'),
   status: assignmentStatusSchema.optional(),
+  isTutor: z.boolean().optional().default(false),
 });
 
 export type CreateAssignmentBody = z.infer<typeof createAssignmentBodySchema>;
@@ -18,3 +19,10 @@ export const createAssignmentsBulkBodySchema = z.object({
 });
 
 export type CreateAssignmentsBulkBody = z.infer<typeof createAssignmentsBulkBodySchema>;
+
+export const patchAssignmentBodySchema = z.object({
+  status: assignmentStatusSchema.optional(),
+  isTutor: z.boolean().optional(),
+});
+
+export type PatchAssignmentBody = z.infer<typeof patchAssignmentBodySchema>;

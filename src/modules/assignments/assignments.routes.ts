@@ -193,34 +193,6 @@ router.get(
 );
 
 /**
- * @swagger
- * /api/assignments/tutored-by-me:
- *   get:
- *     summary: Grupos que tutorizo (profesor autenticado)
- *     description: Devuelve los TeacherOnSubjectOnGroup donde isTutor=true para el profesor autenticado.
- *     tags: [Assignments]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Lista de asignaciones donde el profesor es tutor
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success: { type: boolean, example: true }
- *                 data: { type: array, items: { type: object } }
- *                 count: { type: integer }
- */
-router.get(
-  '/tutored-by-me',
-  auth,
-  authorize(['TEACHER', 'ADMIN']),
-  assignmentsController.getTutoredByMe,
-);
-
-/**
  * @route   GET /api/assignments
  * @desc    Listar todas las asignaciones (TeacherOnSubjectOnGroup), sin filtrar
  * @access  Admin, Teacher

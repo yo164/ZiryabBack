@@ -196,20 +196,6 @@ export const patchAssignment = async (req: Request, res: Response) => {
   }
 };
 
-export const getTutoredByMe = async (req: Request, res: Response) => {
-  const idTeacher = (req as any).user?.id as number;
-  try {
-    const assignments = await assignmentsService.getTutoredAssignments(idTeacher);
-    res.json({ success: true, data: assignments, count: assignments.length });
-  } catch (error: unknown) {
-    res.status(500).json({
-      success: false,
-      message: 'Error al obtener tutorías',
-      error: error instanceof Error ? error.message : 'Error desconocido',
-    });
-  }
-};
-
 export const postAssignmentsBulk = async (req: Request, res: Response) => {
   const parsed = createAssignmentsBulkBodySchema.safeParse(req.body);
   if (!parsed.success) {

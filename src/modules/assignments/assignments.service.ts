@@ -214,19 +214,6 @@ export const patchAssignment = async (
   return { kind: 'updated', assignment };
 };
 
-export const getTutoredAssignments = async (idTeacher: number) => {
-  return prisma.teacherOnSubjectOnGroup.findMany({
-    where: { idTeacher, isTutor: true },
-    include: {
-      subject: {
-        include: { course: { select: { id: true, name: true } } },
-      },
-      group: true,
-    },
-    orderBy: [{ subject: { course: { name: 'asc' } } }, { subject: { grade: 'asc' } }],
-  });
-};
-
 export type BulkCreateRowResult = {
   index: number;
   assignment: Awaited<ReturnType<typeof prisma.teacherOnSubjectOnGroup.create>>;

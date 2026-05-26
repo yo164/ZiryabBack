@@ -140,7 +140,7 @@ export const findStudentsAbsencesByTeacher = async (teacherId: number) => {
             subject: {
                 select: { name: true }
             },
-            Assistance: {
+            assistances: {
                 where: {
                     OR: [
                         { status: 'ABSENT' },
@@ -169,7 +169,7 @@ export const findStudentsAbsencesByTeacher = async (teacherId: number) => {
         }
         
         const stData = studentMap.get(enr.student.id);
-        const absenceCount = enr.Assistance.length;
+        const absenceCount = enr.assistances.length;
         
         stData.subjects.push({
             subjectName: enr.subject.name,

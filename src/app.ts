@@ -21,15 +21,14 @@ import taskRoutes from './modules/task/task.routes.js';
 import studentTaskRoutes from './modules/student-task/student-task.routes.js';
 import usersRoutes from './modules/users/users.routes.js';
 import notificationsRoutes from './modules/notifications/notifications.routes.js';
-import announcementsRoutes from './modules/announcements/announcements.routes.js';
 import issueRoutes from './modules/issue/issue.routes.js';
-import gradeRoutes from './modules/grade/grade.routes.js';
+import subjectEvaluationRoutes from './modules/subject-evaluation/subject-evaluation.routes.js';
 import assignmentsRoutes from './modules/assignments/assignments.routes.js';
+import assignmentSubstitutionRoutes from './modules/assignment-substitution/assignment-substitution.routes.js';
 
 
 import courseRouter from './modules/course/course.routes.js';
 import groupRouter from './modules/group/group.routes.js';
-import courseGroupRouter from './modules/course-group/course-group.routes.js';
 import studentregsitrationRouter from './modules/student-registration/student-registration.routes.js'
 //SACO UNA RAMA PARA IR HACIENDO PEQUEÑOS CAMBIOS EN LA BASE DE DATOS DE CARA A LA FUTURA ASIGNACIÓN DE UN PROFESOR A UNA ASIGNATURA IMPARTIDA EN UN GRUPO
 const app = express();
@@ -94,8 +93,9 @@ app.get('/', (_req, res) => {
       subjects: '/api/subjects',
       tasks: '/api/tasks',
       assignments: '/api/assignments',
+      assignmentSubstitutions: '/api/assignment-substitutions',
       issues: '/api/issues',
-      grades: '/api/grades',
+      subjectEvaluations: '/api/subject-evaluations',
     },
   });
 });
@@ -114,7 +114,6 @@ app.use('/api/admins', adminsRoutes);
 
 app.use('/api/courses', courseRouter);
 app.use('/api/groups', groupRouter);
-app.use('/api/course-groups', courseGroupRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/studentregistration', studentregsitrationRouter);
 app.use('/api/enrollments', enrollmentRoutes);
@@ -130,8 +129,9 @@ app.use('/api/student-tasks', studentTaskRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/issues', issueRoutes);
-app.use('/api/grades', gradeRoutes);
+app.use('/api/subject-evaluations', subjectEvaluationRoutes);
 app.use('/api/assignments', assignmentsRoutes);
+app.use('/api/assignment-substitutions', assignmentSubstitutionRoutes);
 
 
 

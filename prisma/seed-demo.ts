@@ -149,10 +149,6 @@ async function cleanupDemoData(studentIds: number[], teacherIds: number[]): Prom
     await prisma.task.deleteMany({ where: { idTeacherAssignment: { in: assignmentIds } } });
   }
 
-  if (teacherIds.length > 0) {
-    await prisma.announcement.deleteMany({ where: { createdByUserId: { in: teacherIds } } });
-  }
-
   await prisma.notification.deleteMany({
     where: { recipientFirebaseUID: { in: DEMO_FIREBASE_UIDS } },
   });
@@ -378,23 +374,6 @@ async function main() {
       { idSession: sessionPastFri.id, idStudentEnrollment: enrollment2.id, status: AssistanceStatus.PRESENT },
       { idSession: sessionToday.id, idStudentEnrollment: enrollment1.id, status: AssistanceStatus.PRESENT },
       { idSession: sessionToday.id, idStudentEnrollment: enrollment2.id, status: AssistanceStatus.PRESENT },
-    ],
-  });
-
-  // ─── ANUNCIOS (tablón) ────────────────────────────────────────────────────
-  console.log('  📢 Creando anuncios del tablón...');
-  await prisma.announcement.createMany({
-    data: [
-      {
-        title: 'Bienvenidos al curso demo',
-        body: 'Usad las cuentas alumno1/alumno2 para probar temario, horario y asistencias.',
-        createdByUserId: profesor.id,
-      },
-      {
-        title: 'Recordatorio entrega práctica',
-        body: 'La práctica de RecyclerView + Retrofit vence la semana que viene.',
-        createdByUserId: profesor.id,
-      },
     ],
   });
 

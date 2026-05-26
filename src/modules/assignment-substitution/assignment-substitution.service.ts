@@ -74,12 +74,47 @@ export const create = async (data: {
 }) => {
   await assertAssignmentExists(data.idTeacherAssignment);
 
-  return prisma.assignmentSubstitution.create({
-    data,
-    include: {
-      teacherAssignment: true,
-      substitute: true,
+  const startDate = data.startDate ? new Date(data.startDate) : new Date();
+  const endDate = data.endDate ? new Date(data.endDate) : undefined;
+
+  if (endDate && endDate < startDate) {
+    throw new Error('La fecha de fin no puede ser anterior a la fecha de inicio');
+  }
+
+  const activeSubstitution = await prisma.assignmentSubstitution.findFirst({
+    where: {
+      idTeacherAssignment: data.idTeacherAssignment,
+      OR: [
+        { endDate: null },
+        { endDate: { gte: startDate } },
+      ],
     },
+  });
+
+  if (activeSubstitution) {
+    throw new Error('Ya existe una sustitución activa para este assignment');
+  }
+
+  return prisma.$transaction(async (tx) => {
+    await tx.teacherOnSubjectOnGroup.update({
+      where: { id: data.idTeacherAssignment },
+      data: {
+        currentSubstituteId: data.idSubstitute,
+        status: 'ILLNESS',
+      },
+    });
+
+    return tx.assignmentSubstitution.create({
+      data: {
+        ...data,
+        startDate,
+        endDate,
+      },
+      include: {
+        teacherAssignment: true,
+        substitute: true,
+      },
+    });
   });
 };
 

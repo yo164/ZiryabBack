@@ -20,30 +20,30 @@ export const getSubstitutionById = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id || '0');
     if (isNaN(id) || id === 0) {
-      return res.status(400).json({ success: false, message: 'ID inválido' });
+      return res.status(400).json({ success: false, message: 'ID inv?lido' });
     }
 
     const data = await substitutionService.findById(id);
     if (!data) {
-      return res.status(404).json({ success: false, message: 'Sustitución no encontrada' });
+      return res.status(404).json({ success: false, message: 'Sustituci?n no encontrada' });
     }
 
     res.json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: 'Error al obtener sustitución',
+      message: 'Error al obtener sustituci?n',
       error: error.message,
     });
   }
 };
 
-// GET BY ASSIGNMENT — historial de un assignment concreto
+// GET BY ASSIGNMENT ? historial de un assignment concreto
 export const getSubstitutionsByAssignment = async (req: Request, res: Response) => {
   try {
     const assignmentId = parseInt(req.params.assignmentId || '0');
     if (isNaN(assignmentId) || assignmentId === 0) {
-      return res.status(400).json({ success: false, message: 'ID de assignment inválido' });
+      return res.status(400).json({ success: false, message: 'ID de assignment inv?lido' });
     }
 
     const data = await substitutionService.findByAssignmentId(assignmentId);
@@ -66,16 +66,19 @@ export const createSubstitution = async (req: Request, res: Response) => {
     const data = await substitutionService.create(req.body);
     res.status(201).json({
       success: true,
-      message: 'Sustitución creada exitosamente',
+      message: 'Sustituci?n creada exitosamente',
       data,
     });
   } catch (error: any) {
     if (error.message === 'Assignment no encontrado') {
       return res.status(404).json({ success: false, message: error.message });
     }
+    if (error.message === 'Ya existe una sustituci?n activa para este assignment') {
+      return res.status(409).json({ success: false, message: error.message });
+    }
     res.status(400).json({
       success: false,
-      message: 'Error al crear sustitución',
+      message: 'Error al crear sustituci?n',
       error: error.message,
     });
   }
@@ -86,22 +89,22 @@ export const updateSubstitution = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id || '0');
     if (isNaN(id) || id === 0) {
-      return res.status(400).json({ success: false, message: 'ID inválido' });
+      return res.status(400).json({ success: false, message: 'ID inv?lido' });
     }
 
     const data = await substitutionService.update(id, req.body);
     res.json({
       success: true,
-      message: 'Sustitución actualizada exitosamente',
+      message: 'Sustituci?n actualizada exitosamente',
       data,
     });
   } catch (error: any) {
-    if (error.message === 'Sustitución no encontrada') {
+    if (error.message === 'Sustituci?n no encontrada') {
       return res.status(404).json({ success: false, message: error.message });
     }
     res.status(400).json({
       success: false,
-      message: 'Error al actualizar sustitución',
+      message: 'Error al actualizar sustituci?n',
       error: error.message,
     });
   }
@@ -112,22 +115,22 @@ export const patchSubstitution = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id || '0');
     if (isNaN(id) || id === 0) {
-      return res.status(400).json({ success: false, message: 'ID inválido' });
+      return res.status(400).json({ success: false, message: 'ID inv?lido' });
     }
 
     const data = await substitutionService.patch(id, req.body);
     res.json({
       success: true,
-      message: 'Sustitución actualizada parcialmente',
+      message: 'Sustituci?n actualizada parcialmente',
       data,
     });
   } catch (error: any) {
-    if (error.message === 'Sustitución no encontrada') {
+    if (error.message === 'Sustituci?n no encontrada') {
       return res.status(404).json({ success: false, message: error.message });
     }
     res.status(400).json({
       success: false,
-      message: 'Error al actualizar sustitución',
+      message: 'Error al actualizar sustituci?n',
       error: error.message,
     });
   }
@@ -138,33 +141,33 @@ export const deleteSubstitution = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id || '0');
     if (isNaN(id) || id === 0) {
-      return res.status(400).json({ success: false, message: 'ID inválido' });
+      return res.status(400).json({ success: false, message: 'ID inv?lido' });
     }
 
     const data = await substitutionService.remove(id);
     res.json({
       success: true,
-      message: 'Sustitución eliminada exitosamente',
+      message: 'Sustituci?n eliminada exitosamente',
       data,
     });
   } catch (error: any) {
-    if (error.message === 'Sustitución no encontrada') {
+    if (error.message === 'Sustituci?n no encontrada') {
       return res.status(404).json({ success: false, message: error.message });
     }
     res.status(500).json({
       success: false,
-      message: 'Error al eliminar sustitución',
+      message: 'Error al eliminar sustituci?n',
       error: error.message,
     });
   }
 };
 
-// PATCH /:id/close — cierra la sustitución y reactiva al titular
+// PATCH /:id/close ? cierra la sustituci?n y reactiva al titular
 export const closeSubstitution = async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id || '0');
     if (isNaN(id) || id === 0) {
-      return res.status(400).json({ success: false, message: 'ID inválido' });
+      return res.status(400).json({ success: false, message: 'ID inv?lido' });
     }
 
     const { endDate } = req.body;
@@ -175,16 +178,16 @@ export const closeSubstitution = async (req: Request, res: Response) => {
     const data = await substitutionService.closeSubstitution(id, new Date(endDate));
     res.json({
       success: true,
-      message: 'Sustitución cerrada y titular reactivado',
+      message: 'Sustituci?n cerrada y titular reactivado',
       data,
     });
   } catch (error: any) {
-    if (error.message === 'Sustitución no encontrada') {
+    if (error.message === 'Sustituci?n no encontrada') {
       return res.status(404).json({ success: false, message: error.message });
     }
     res.status(400).json({
       success: false,
-      message: 'Error al cerrar sustitución',
+      message: 'Error al cerrar sustituci?n',
       error: error.message,
     });
   }

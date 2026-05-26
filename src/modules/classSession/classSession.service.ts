@@ -262,7 +262,7 @@ export const findOrCreateSessionForSubjectAndTeacher = async (
   const assignments = await prisma.teacherOnSubjectOnGroup.findMany({
     where: { idSubject, idTeacher },
     include: {
-      WeekSchedule: true,
+      weekSchedules: true,
       subject: { include: { course: true } },
       group: true,
     },
@@ -276,7 +276,7 @@ export const findOrCreateSessionForSubjectAndTeacher = async (
 
   // Horario de la clase en la franja actual
   for (const assignment of assignments) {
-    const match = assignment.WeekSchedule.find(s =>
+    const match = assignment.weekSchedules.find(s =>
       s.weekDay === todayDay &&
       s.startTime <= currentHour &&
       s.finishTime >= currentHour
@@ -290,7 +290,7 @@ export const findOrCreateSessionForSubjectAndTeacher = async (
   // buscamos si hay alguna programada para hoy 
   if (!selectedSchedule) {
     for (const assignment of assignments) {
-      const todayMatch = assignment.WeekSchedule.find(s => s.weekDay === todayDay);
+      const todayMatch = assignment.weekSchedules.find(s => s.weekDay === todayDay);
       if (todayMatch) {
         selectedSchedule = todayMatch;
         break;

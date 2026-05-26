@@ -319,6 +319,36 @@ const options: swaggerJsdoc.Options = {
             errors: { type: 'object' },
           },
         },
+        SubjectEvaluation: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer', example: 12 },
+            idStudentEnrollment: { type: 'integer', example: 44 },
+            period: {
+              type: 'string',
+              enum: ['INITIAL', 'FIRST_TRIMESTER', 'SECOND_TRIMESTER', 'THIRD_TRIMESTER', 'FINAL'],
+              example: 'FIRST_TRIMESTER',
+            },
+            value: { type: 'integer', nullable: true, example: 8 },
+            observations: { type: 'string', nullable: true, example: 'Buen progreso' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        CreateSubjectEvaluationInput: {
+          type: 'object',
+          required: ['idStudentEnrollment', 'period'],
+          properties: {
+            idStudentEnrollment: { type: 'integer', example: 44 },
+            period: {
+              type: 'string',
+              enum: ['INITIAL', 'FIRST_TRIMESTER', 'SECOND_TRIMESTER', 'THIRD_TRIMESTER', 'FINAL'],
+              example: 'FIRST_TRIMESTER',
+            },
+            value: { type: 'integer', minimum: 1, maximum: 10, example: 8 },
+            observations: { type: 'string', nullable: true, example: 'Puede mejorar la entrega' },
+          },
+        },
       },
     },
     tags: [
@@ -349,6 +379,10 @@ const options: swaggerJsdoc.Options = {
       {
         name: 'Issues',
         description: 'Tablón de anuncios (audiencia por rol, grupo o ciclo)',
+      },
+      {
+        name: 'Subject Evaluations',
+        description: 'Evaluaciones por periodo sobre matrículas de alumnos',
       },
 
     ],

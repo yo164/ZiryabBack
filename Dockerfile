@@ -1,6 +1,8 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY package*.json tsconfig*.json prisma ./prisma/
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY prisma ./prisma/
 RUN npm ci
 COPY src ./src/
 RUN npx prisma generate --schema=./prisma/schema.prisma
@@ -11,7 +13,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 RUN apk add --no-cache dumb-init
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma/client ./node_modules/.prisma/client
 COPY prisma ./prisma/

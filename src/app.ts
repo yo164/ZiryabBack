@@ -100,7 +100,7 @@ app.get('/', (_req, res) => {
   });
 });
 
-// Rutas estáticas para uploads
+// Legacy: ficheros antiguos en disco local (nuevas subidas van a Cloudinary)
 app.use('/uploads', express.static('uploads'));
 
 // Documentación Swagger

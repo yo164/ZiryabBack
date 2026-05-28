@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import * as assistanceService from './assistance.service.js';
+import { uploadFromMulter, CLOUDINARY_FOLDERS } from '../../utils/cloudinary.js';
 
 // Controlador para obtener faltas del alumno logueado
 export const getMyAbsences = async (req: Request, res: Response) => {
@@ -279,6 +280,21 @@ export const justify = async (req: Request, res: Response) => {
 
         if (req.user?.role === 'TEACHER') {
             const isOwner = await assistanceService.checkAssistanceOwnership(id, req.user.sub);
+            // #region agent log justify ownership
+            fetch('http://127.0.0.1:7657/ingest/56110fac-808a-4372-8a92-70be1d970306', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '459916' },
+                body: JSON.stringify({
+                    sessionId: '459916',
+                    runId: 'justify-image-debug-1',
+                    hypothesisId: 'H3',
+                    location: 'assistance.controller.ts:justify:ownership',
+                    message: 'teacher ownership check',
+                    data: { assistanceId: id, teacherId: req.user.sub, isOwner },
+                    timestamp: Date.now(),
+                }),
+            }).catch(() => {});
+            // #endregion
             if (!isOwner) return res.status(403).json({ success: false, message: 'No autorizado' });
         }
 
@@ -286,6 +302,26 @@ export const justify = async (req: Request, res: Response) => {
         if (!assistance) {
             return res.status(404).json({ success: false, message: 'Asistencia no encontrada' });
         }
+        // #region agent log justify payload state
+        fetch('http://127.0.0.1:7657/ingest/56110fac-808a-4372-8a92-70be1d970306', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '459916' },
+            body: JSON.stringify({
+                sessionId: '459916',
+                runId: 'justify-image-debug-1',
+                hypothesisId: 'H1H2',
+                location: 'assistance.controller.ts:justify:state-check',
+                message: 'justification state before updating',
+                data: {
+                    assistanceId: assistance.id,
+                    justificationUriExists: !!assistance.justificationUri,
+                    justificationStatus: assistance.justificationStatus,
+                    currentAssistanceStatus: assistance.status,
+                },
+                timestamp: Date.now(),
+            }),
+        }).catch(() => {});
+        // #endregion
         if (!assistance.justificationUri || assistance.justificationStatus !== 'PENDING') {
             return res.status(400).json({
                 success: false,
@@ -383,16 +419,10 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
         const assistance = await assistanceService.findById(id);
         if (!assistance) {
-             // Si no existe, borramos el archivo subido para no ocupar espacio
-             const fs = await import('fs');
-             const path = await import('path');
-             if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
              return res.status(404).json({ success: false, message: 'Asistencia no encontrada' });
         }
 
-        // Construir la URL relativa del archivo documentado
-        // Express static lo sirve en /uploads, por tanto la URL será /uploads/justifications/{filename}
-        const justificationUri = `/uploads/justifications/${req.file.filename}`;
+        const justificationUri = await uploadFromMulter(req.file, CLOUDINARY_FOLDERS.justifications);
 
         const updated = await assistanceService.updateJustificationOnUpload(id, justificationUri);
 

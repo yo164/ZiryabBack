@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service.js';
 import { logger } from '../../utils/logger.js';
+import { cookieAuthOptions } from '../../utils/cookie-options.js';
 
 export class AuthController {
   /**
@@ -105,12 +106,7 @@ export class AuthController {
         AuthService.setLegacyTestPassword(email, legacyPassword);
       }
 
-      res.cookie('auth_token', userToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000,
-      });
+      res.cookie('auth_token', userToken, cookieAuthOptions);
 
       return res.status(201).json({
         message: 'Usuario registrado correctamente',
@@ -161,12 +157,7 @@ export class AuthController {
       }
       const { token: userToken, ...userData } = user;
 
-      res.cookie('auth_token', userToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000,
-      });
+      res.cookie('auth_token', userToken, cookieAuthOptions);
 
       return res.status(200).json({
         message: 'Login exitoso',

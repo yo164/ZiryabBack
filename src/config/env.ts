@@ -47,6 +47,28 @@ const envSchema = z.object({
   ),
 
   FRONTEND_URL: z.string(),
+
+  CLOUDINARY_CLOUD_NAME: z.preprocess(
+    (v) => {
+      if (typeof v === 'string' && v.length > 0) return v;
+      return process.env.NODE_ENV === 'test' ? 'test-cloud' : '';
+    },
+    z.string().min(1, 'CLOUDINARY_CLOUD_NAME es obligatoria'),
+  ),
+  CLOUDINARY_API_KEY: z.preprocess(
+    (v) => {
+      if (typeof v === 'string' && v.length > 0) return v;
+      return process.env.NODE_ENV === 'test' ? 'test-key' : '';
+    },
+    z.string().min(1, 'CLOUDINARY_API_KEY es obligatoria'),
+  ),
+  CLOUDINARY_API_SECRET: z.preprocess(
+    (v) => {
+      if (typeof v === 'string' && v.length > 0) return v;
+      return process.env.NODE_ENV === 'test' ? 'test-secret' : '';
+    },
+    z.string().min(1, 'CLOUDINARY_API_SECRET es obligatoria'),
+  ),
 });
 
 // Parsea y exporta

@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { TaskType } from '@prisma/client';
 import * as taskService from './task.service.js';
+import { uploadFromMulter, CLOUDINARY_FOLDERS } from '../../utils/cloudinary.js';
 
 const VALID_TASK_TYPES = Object.values(TaskType);
 
@@ -126,7 +127,9 @@ export const createTask = async (req: Request, res: Response) => {
     const parsedTaskGroupId = idTaskGroup !== undefined && idTaskGroup !== null && idTaskGroup !== ''
       ? Number(idTaskGroup)
       : undefined;
-    const finalAttachmentUrl = req.file ? `/uploads/tasks/${req.file.filename}` : attachmentUrl;
+    const finalAttachmentUrl = req.file
+      ? await uploadFromMulter(req.file, CLOUDINARY_FOLDERS.tasks)
+      : attachmentUrl;
     const parsedIsPublished = parseBooleanInput(isPublished);
     const parsedAllowLateSubmission = parseBooleanInput(allowLateSubmission);
 
@@ -306,7 +309,7 @@ export const updateTask = async (req: Request, res: Response) => {
       }
 
     if (req.file) {
-      updatePayload.attachmentUrl = `/uploads/tasks/${req.file.filename}`;
+      updatePayload.attachmentUrl = await uploadFromMulter(req.file, CLOUDINARY_FOLDERS.tasks);
     }
 
     const { requesterId, requesterRole } = getRequester(req);

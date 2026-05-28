@@ -6,8 +6,8 @@ COPY prisma ./prisma/
 RUN npm ci
 COPY src ./src/
 RUN npx prisma generate --schema=./prisma/schema.prisma
-# Build SIN strict para Render
-RUN tsc --skipLibCheck --strict false -p tsconfig.json
+# Build SIN strict para Render (tsc vive en devDependencies → npx)
+RUN npx tsc --skipLibCheck --strict false -p tsconfig.json
 
 FROM node:20-alpine AS runner
 WORKDIR /app

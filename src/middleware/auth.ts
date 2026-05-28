@@ -43,7 +43,12 @@ export function auth(req: Request, res: Response, next: NextFunction): void {
     authorizationHeader && authorizationHeader.startsWith('Bearer ')
       ? authorizationHeader.substring('Bearer '.length).trim()
       : undefined;
-  const token = cookieToken || bearerToken;
+  /** EventSource no puede enviar cabeceras; aceptar token en query (p. ej. SSE). */
+  const queryToken =
+    typeof req.query.token === 'string' && req.query.token.length > 0
+      ? req.query.token
+      : undefined;
+  const token = cookieToken || bearerToken || queryToken;
 
   if (!token) {
     res.status(401).json({

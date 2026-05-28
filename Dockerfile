@@ -13,6 +13,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 RUN apk add --no-cache dumb-init
 COPY package*.json ./
+COPY prisma ./prisma/
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma/client ./node_modules/.prisma/client
@@ -22,4 +23,4 @@ RUN mkdir -p logs && chown -R node:node /app
 ENV NODE_ENV=production
 USER node
 EXPOSE 3000
-CMD ["dumb-init", "node", "dist/index.js"]
+CMD ["dumb-init", "sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma && node dist/index.js"]

@@ -11,7 +11,7 @@ RUN npx tsc --skipLibCheck --strict false -p tsconfig.json
 
 FROM node:20-alpine AS runner
 WORKDIR /app
-RUN apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init openssl libc6-compat
 COPY package*.json ./
 COPY prisma ./prisma/
 RUN npm ci --omit=dev

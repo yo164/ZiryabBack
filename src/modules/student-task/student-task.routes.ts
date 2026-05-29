@@ -6,61 +6,80 @@ import { uploadSubmission } from '../../middleware/upload.js';
 
 const router = Router();
 
-// ============================================
-// RUTAS PÚBLICAS (GET - sin autenticación)
-// ============================================
-
 /**
  * @swagger
  * /api/student-tasks:
  *   get:
- *     summary: Obtener todas las entregas
- *     description: Obtiene todas las entregas de tareas del sistema.
- *     tags: [Tasks]
+ *     summary: Listar entregas de tareas
+ *     tags: [StudentTasks]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de entregas
+ *   post:
+ *     summary: Crear entrega individual
+ *     tags: [StudentTasks]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Entrega creada
  */
 router.get('/', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.getAllStudentTasks);
+router.post('/', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.createStudentTask);
 
 /**
  * @swagger
- * /api/student-tasks/{id}:
- *   get:
- *     summary: Obtener una entrega por ID
- *     description: Retorna el contenido de una entrega específica (calificación, feedback, archivo).
- *     tags: [Tasks]
+ * /api/student-tasks/bulk:
+ *   post:
+ *     summary: Crear entregas en masa
+ *     tags: [StudentTasks]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
+ *     responses:
+ *       201:
+ *         description: Entregas creadas
+ */
+router.post('/bulk', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.createBulkStudentTasks);
+
+/**
+ * @swagger
+ * /api/student-tasks/upload-submission:
+ *   post:
+ *     summary: Subir archivo de entrega
+ *     tags: [StudentTasks]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
- *         description: Entrega encontrada
+ *         description: URL del fichero subido
  */
-router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.getStudentTaskById);
+router.post('/upload-submission', auth, authorize(['STUDENT']), uploadSubmission.single('file'), studentTaskController.uploadFile);
 
 /**
  * @swagger
  * /api/student-tasks/task/{idTask}:
  *   get:
- *     summary: Obtener entregas de una tarea
- *     description: Devuelve todas las entregas (StudentTasks) asociadas a una Tarea específica.
- *     tags: [Tasks]
+ *     summary: Entregas de una tarea
+ *     tags: [StudentTasks]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: idTask
+ *         required: true
  *         schema:
  *           type: integer
- *         required: true
  *     responses:
  *       200:
  *         description: Lista de entregas
@@ -71,60 +90,28 @@ router.get('/task/:idTask', auth, authorize(['ADMIN', 'TEACHER']), studentTaskCo
  * @swagger
  * /api/student-tasks/student/{idStudentEnrollment}:
  *   get:
- *     summary: Obtener entregas de un estudiante
- *     description: Devuelve todas las tareas entregadas y pendientes de un alumno según su matrícula.
- *     tags: [Tasks]
+ *     summary: Entregas de un alumno (por matrícula)
+ *     tags: [StudentTasks]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: idStudentEnrollment
+ *         required: true
  *         schema:
  *           type: integer
- *         required: true
  *     responses:
  *       200:
  *         description: Lista de entregas
  */
 router.get('/student/:idStudentEnrollment', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.getStudentTasksByStudent);
 
-// ============================================
-// RUTAS PROTEGIDAS (PUT, PATCH, DELETE, POST)
-// ============================================
-
 /**
- * @route   POST /api/student-tasks
- * @desc    Crear una entrega individual
- * @access  Teacher
- */
-router.post('/', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.createStudentTask);
-
-/**
- * @route   POST /api/student-tasks/bulk
- * @desc    Crear entregas en masa para una tarea
- * @access  Teacher
- */
-router.post('/bulk', auth, authorize(['ADMIN', 'TEACHER']), studentTaskController.createBulkStudentTasks);
-
-/**
- * @route   POST /api/student-tasks/upload-submission
- * @desc    Sube un archivo de entrega (documento, pdf, zip)
- * @access  Student
- */
-router.post('/upload-submission', auth, authorize(['STUDENT']), uploadSubmission.single('file'), studentTaskController.uploadFile);
-
-/**
- * @openapi
- * /student-tasks/{id}/submit:
- *   put:
- *     summary: Entrega una tarea por parte del alumno
- *     tags: [StudentTasks]
  * @swagger
- * /api/student-tasks/{id}:
- *   patch:
- *     summary: Actualizar una entrega
- *     description: Permite al profesor calificar (score, feedback, status) o al alumno adjuntar la tarea.
- *     tags: [Tasks]
+ * /api/student-tasks/{id}/submit:
+ *   put:
+ *     summary: Entregar tarea (alumno)
+ *     tags: [StudentTasks]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -133,33 +120,11 @@ router.post('/upload-submission', auth, authorize(['STUDENT']), uploadSubmission
  *         required: true
  *         schema:
  *           type: integer
- *     requestBody:
- *       required: false
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               attachmentUrl:
- *                 type: string
  *     responses:
  *       200:
  *         description: Tarea entregada
- */
-router.put('/:id/submit', auth, authorize(['STUDENT']), studentTaskController.submitStudentTask);
-
-/**
- * @route   DELETE /api/student-tasks/:id/submit
- * @desc    Borra una entrega de tarea de un alumno
- * @access  Student
- */
-router.delete('/:id/submit', auth, authorize(['STUDENT']), studentTaskController.unsubmitStudentTask);
-
-/**
- * @openapi
- * /student-tasks/{id}/grade:
- *   put:
- *     summary: Califica una tarea entregada (sólo profesor asignado)
+ *   delete:
+ *     summary: Retirar entrega (alumno)
  *     tags: [StudentTasks]
  *     security:
  *       - bearerAuth: []
@@ -169,17 +134,34 @@ router.delete('/:id/submit', auth, authorize(['STUDENT']), studentTaskController
  *         required: true
  *         schema:
  *           type: integer
+ *     responses:
+ *       200:
+ *         description: Entrega retirada
+ */
+router.put('/:id/submit', auth, authorize(['STUDENT']), studentTaskController.submitStudentTask);
+router.delete('/:id/submit', auth, authorize(['STUDENT']), studentTaskController.unsubmitStudentTask);
+
+/**
+ * @swagger
+ * /api/student-tasks/{id}/grade:
+ *   put:
+ *     summary: Calificar entrega (profesor)
+ *     tags: [StudentTasks]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
  *         schema:
  *           type: integer
- *         required: true
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - score
+ *             required: [score]
  *             properties:
  *               score:
  *                 type: number
@@ -187,40 +169,63 @@ router.delete('/:id/submit', auth, authorize(['STUDENT']), studentTaskController
  *                 type: string
  *     responses:
  *       200:
- *         description: Tarea calificada
+ *         description: Entrega calificada
  */
 router.put('/:id/grade', auth, authorize(['TEACHER']), studentTaskController.gradeStudentTask);
 
 /**
- * @route   PATCH /api/student-tasks/:id
- * @desc    Actualizar una entrega (estado, calificación, etc.) genérico
- * @access  Admin, Teacher, Student
- *             $ref: '#/components/schemas/UpdateStudentTask'
- *     responses:
- *       200:
- *         description: Entrega actualizada
- */
-router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.updateStudentTask);
-
-/**
  * @swagger
  * /api/student-tasks/{id}:
- *   delete:
- *     summary: Eliminar una entrega
- *     description: Elimina una base de entrega (Admin).
- *     tags: [Tasks]
+ *   get:
+ *     summary: Obtener entrega por ID
+ *     tags: [StudentTasks]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: integer
+ *     responses:
+ *       200:
+ *         description: Entrega encontrada
+ *   patch:
+ *     summary: Actualizar entrega
+ *     tags: [StudentTasks]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
  *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateStudentTask'
+ *     responses:
+ *       200:
+ *         description: Entrega actualizada
+ *   delete:
+ *     summary: Eliminar entrega
+ *     tags: [StudentTasks]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Entrega eliminada
  */
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.getStudentTaskById);
+router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), studentTaskController.updateStudentTask);
 router.delete('/:id', auth, authorize(['ADMIN']), studentTaskController.deleteStudentTask);
 
 export default router;

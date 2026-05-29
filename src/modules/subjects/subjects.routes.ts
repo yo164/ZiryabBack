@@ -5,74 +5,152 @@ import * as subjectsController from './subjects.controller.js';
 
 const router = Router();
 
-// ============================================
-// RUTAS PÚBLICAS (GET - sin autenticación)
-// ============================================
-
 /**
- * @route   GET /api/subjects
- * @desc    Obtener todas las asignaturas
- * @access  Admin, Teacher, Student
+ * @swagger
+ * /api/subjects:
+ *   get:
+ *     summary: Listar asignaturas
+ *     tags: [Subjects]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de asignaturas
+ *   post:
+ *     summary: Crear asignatura
+ *     tags: [Subjects]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Asignatura creada
  */
 router.get('/', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), subjectsController.getAllSubjects);
+router.post('/', auth, authorize(['ADMIN']), subjectsController.createSubject);
 
 /**
- * @route   GET /api/subjects/:id
- * @desc    Obtener una asignatura por ID
- * @access  Admin, Teacher, Student
- */
-router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), subjectsController.getSubjectById);
-
-/**
- * @route   GET /api/subjects/:id/teachers
- * @desc    Obtener profesores de una asignatura
- * @access  Admin, Teacher, Student
+ * @swagger
+ * /api/subjects/{id}/teachers:
+ *   get:
+ *     summary: Profesores de una asignatura
+ *     tags: [Subjects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Profesores asignados
  */
 router.get('/:id/teachers', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), subjectsController.getSubjectTeachers);
 
 /**
- * @route   GET /api/subjects/:id/students
- * @desc    Obtener estudiantes de una asignatura
- * @access  Admin, Teacher
+ * @swagger
+ * /api/subjects/{id}/students:
+ *   get:
+ *     summary: Estudiantes de una asignatura
+ *     tags: [Subjects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Alumnos matriculados
  */
 router.get('/:id/students', auth, authorize(['ADMIN', 'TEACHER']), subjectsController.getSubjectStudents);
 
-// ============================================
-// RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)
-// ============================================
-
 /**
- * @route   POST /api/subjects
- * @desc    Crear una nueva asignatura
- * @access  Admin only
- */
-router.post('/', auth, authorize(['ADMIN']), subjectsController.createSubject);
-
-/**
- * @route   PUT /api/subjects/:id
- * @desc    Actualizar una asignatura completamente
- * @access  Admin only
- */
-router.put('/:id', auth, authorize(['ADMIN']), subjectsController.updateSubject);
-
-/**
- * @route   PATCH /api/subjects/:id
- * @desc    Actualizar parcialmente una asignatura
- * @access  Admin only
- */
-router.patch('/:id', auth, authorize(['ADMIN']), subjectsController.patchSubject);
-
-/**
- * @route   DELETE /api/subjects/:id
- * @desc    Eliminar una asignatura
- * @access  Admin only
- */
-router.delete('/:id', auth, authorize(['ADMIN']), subjectsController.deleteSubject);
-/**
- * @route GET /api/subjects/:id/course
- * @desc  Obtener asignaturas en un Ciclo
- * @access Admin, Teacher, Student
+ * @swagger
+ * /api/subjects/{id}/course:
+ *   get:
+ *     summary: Ciclo formativo de una asignatura
+ *     tags: [Subjects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Datos del ciclo
  */
 router.get('/:id/course', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), subjectsController.getSubjectCourse);
+
+/**
+ * @swagger
+ * /api/subjects/{id}:
+ *   get:
+ *     summary: Obtener asignatura por ID
+ *     tags: [Subjects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Asignatura encontrada
+ *   put:
+ *     summary: Actualizar asignatura (completo)
+ *     tags: [Subjects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Asignatura actualizada
+ *   patch:
+ *     summary: Actualizar asignatura (parcial)
+ *     tags: [Subjects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Asignatura actualizada
+ *   delete:
+ *     summary: Eliminar asignatura
+ *     tags: [Subjects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Asignatura eliminada
+ */
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), subjectsController.getSubjectById);
+router.put('/:id', auth, authorize(['ADMIN']), subjectsController.updateSubject);
+router.patch('/:id', auth, authorize(['ADMIN']), subjectsController.patchSubject);
+router.delete('/:id', auth, authorize(['ADMIN']), subjectsController.deleteSubject);
 
 export default router;

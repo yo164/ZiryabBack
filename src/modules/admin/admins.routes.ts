@@ -6,38 +6,76 @@ import * as adminController from './admins.controller.js';
 const router = Router();
 
 /**
- * @route   GET /api/admins
- * @desc    Obtener todos los admin
- * @access  Admin
+ * @swagger
+ * /api/admins:
+ *   get:
+ *     summary: Listar administradores
+ *     tags: [Admins]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de admins
+ *   post:
+ *     summary: Crear administrador
+ *     tags: [Admins]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Admin creado
  */
 router.get('/', auth, authorize(['ADMIN']), adminController.getAllAdmins);
-
-/**
- * @route   GET /api/admins/:id
- * @desc    Obtener un admin por ID
- * @access  Admin
- */
-router.get('/:id', auth, authorize(['ADMIN']), adminController.getAdminById);
-
-/**
- * @route   POST /api/admins
- * @desc    Crear un nuevo admin
- * @access  Admin
- */
 router.post('/', auth, authorize(['ADMIN']), adminController.createAdmin);
 
 /**
- * @route   PUT /api/admins/:id
- * @desc    Actualizar un admin
- * @access  Admin
+ * @swagger
+ * /api/admins/{id}:
+ *   get:
+ *     summary: Obtener admin por ID
+ *     tags: [Admins]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Admin encontrado
+ *   put:
+ *     summary: Actualizar admin
+ *     tags: [Admins]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Admin actualizado
+ *   delete:
+ *     summary: Eliminar admin
+ *     tags: [Admins]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Admin eliminado
  */
+router.get('/:id', auth, authorize(['ADMIN']), adminController.getAdminById);
 router.put('/:id', auth, authorize(['ADMIN']), adminController.updateAdmin);
-
-/**
- * @route   DELETE /api/admins/:id
- * @desc    Eliminar un admin
- * @access  Admin
- */
 router.delete('/:id', auth, authorize(['ADMIN']), adminController.deleteAdmin);
 
 export default router;

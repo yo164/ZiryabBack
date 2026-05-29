@@ -6,80 +6,110 @@ import * as teachersController from './teachers.controller.js';
 const router = Router();
 
 /**
- * @route   GET /api/teachers
- * @desc    Obtener todas los profesores
- * @access  Admin, Teacher
+ * @swagger
+ * /api/teachers:
+ *   get:
+ *     summary: Listar profesores
+ *     tags: [Teachers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de profesores
+ *   post:
+ *     summary: Crear profesor
+ *     tags: [Teachers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Profesor creado
  */
 router.get('/', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getAllTeachers);
+router.post('/', auth, authorize(['ADMIN']), teachersController.createTeacher);
 
 /**
- * @route   GET /api/teachers/:id/subjects
- * @desc    Obtener asignaturas de un profesor por ID
- * @access  Admin, Teacher
- */
-router.get('/:id/subjects', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getTeacherSubjects);
-
-/**
- * @route   GET /api/teachers/my-students-absences
- * @desc    Obtener listado de alumnos y sus faltas para un profesor
- * @access  Admin, Teacher
+ * @swagger
+ * /api/teachers/my-students-absences:
+ *   get:
+ *     summary: Alumnos y faltas del profesor autenticado
+ *     tags: [Teachers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Resumen de ausencias de mis alumnos
  */
 router.get('/my-students-absences', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getMyStudentsAbsences);
 
 /**
- * @route   GET /api/teachers/:id
- * @desc    Obtener un profesor por ID
- * @access  Admin, Teacher
+ * @swagger
+ * /api/teachers/{id}/subjects:
+ *   get:
+ *     summary: Asignaturas de un profesor
+ *     tags: [Teachers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Asignaturas impartidas
+ */
+router.get('/:id/subjects', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getTeacherSubjects);
+
+/**
+ * @swagger
+ * /api/teachers/{id}:
+ *   get:
+ *     summary: Obtener profesor por ID
+ *     tags: [Teachers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Profesor encontrado
+ *   patch:
+ *     summary: Actualizar profesor (parcial)
+ *     tags: [Teachers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Profesor actualizado
+ *   delete:
+ *     summary: Eliminar profesor
+ *     tags: [Teachers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Profesor eliminado
  */
 router.get('/:id', auth, authorize(['ADMIN', 'TEACHER']), teachersController.getTeacherById);
-
-/**
- * @route   POST /api/teachers
- * @desc    Crear un nuevo profesor
- * @access  Admin
- */
-router.post('/', auth, authorize(['ADMIN']), teachersController.createTeacher);
-
-/**
- * @route   PUT /api/teachers/:id
- * @desc    Actualizar un profesor completo
- * @access  Admin
- */
-//router.put('/:id', auth, authorize(['ADMIN']), teachersController.updateTeacher);
-
-/**
- * @route   PATCH /api/teachers/:id
- * @desc    Actualizar parcialmente un profesor
- * @access  Admin
- */
 router.patch('/:id', auth, authorize(['ADMIN']), teachersController.patchTeacher);
-
-/**
- * @route   DELETE /api/teachers/:id
- * @desc    Eliminar un profesor
- * @access  Admin
- */
 router.delete('/:id', auth, authorize(['ADMIN']), teachersController.deleteTeacher);
-
-/**
- * @route   GET /api/subjects/:id/teachers
- * @desc    Obtener profesores de una asignatura
- * @access  Public
- */
-//router.get('/:id/teachers', teachersController.get);
-
-/**
- * @route   GET /api/subjects/:id/students
- * @desc    Obtener estudiantes de una asignatura
- * @access  Public
- */
-//router.get('/:id/students', teachersController.getSubjectStudents);
-
-/**
- * @route GET /api/subjects/:id/course
- * @desc  Obtener asignaturas en un Ciclo
- * @access Public
- */
-//router.get('/:id/course', subjectsController.getSubjectCourse);
 
 export default router;

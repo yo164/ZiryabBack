@@ -6,45 +6,101 @@ import * as cgController from './course-group.controller.js';
 const router = Router();
 
 /**
- * @route   GET /api/course-groups
- * @desc    Obtener todas las combinaciones Ciclo+Grupo con su tutor
- * @access  Admin
+ * @swagger
+ * /api/course-groups:
+ *   get:
+ *     summary: Listar clases (ciclo + grupo + tutor)
+ *     tags: [CourseGroups]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de course-groups
+ *   post:
+ *     summary: Crear combinación ciclo-grupo
+ *     tags: [CourseGroups]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Clase creada
  */
 router.get('/', auth, authorize(['ADMIN']), cgController.getAll);
+router.post('/', auth, authorize(['ADMIN']), cgController.create);
 
 /**
- * @route   GET /api/course-groups/:id/eligible-tutors
- * @desc    Profesores que imparten en esa clase (ciclo+grupo+grado)
- * @access  Admin
+ * @swagger
+ * /api/course-groups/{id}/eligible-tutors:
+ *   get:
+ *     summary: Profesores elegibles como tutor
+ *     tags: [CourseGroups]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de tutores candidatos
  */
 router.get('/:id/eligible-tutors', auth, authorize(['ADMIN']), cgController.getEligibleTutors);
 
 /**
- * @route   GET /api/course-groups/:id
- * @desc    Obtener una clase por ID
- * @access  Admin
- */
-router.get('/:id', auth, authorize(['ADMIN']), cgController.getById);
-
-/**
- * @route   POST /api/course-groups
- * @desc    Crear combinación Ciclo+Grupo
- * @access  Admin
- */
-router.post('/', auth, authorize(['ADMIN']), cgController.create);
-
-/**
- * @route   PATCH /api/course-groups/:id/tutor
- * @desc    Asignar o quitar tutor de una clase
- * @access  Admin
+ * @swagger
+ * /api/course-groups/{id}/tutor:
+ *   patch:
+ *     summary: Asignar o quitar tutor
+ *     tags: [CourseGroups]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Tutor actualizado
  */
 router.patch('/:id/tutor', auth, authorize(['ADMIN']), cgController.assignTutor);
 
 /**
- * @route   DELETE /api/course-groups/:id
- * @desc    Eliminar combinación Ciclo+Grupo
- * @access  Admin
+ * @swagger
+ * /api/course-groups/{id}:
+ *   get:
+ *     summary: Obtener clase por ID
+ *     tags: [CourseGroups]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Clase encontrada
+ *   delete:
+ *     summary: Eliminar combinación ciclo-grupo
+ *     tags: [CourseGroups]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Clase eliminada
  */
+router.get('/:id', auth, authorize(['ADMIN']), cgController.getById);
 router.delete('/:id', auth, authorize(['ADMIN']), cgController.deleteOne);
 
 export default router;

@@ -330,12 +330,14 @@ async function main() {
   // Hijos primero (orden por FKs del schema actual)
   await prisma.assistance.deleteMany();
   await prisma.studentTask.deleteMany();
+  await prisma.grade.deleteMany();
   await prisma.sessionClass.deleteMany();
   await prisma.task.deleteMany();
   await prisma.weekSchedule.deleteMany();
   await prisma.studentOnSubjectOnGroup.deleteMany();
   await prisma.teacherOnSubjectOnGroup.deleteMany();
   await prisma.notification.deleteMany();
+  await prisma.announcement.deleteMany();
   await prisma.issue.deleteMany();
   await prisma.taskGroup.deleteMany();
   await prisma.group.deleteMany();
@@ -354,6 +356,8 @@ async function main() {
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TeacherOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Notification_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Grade_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Announcement_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Issue_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TaskGroup_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Group_id_seq" RESTART WITH 1;`);
@@ -5321,6 +5325,16 @@ async function main() {
       ]
     });
 
+  // El informe de uso (usage_report.py) filtra asignaciones ACTIVE; el default del schema es STANDBY.
+  await prisma.teacherOnSubjectOnGroup.updateMany({
+    where: { schoolYear: acaYear },
+    data: { status: 'ACTIVE' },
+  });
+  // Mantener 2 STANDBY con horario/sesiones/tareas para la hoja Anomalias del informe.
+  await prisma.teacherOnSubjectOnGroup.updateMany({
+    where: { id: { in: [129, 130] } },
+    data: { status: 'STANDBY' },
+  });
 
     //Creando horarios
     console.log('Creando Horarios...');
@@ -8921,10 +8935,18 @@ async function main() {
 
     const classSessionData: {
       date: Date;
-      status: 'SCHEDULED';
+      status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
       apointments: string;
       idSchedule: number;
     }[] = [];
+
+    /** Sesiones pasadas mayormente COMPLETED; algunas CANCELLED/SCHEDULED para el informe. */
+    function rollSessionStatus(weekIndex: number): 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' {
+      if (weekIndex >= 3) return 'SCHEDULED';
+      const roll = Math.random();
+      if (roll < 0.1) return 'CANCELLED';
+      return 'COMPLETED';
+    }
 
     for (let blockIndex = 0; blockIndex < classBlockCount; blockIndex++) {
       const blockSlots = weekSchedulesForSessions.slice(
@@ -8945,7 +8967,7 @@ async function main() {
         for (const slot of blockSlots) {
           classSessionData.push({
             date: classSessionDate(weekIndex, slot.weekDay),
-            status: 'SCHEDULED',
+            status: rollSessionStatus(weekIndex),
             apointments: '',
             idSchedule: slot.id,
           });
@@ -8986,19 +9008,59 @@ async function main() {
       },
     });
 
-    /** 1–10: 2 = falta, 8 = retraso, resto presente. Sin EXCUSED. */
-    function rollAssistanceStatus(): 'PRESENT' | 'ABSENT' | 'LATE' {
-      const roll = Math.floor(Math.random() * 10) + 1;
-      if (roll === 2) return 'ABSENT';
-      if (roll === 8) return 'LATE';
-      return 'PRESENT';
-    }
-
-    const assistanceData: {
-      status: 'PRESENT' | 'ABSENT' | 'LATE';
+    type AssistanceSeedRow = {
+      status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED';
       idSession: number;
       idStudentEnrollment: number;
-    }[] = [];
+      justificationUri?: string;
+      justificationStatus?: 'PENDING' | 'VIEWED' | 'REJECTED';
+    };
+
+    /** Presente, ausente, retraso, excusado y justificantes para el informe Excel. */
+    function rollAssistanceStatus(): AssistanceSeedRow {
+      const roll = Math.floor(Math.random() * 100) + 1;
+      if (roll <= 5) {
+        return {
+          status: 'EXCUSED',
+          idSession: 0,
+          idStudentEnrollment: 0,
+          justificationUri: 'seed/justificantes/excusado.pdf',
+          justificationStatus: 'VIEWED',
+        };
+      }
+      if (roll <= 10) {
+        return {
+          status: 'ABSENT',
+          idSession: 0,
+          idStudentEnrollment: 0,
+          justificationUri: 'seed/justificantes/pendiente.pdf',
+          justificationStatus: 'PENDING',
+        };
+      }
+      if (roll <= 13) {
+        return {
+          status: 'ABSENT',
+          idSession: 0,
+          idStudentEnrollment: 0,
+          justificationUri: 'seed/justificantes/rechazado.pdf',
+          justificationStatus: 'REJECTED',
+        };
+      }
+      if (roll <= 16) {
+        return {
+          status: 'ABSENT',
+          idSession: 0,
+          idStudentEnrollment: 0,
+          justificationUri: 'seed/justificantes/visto.pdf',
+          justificationStatus: 'VIEWED',
+        };
+      }
+      if (roll <= 22) return { status: 'ABSENT', idSession: 0, idStudentEnrollment: 0 };
+      if (roll <= 28) return { status: 'LATE', idSession: 0, idStudentEnrollment: 0 };
+      return { status: 'PRESENT', idSession: 0, idStudentEnrollment: 0 };
+    }
+
+    const assistanceData: AssistanceSeedRow[] = [];
 
     for (const session of sessionsForAssistance) {
       const assignment = session.schedule.teacherAssignment;
@@ -9008,10 +9070,17 @@ async function main() {
           assignment.idGroup + ':' + assignment.idSubject,
         ) ?? [];
       for (const idStudentEnrollment of enrollments) {
+        const rolled = rollAssistanceStatus();
         assistanceData.push({
-          status: rollAssistanceStatus(),
+          status: rolled.status,
           idSession: session.id,
           idStudentEnrollment,
+          ...(rolled.justificationUri
+            ? {
+                justificationUri: rolled.justificationUri,
+                justificationStatus: rolled.justificationStatus,
+              }
+            : {}),
         });
       }
     }
@@ -9139,8 +9208,24 @@ async function main() {
     examTasks.count += result.count;
   }
 
+  // Tarea vencida sin entregas (hoja Anomalias del informe de uso)
+  if (assignmentsForTasks.length > 0) {
+    await prisma.task.create({
+      data: {
+        idTeacherAssignment: assignmentsForTasks[0].id,
+        title: '[SEED] Tarea vencida sin entregas',
+        description: 'Anomalía de prueba para el informe de uso.',
+        type: 'HOMEWORK',
+        startDate: new Date('2024-09-01T08:00:00.000Z'),
+        dueDate: new Date('2024-10-15T23:59:59.000Z'),
+        schoolYear: acaYear,
+        isPublished: true,
+      },
+    });
+  }
+
   // ===========================
-  // 3. CREAR STUDENT TASKS (3 alumnos × cada Task)
+  // 3. CREAR STUDENT TASKS (entregas variadas)
   // ===========================
 
   console.log('Creando studentTasks...');
@@ -9162,15 +9247,44 @@ async function main() {
     orderBy: { id: 'asc' },
     select: {
       id: true,
+      dueDate: true,
       teacherAssignment: { select: { idGroup: true, idSubject: true } },
     },
   });
 
-  const studentTaskData: {
+  type StudentTaskSeedRow = {
     idTask: number;
     idStudentEnrollment: number;
-    status: 'PENDING';
-  }[] = [];
+    status: 'PENDING' | 'SUBMITTED' | 'LATE' | 'GRADED';
+    submissionDate?: Date;
+    score?: number;
+  };
+
+  /** Entregas variadas para poblar hojas Tareas y Adopcion del informe. */
+  function rollStudentTaskRow(
+    taskId: number,
+    enrollmentId: number,
+    dueDate: Date,
+  ): Omit<StudentTaskSeedRow, 'idTask' | 'idStudentEnrollment'> {
+    const hash = (taskId * 31 + enrollmentId) % 100;
+    const submission = new Date(dueDate);
+    submission.setUTCDate(submission.getUTCDate() - (hash % 14) - 1);
+
+    if (hash < 28) {
+      return { status: 'GRADED', submissionDate: submission, score: 5 + (hash % 5) };
+    }
+    if (hash < 52) {
+      return { status: 'SUBMITTED', submissionDate: submission };
+    }
+    if (hash < 62) {
+      const late = new Date(dueDate);
+      late.setUTCDate(late.getUTCDate() + 1);
+      return { status: 'LATE', submissionDate: late };
+    }
+    return { status: 'PENDING' };
+  }
+
+  const studentTaskData: StudentTaskSeedRow[] = [];
 
   for (const task of tasksForStudentTasks) {
     const assignment = task.teacherAssignment;
@@ -9179,10 +9293,19 @@ async function main() {
         assignment.idGroup + ':' + assignment.idSubject,
       ) ?? [];
     for (const idStudentEnrollment of enrollments) {
+      const rolled = rollStudentTaskRow(task.id, idStudentEnrollment, task.dueDate);
+      // La tarea vencida sin entregas debe quedar toda PENDING (anomalía informe).
+      const isExpiredAnomaly = task.dueDate < new Date('2025-01-01T00:00:00.000Z');
       studentTaskData.push({
         idTask: task.id,
         idStudentEnrollment,
-        status: 'PENDING',
+        status: isExpiredAnomaly ? 'PENDING' : rolled.status,
+        ...(isExpiredAnomaly
+          ? {}
+          : {
+              ...(rolled.submissionDate ? { submissionDate: rolled.submissionDate } : {}),
+              ...(rolled.score !== undefined ? { score: rolled.score } : {}),
+            }),
       });
     }
   }
@@ -9195,6 +9318,160 @@ async function main() {
     });
     studentTasks.count += chunk.count;
   }
+
+  // ===========================
+  // CALIFICACIONES (hoja Calificaciones del informe)
+  // ===========================
+
+  console.log('Creando calificaciones...');
+
+  const enrollmentsForGrades = await prisma.studentOnSubjectOnGroup.findMany({
+    where: { schoolYear: acaYear, status: 'ENROLLED' },
+    select: { id: true, idGroup: true, idSubject: true },
+  });
+
+  const assignmentsForGrades = await prisma.teacherOnSubjectOnGroup.findMany({
+    where: { schoolYear: acaYear, status: 'ACTIVE' },
+    select: { idTeacher: true, idGroup: true, idSubject: true },
+  });
+
+  const teacherByGroupSubject = new Map<string, number>();
+  for (const a of assignmentsForGrades) {
+    teacherByGroupSubject.set(`${a.idGroup}:${a.idSubject}`, a.idTeacher);
+  }
+
+  const gradePeriods = [
+    'INITIAL',
+    'FIRST_TRIMESTER',
+    'SECOND_TRIMESTER',
+    'THIRD_TRIMESTER',
+    'FINAL',
+  ] as const;
+
+  const gradeData: {
+    idStudentEnrollment: number;
+    period: (typeof gradePeriods)[number];
+    value: number;
+    idTeacher: number;
+  }[] = [];
+
+  for (const e of enrollmentsForGrades) {
+    const teacherId = teacherByGroupSubject.get(`${e.idGroup}:${e.idSubject}`);
+    if (!teacherId) continue;
+    for (const period of gradePeriods) {
+      gradeData.push({
+        idStudentEnrollment: e.id,
+        period,
+        value: 5 + (e.id % 5),
+        idTeacher: teacherId,
+      });
+    }
+  }
+
+  const GRADE_CHUNK = 2000;
+  let grades = { count: 0 };
+  for (let i = 0; i < gradeData.length; i += GRADE_CHUNK) {
+    const chunk = await prisma.grade.createMany({
+      data: gradeData.slice(i, i + GRADE_CHUNK),
+    });
+    grades.count += chunk.count;
+  }
+
+  // ===========================
+  // NOTIFICACIONES Y ANUNCIOS (hoja Comunicacion del informe)
+  // ===========================
+
+  console.log('Creando notificaciones y anuncios...');
+
+  const studentsForNotifications = await prisma.student.findMany({
+    select: { firebaseUID: true },
+    take: 24,
+  });
+
+  const notificationTypes = ['INFO', 'TASK', 'GRADE', 'ATTENDANCE', 'ANNOUNCEMENT'] as const;
+  const notificationData: {
+    recipientFirebaseUID: string;
+    title: string;
+    message: string;
+    type: string;
+    isRead: boolean;
+    readAt: Date | null;
+    createdAt: Date;
+  }[] = [];
+
+  for (let i = 0; i < studentsForNotifications.length; i++) {
+    const uid = studentsForNotifications[i].firebaseUID;
+    for (const type of notificationTypes) {
+      const createdAt = new Date('2025-10-01T09:00:00.000Z');
+      createdAt.setUTCDate(createdAt.getUTCDate() + i);
+      const isRead = i % 4 !== 0;
+      notificationData.push({
+        recipientFirebaseUID: uid,
+        title: `[SEED] ${type}`,
+        message: 'Notificación de prueba para el informe de uso.',
+        type,
+        isRead,
+        readAt: isRead
+          ? new Date(createdAt.getTime() + 3600000 * (2 + (i % 6)))
+          : null,
+        createdAt,
+      });
+    }
+  }
+
+  const notifications = await prisma.notification.createMany({ data: notificationData });
+
+  const announcements = await prisma.announcement.createMany({
+    data: [
+      {
+        title: '[SEED] Inicio de curso 2024-2025',
+        body: 'Anuncio del tablón para septiembre.',
+        createdByUserId: 1,
+        createdAt: new Date('2025-09-01T10:00:00.000Z'),
+      },
+      {
+        title: '[SEED] Evaluación primer trimestre',
+        body: 'Anuncio del tablón para noviembre.',
+        createdByUserId: 1,
+        createdAt: new Date('2025-11-15T10:00:00.000Z'),
+      },
+      {
+        title: '[SEED] Jornada de puertas abiertas',
+        body: 'Anuncio del tablón para enero.',
+        createdByUserId: 1,
+        createdAt: new Date('2026-01-20T10:00:00.000Z'),
+      },
+    ],
+  });
+
+  // ===========================
+  // ANOMALÍAS DEL INFORME (matrícula sin asistencia, asignación sin sesiones)
+  // ===========================
+
+  console.log('Creando datos de anomalías para informe...');
+
+  const orphanAssignment = await prisma.teacherOnSubjectOnGroup.create({
+    data: {
+      idTeacher: 29,
+      idSubject: 97,
+      idGroup: 2,
+      schoolYear: acaYear,
+      status: 'ACTIVE',
+    },
+  });
+
+  await prisma.studentOnSubjectOnGroup.createMany({
+    data: [
+      { idStudent: 45, idGroup: 2, idSubject: 97, schoolYear: acaYear },
+      { idStudent: 46, idGroup: 2, idSubject: 97, schoolYear: acaYear },
+      { idStudent: 47, idGroup: 2, idSubject: 97, schoolYear: acaYear },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log(
+    `Asignación huérfana (sin sesiones) id=${orphanAssignment.id} para hoja Anomalias`,
+  );
 
 
 
@@ -9313,6 +9590,9 @@ async function main() {
   console.log(`✅ ${practiceTasks.count} tareas PRACTICE creadas`);
   console.log(`✅ ${examTasks.count} tareas de examen creadas`);
   console.log(`✅ ${studentTasks.count} StudentTasks creadas`);
+  console.log(`✅ ${grades.count} calificaciones creadas`);
+  console.log(`✅ ${notifications.count} notificaciones creadas`);
+  console.log(`✅ ${announcements.count} anuncios del tablón creados`);
   console.log(`📢 ${issues.count} anuncios (issues) creados`);
 
 }

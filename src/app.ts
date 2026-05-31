@@ -25,6 +25,7 @@ import issueRoutes from './modules/issue/issue.routes.js';
 import subjectEvaluationRoutes from './modules/subject-evaluation/subject-evaluation.routes.js';
 import assignmentsRoutes from './modules/assignments/assignments.routes.js';
 import assignmentSubstitutionRoutes from './modules/assignment-substitution/assignment-substitution.routes.js';
+import studentPasswordsRoutes from './modules/student-passwords/student-passwords.routes.js';
 
 
 import courseRouter from './modules/course/course.routes.js';
@@ -94,6 +95,7 @@ app.get('/', (_req, res) => {
       tasks: '/api/tasks',
       assignments: '/api/assignments',
       assignmentSubstitutions: '/api/assignment-substitutions',
+      studentPasswords: '/api/student-passwords',
       issues: '/api/issues',
       subjectEvaluations: '/api/subject-evaluations',
     },
@@ -132,6 +134,7 @@ app.use('/api/issues', issueRoutes);
 app.use('/api/subject-evaluations', subjectEvaluationRoutes);
 app.use('/api/assignments', assignmentsRoutes);
 app.use('/api/assignment-substitutions', assignmentSubstitutionRoutes);
+app.use('/api/student-passwords', studentPasswordsRoutes);
 
 
 

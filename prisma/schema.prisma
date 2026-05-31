@@ -20,6 +20,7 @@ model Student {
   createdAt   DateTime @default(now())
 
   enrollments    StudentOnSubjectOnGroup[]
+  studentPassword StudentPassword?
   issuesAsTarget Issue[]                   @relation("IssueTargetStudent")
 }
 
@@ -36,9 +37,27 @@ model Teacher {
   createdAt   DateTime @default(now())
 
   assignments        TeacherOnSubjectOnGroup[]
+  tutoredStudentPasswords StudentPassword[]
   issuesAsTarget     Issue[]                   @relation("IssueTargetTeacher")
   substitutingAssignments TeacherOnSubjectOnGroup[] @relation("AssignmentSubstitute")
   substitutionHistory AssignmentSubstitution[] @relation("SubstitutionHistory")
+}
+
+model StudentPassword {
+  id Int @id @default(autoincrement())
+
+  idStudent Int @unique
+  student   Student @relation(fields: [idStudent], references: [id], onDelete: Cascade)
+
+  password String
+
+  idTutor Int
+  tutor   Teacher @relation(fields: [idTutor], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([idTutor])
 }
 
 model Admin {

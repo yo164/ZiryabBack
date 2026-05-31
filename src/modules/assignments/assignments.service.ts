@@ -13,9 +13,15 @@ export type CreateAssignmentResult =
 export const findAllAssignments = async () => {
   return prisma.teacherOnSubjectOnGroup.findMany({
     include: {
-      group: true,
-      subject: true,
       teacher: true,
+      group: true,
+      subject: {
+        include: {
+          course: {
+            select: { id: true, name: true },
+          },
+        },
+      },
     },
   });
 };
@@ -113,8 +119,17 @@ export const findAssignmentsByTeacher = async (idTeacher: number, schoolYear: st
 
 const assignmentInclude = {
   teacher: true,
-  subject: true,
   group: true,
+  subject: {
+    include: {
+      course: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  },
 } as const;
 
 /**
@@ -126,7 +141,10 @@ export const createAssignment = async (
 ): Promise<CreateAssignmentResult> => {
   const [teacher, subject, group] = await Promise.all([
     prisma.teacher.findUnique({ where: { id: input.idTeacher } }),
-    prisma.subject.findUnique({ where: { id: input.idSubject } }),
+    prisma.subject.findUnique({
+      where: { id: input.idSubject },
+      select: { id: true, idCourse: true, grade: true },
+    }),
     prisma.group.findUnique({ where: { id: input.idGroup } }),
   ]);
 
@@ -152,6 +170,7 @@ export const createAssignment = async (
     return { kind: 'duplicate', existing: { id: existing.id } };
   }
 
+  // Validación correcta: solo un tutor por CLASE (course + grade + group + schoolYear)
   if (input.isTutor) {
     const existingTutor = await prisma.teacherOnSubjectOnGroup.findFirst({
       where: {
@@ -159,12 +178,17 @@ export const createAssignment = async (
         schoolYear: input.schoolYear,
         isTutor: true,
         subject: {
-          id: input.idSubject,
+          idCourse: subject.idCourse,
+          grade: subject.grade,
         },
       },
     });
+
     if (existingTutor) {
-      return { kind: 'error', message: 'Ya existe un tutor asignado a esta clase para este año escolar' };
+      return {
+        kind: 'error',
+        message: 'Ya existe un tutor asignado a esta clase para este año escolar',
+      };
     }
   }
 
@@ -186,8 +210,23 @@ export const createAssignment = async (
 export const patchAssignment = async (
   id: number,
   data: PatchAssignmentBody,
-): Promise<{ kind: 'updated'; assignment: Awaited<ReturnType<typeof prisma.teacherOnSubjectOnGroup.update>> } | { kind: 'notFound' } | { kind: 'error'; message: string }> => {
-  const existing = await prisma.teacherOnSubjectOnGroup.findUnique({ where: { id } });
+): Promise<
+  | { kind: 'updated'; assignment: Awaited<ReturnType<typeof prisma.teacherOnSubjectOnGroup.update>> }
+  | { kind: 'notFound' }
+  | { kind: 'error'; message: string }
+> => {
+  const existing = await prisma.teacherOnSubjectOnGroup.findUnique({
+    where: { id },
+    include: {
+      subject: {
+        select: {
+          idCourse: true,
+          grade: true,
+        },
+      },
+    },
+  });
+
   if (!existing) return { kind: 'notFound' };
 
   if (data.isTutor === true) {
@@ -196,12 +235,19 @@ export const patchAssignment = async (
         idGroup: existing.idGroup,
         schoolYear: existing.schoolYear,
         isTutor: true,
-        subject: { id: existing.idSubject },
+        subject: {
+          idCourse: existing.subject.idCourse,
+          grade: existing.subject.grade,
+        },
         NOT: { id },
       },
     });
+
     if (existingTutor) {
-      return { kind: 'error', message: 'Ya existe un tutor asignado a esta clase para este año escolar' };
+      return {
+        kind: 'error',
+        message: 'Ya existe un tutor asignado a esta clase para este año escolar',
+      };
     }
   }
 

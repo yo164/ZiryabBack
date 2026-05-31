@@ -2,11 +2,10 @@
 """
 Informe de uso / adopción de Ziryab (Pandas + PostgreSQL).
 
-Lee DATABASE_URL desde node/.env, agrega actividad operativa de la BD
-y exporta un Excel multi-hoja listo para análisis o Power BI.
+Lee DATABASE_URL desde .env en la raíz del backend, agrega actividad operativa
+de la BD y exporta un Excel multi-hoja listo para análisis o Power BI.
 
 Uso:
-  cd node
   pip install -r scripts/requirements-usage-report.txt
   python scripts/usage_report.py --anyo 2024-2025 --output ./informes
 
@@ -14,7 +13,7 @@ Opciones:
   --anyo 2024-2025     Año académico (schoolYear)
   --ciclo todos|DAM    Filtrar por Course.name
   --grupo todos|Mañana Filtrar por Group.name
-  --inactivos          Incluir matrículas/asignaciones no activas
+  --inactivos          Incluir matrículas/asignaciones retiradas o suspendidas
   --completo           Ignora ciclo/grupo
   --output ./informes  Carpeta de salida
 """
@@ -32,6 +31,7 @@ from sqlalchemy import create_engine, text
 
 # --- Configuración ---
 SCHOOL_YEAR_DEFAULT = "2024-2025"
+OPERATIONAL_ASSIGNMENT_STATUSES = ("ACTIVE", "STANDBY")
 WEIGHTS = {
     "asistencia": 0.35,
     "tareas": 0.35,
@@ -59,7 +59,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--anyo", default=SCHOOL_YEAR_DEFAULT, help="Año académico")
     p.add_argument("--ciclo", default="todos", help="Ciclo formativo (Course.name)")
     p.add_argument("--grupo", default="todos", help="Grupo (Group.name)")
-    p.add_argument("--inactivos", action="store_true", help="Incluir estados no activos")
+    p.add_argument("--inactivos", action="store_true", help="Incluir matrículas/asignaciones retiradas o suspendidas")
     p.add_argument("--completo", action="store_true", help="Sin filtro ciclo/grupo")
     p.add_argument("--output", default=str(NODE_ROOT / "informes"), help="Carpeta salida")
     return p.parse_args()
@@ -77,10 +77,63 @@ def dim_filters(args: argparse.Namespace) -> tuple[str, str, dict, str]:
         parts.append('AND g.name = :grupo')
         params["grupo"] = args.grupo
 
-    enrollment_extra = "" if args.inactivos else "AND e.status = 'ENROLLED'"
-    assignment_extra = "" if args.inactivos else "AND ta.status = 'ACTIVE'"
+    if args.inactivos:
+        enrollment_extra = ""
+        assignment_extra = ""
+    else:
+        enrollment_extra = "AND e.status = 'ENROLLED'"
+        statuses = ", ".join(f"'{s}'" for s in OPERATIONAL_ASSIGNMENT_STATUSES)
+        assignment_extra = f"AND ta.status IN ({statuses})"
 
     return enrollment_extra, assignment_extra, params, " ".join(parts)
+
+
+def fetch_available_school_years(engine) -> pd.DataFrame:
+    q = """
+    SELECT "schoolYear" AS anyo, COUNT(*)::int AS matriculas
+    FROM "StudentOnSubjectOnGroup"
+    GROUP BY "schoolYear"
+    ORDER BY "schoolYear" DESC
+    """
+    return pd.read_sql(text(q), engine)
+
+
+def table_exists(engine, table_name: str) -> bool:
+    q = text(
+        """
+        SELECT EXISTS (
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema = 'public' AND table_name = :table
+        ) AS exists
+        """
+    )
+    with engine.connect() as conn:
+        return bool(conn.execute(q, {"table": table_name}).scalar())
+
+
+def resolve_grades_source(engine) -> tuple[str, str]:
+    """Devuelve (tabla, fragmento SELECT de profesor) según el esquema migrado."""
+    check = text(
+        """
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+          AND table_name IN ('SubjectEvaluation', 'Grade')
+        ORDER BY CASE table_name
+          WHEN 'SubjectEvaluation' THEN 0
+          ELSE 1
+        END
+        LIMIT 1
+        """
+    )
+    with engine.connect() as conn:
+        row = conn.execute(check).fetchone()
+    if not row:
+        return "", ""
+    table = row[0]
+    if table == "Grade":
+        return table, 'gr."idTeacher" AS teacher_id,'
+    return table, "NULL::int AS teacher_id,"
 
 
 def fetch_enrollments(engine, enrollment_extra: str, dim_sql: str, params: dict) -> pd.DataFrame:
@@ -189,10 +242,26 @@ def fetch_student_tasks(engine, enrollment_extra: str, dim_sql: str, params: dic
 
 
 def fetch_grades(engine, enrollment_extra: str, dim_sql: str, params: dict) -> pd.DataFrame:
+    table, teacher_select = resolve_grades_source(engine)
+    if not table:
+        return pd.DataFrame(
+            columns=[
+                "id",
+                "period",
+                "value",
+                "createdAt",
+                "updatedAt",
+                "teacher_id",
+                "course_name",
+                "group_name",
+            ]
+        )
+
     q = f"""
     SELECT gr.id, gr.period, gr.value, gr."createdAt", gr."updatedAt",
-           gr."idTeacher" AS teacher_id, c.name AS course_name, g.name AS group_name
-    FROM "Grade" gr
+           {teacher_select}
+           c.name AS course_name, g.name AS group_name
+    FROM "{table}" gr
     JOIN "StudentOnSubjectOnGroup" e ON e.id = gr."idStudentEnrollment"
     JOIN "Subject" sub ON sub.id = e."idSubject"
     JOIN "Course" c ON c.id = sub."idCourse"
@@ -222,6 +291,11 @@ def fetch_issues(engine) -> pd.DataFrame:
 
 
 def fetch_announcements(engine) -> pd.DataFrame:
+    columns = ["id", "title", "createdAt"]
+    if not table_exists(engine, "Announcement"):
+        # Esquema reciente: el tablón vive en Issue (ver fetch_issues).
+        return pd.DataFrame(columns=columns)
+
     q = """
     SELECT id, title, "createdAt" FROM "Announcement"
     """
@@ -865,6 +939,11 @@ def sheet_anomalias(
 
 
 def sheet_filtros(args: argparse.Namespace, sheets: dict[str, int]) -> pd.DataFrame:
+    assignment_scope = (
+        "todos los estados"
+        if args.inactivos
+        else f"operativos ({', '.join(OPERATIONAL_ASSIGNMENT_STATUSES)})"
+    )
     rows = [
         {"clave": "generado_en", "valor": datetime.now(timezone.utc).isoformat()},
         {"clave": "anyo", "valor": args.anyo},
@@ -872,6 +951,7 @@ def sheet_filtros(args: argparse.Namespace, sheets: dict[str, int]) -> pd.DataFr
         {"clave": "grupo", "valor": args.grupo},
         {"clave": "inactivos", "valor": str(args.inactivos)},
         {"clave": "completo", "valor": str(args.completo)},
+        {"clave": "asignaciones_incluidas", "valor": assignment_scope},
         {"clave": "pesos_adopcion", "valor": str(WEIGHTS)},
     ]
     for name, n in sheets.items():
@@ -897,6 +977,18 @@ def export_workbook(path: Path, sheets: dict[str, pd.DataFrame]) -> None:
             df.to_excel(writer, sheet_name=safe, index=False)
 
 
+def print_load_summary(counts: dict[str, int], args: argparse.Namespace) -> None:
+    print("Filas cargadas desde PostgreSQL:")
+    for name, n in counts.items():
+        print(f"  {name}: {n}")
+    if counts.get("matriculas", 0) == 0:
+        print(
+            f"\nAVISO: no hay matrículas para el año {args.anyo!r}. "
+            "Comprueba --anyo o ejecuta npm run seed.",
+            file=sys.stderr,
+        )
+
+
 def main() -> None:
     args = parse_args()
     enrollment_extra, assignment_extra, params, dim_sql = dim_filters(args)
@@ -915,6 +1007,29 @@ def main() -> None:
     issues = fetch_issues(engine)
     announcements = fetch_announcements(engine)
     users = fetch_users_count(engine)
+
+    print_load_summary(
+        {
+            "matriculas": len(enrollments),
+            "asignaciones_docentes": len(assignments),
+            "asistencias": len(assistances),
+            "sesiones": len(sessions),
+            "tareas": len(tasks),
+            "entregas_alumnado": len(student_tasks),
+            "calificaciones": len(grades),
+            "notificaciones": len(notifications),
+            "incidencias": len(issues),
+            "anuncios": len(announcements),
+        },
+        args,
+    )
+
+    if len(enrollments) == 0:
+        available = fetch_available_school_years(engine)
+        if not available.empty:
+            print("\nAños académicos con matrículas en la BD:", file=sys.stderr)
+            for _, row in available.iterrows():
+                print(f"  - {row['anyo']}: {row['matriculas']} matrículas", file=sys.stderr)
 
     resumen = sheet_resumen(
         enrollments,

@@ -465,3 +465,5 @@ model AssignmentSubstitution {
   @@index([idTeacherAssignment])
   @@index([idSubstitute])
 }
+
+//premerge security

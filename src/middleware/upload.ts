@@ -1,28 +1,8 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 import { Request } from 'express';
 
-// Asegurarse de que el directorio de uploads existe
-const uploadDir = 'uploads/justifications';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+const memoryStorage = multer.memoryStorage();
 
-// Configuración del almacenamiento
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        // Generar nombre de archivo único con la extensión original
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
-    }
-});
-
-// Filtro para validar formato (MÁX 5MB definido abajo, formatos: PDF, PNG, JPG)
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedMimeTypes = ['application/pdf', 'image/png', 'image/jpeg'];
     
@@ -33,36 +13,14 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
     }
 };
 
-// Configuración completa de multer
 export const uploadJustification = multer({
-    storage,
+    storage: memoryStorage,
     limits: {
         fileSize: 5 * 1024 * 1024 // 5 MB
     },
     fileFilter
 });
 
-// ============================================
-// CONFIGURACIÓN PARA ADJUNTOS EN TAREAS
-// ============================================
-const taskUploadDir = 'uploads/tasks';
-if (!fs.existsSync(taskUploadDir)) {
-    fs.mkdirSync(taskUploadDir, { recursive: true });
-}
-
-const taskStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, taskUploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, 'task-' + uniqueSuffix + ext);
-    }
-});
-
-// Este 'filtro' es el portero de la discoteca: solo deja pasar a formatos de archivo específicos.
-// Si alguien intenta subir un .exe malicioso, le devolverá el Error de abajo.
 const taskFileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedMimeTypes = [
         'application/pdf', 
@@ -81,43 +39,15 @@ const taskFileFilter = (req: Request, file: Express.Multer.File, cb: multer.File
 };
 
 export const uploadTaskAttachment = multer({
-    storage: taskStorage,
+    storage: memoryStorage,
     limits: {
         fileSize: 50 * 1024 * 1024 // 50 MB
     },
     fileFilter: taskFileFilter
 });
 
-const submissionUploadDir = 'uploads/submissions';
-if (!fs.existsSync(submissionUploadDir)) {
-    fs.mkdirSync(submissionUploadDir, { recursive: true });
-}
-
-const submissionStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, submissionUploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        let ext = path.extname(file.originalname).toLowerCase();
-        if (!ext || ext === '.tmp') {
-            const mimeToExt: Record<string, string> = {
-                'application/pdf': '.pdf',
-                'image/png': '.png',
-                'image/jpeg': '.jpg',
-                'image/jpg': '.jpg',
-                'application/zip': '.zip',
-                'application/x-zip-compressed': '.zip',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-            };
-            ext = mimeToExt[file.mimetype] ?? '.bin';
-        }
-        cb(null, 'submission-' + uniqueSuffix + ext);
-    }
-});
-
 export const uploadSubmission = multer({
-    storage: submissionStorage,
+    storage: memoryStorage,
     limits: {
         fileSize: 50 * 1024 * 1024 // 50 MB
     },

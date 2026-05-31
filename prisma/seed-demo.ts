@@ -171,11 +171,13 @@ async function main() {
   console.log('🎬 Iniciando seed de demo...');
 
   const existingStudents = await prisma.student.findMany({
-    where: { email: { in: DEMO_EMAILS } },
+    // Usamos firebaseUID para identificar demo-users de forma estable,
+    // aunque el email haya cambiado en la BD.
+    where: { firebaseUID: { in: [FIREBASE_UID_ALUMNO_1, FIREBASE_UID_ALUMNO_2] } },
     select: { id: true },
   });
   const existingTeachers = await prisma.teacher.findMany({
-    where: { email: { in: DEMO_EMAILS } },
+    where: { firebaseUID: FIREBASE_UID_PROFESOR },
     select: { id: true },
   });
 

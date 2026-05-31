@@ -5,54 +5,92 @@ import * as groupController from './group.controller.js';
 
 const router = Router();
 
-// ============================================
-// RUTAS PÚBLICAS (GET - sin autenticación)
-// ============================================
-
 /**
- * @route   GET /api/groups
- * @desc    Obtener todos los grupos
- * @access  Admin, Teacher, Student
+ * @swagger
+ * /api/groups:
+ *   get:
+ *     summary: Listar grupos
+ *     tags: [Groups]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de grupos
+ *   post:
+ *     summary: Crear grupo
+ *     tags: [Groups]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Grupo creado
  */
 router.get('/', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), groupController.getAllGroups);
-
-/**
- * @route   GET /api/groups/:id
- * @desc    Obtener un grupo por ID
- * @access  Admin, Teacher, Student
- */
-router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), groupController.getGroupById);
-
-// ============================================
-// RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)
-// ============================================
-
-/**
- * @route   POST /api/groups
- * @desc    Crear un nuevo grupo
- * @access  Admin only
- */
 router.post('/', auth, authorize(['ADMIN']), groupController.createGroup);
 
 /**
- * @route   PUT /api/groups/:id
- * @desc    Actualizar un grupo completamente
- * @access  Admin only
+ * @swagger
+ * /api/groups/{id}:
+ *   get:
+ *     summary: Obtener grupo por ID
+ *     tags: [Groups]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Grupo encontrado
+ *   put:
+ *     summary: Actualizar grupo (completo)
+ *     tags: [Groups]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Grupo actualizado
+ *   patch:
+ *     summary: Actualizar grupo (parcial)
+ *     tags: [Groups]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Grupo actualizado
+ *   delete:
+ *     summary: Eliminar grupo
+ *     tags: [Groups]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Grupo eliminado
  */
+router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), groupController.getGroupById);
 router.put('/:id', auth, authorize(['ADMIN']), groupController.updateGroup);
-
-/**
- * @route   PATCH /api/groups/:id
- * @desc    Actualizar parcialmente un grupo
- * @access  Admin only
- */
 router.patch('/:id', auth, authorize(['ADMIN']), groupController.patchGroup);
-
-/**
- * @route   DELETE /api/groups/:id
- * @desc    Eliminar un grupo
- * @access  Admin only
- */
 router.delete('/:id', auth, authorize(['ADMIN']), groupController.deleteGroup);
 
 export default router;

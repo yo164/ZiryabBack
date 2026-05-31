@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import * as studentTaskService from './student-task.service.js';
 import { submitSchema } from './student-task.schema.js';
+import { uploadFromMulter, CLOUDINARY_FOLDERS } from '../../utils/cloudinary.js';
 
 export const getAllStudentTasks = async (req: Request, res: Response) => {
   try {
@@ -302,9 +303,8 @@ export const uploadFile = async (req: Request, res: Response) => {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No se ha subido ningún archivo válido' });
     }
-    
-    // Obtener la URL
-    const attachmentUrl = `${req.protocol}://${req.get('host')}/uploads/submissions/${req.file.filename}`;
+
+    const attachmentUrl = await uploadFromMulter(req.file, CLOUDINARY_FOLDERS.submissions);
     
     res.json({
       success: true,

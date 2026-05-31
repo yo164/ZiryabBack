@@ -6,61 +6,114 @@ import * as studentsController from './students.controller.js';
 
 const router = Router();
 
-// ============================================
-// RUTAS PÚBLICAS (GET - sin autenticación)
-// ============================================
-
 /**
- * @route   GET /api/students
- * @desc    Obtener todos los estudiantes
- * @access  Admin, Teacher
+ * @swagger
+ * /api/students:
+ *   get:
+ *     summary: Listar estudiantes
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de estudiantes
+ *   post:
+ *     summary: Crear estudiante
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Estudiante creado
  */
 router.get('/', auth, authorize(['ADMIN', 'TEACHER']), studentsController.getAllStudents);
-
-/**
- * @route   GET /api/students/:id
- * @desc    Obtener un estudiante por ID
- * @access  Admin, Teacher, o el propio estudiante
- */
-router.get('/:id', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER'], 'id'), studentsController.getStudentById);
-
-/**
- * @route   GET /api/students/:id/subjects
- * @desc    Obtener asignaturas de un estudiante
- * @access  Admin, Teacher, o el propio estudiante
- */
-router.get('/:id/subjects', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER'], 'id'), studentsController.getStudentSubjects);
-
-// ============================================
-// RUTAS PROTEGIDAS (POST, PUT, PATCH, DELETE - solo ADMIN)
-// ============================================
-
-/**
- * @route   POST /api/students
- * @desc    Crear un nuevo estudiante
- * @access  Admin only
- */
 router.post('/', auth, authorize(['ADMIN']), studentsController.createStudent);
 
 /**
- * @route   PUT /api/students/:id
- * @desc    Actualizar un estudiante completamente
- * @access  Admin only
+ * @swagger
+ * /api/students/{id}/subjects:
+ *   get:
+ *     summary: Asignaturas de un estudiante
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Asignaturas del alumno
  */
+router.get('/:id/subjects', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER'], 'id'), studentsController.getStudentSubjects);
+
+/**
+ * @swagger
+ * /api/students/{id}:
+ *   get:
+ *     summary: Obtener estudiante por ID
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Estudiante encontrado
+ *       404:
+ *         description: No encontrado
+ *   put:
+ *     summary: Actualizar estudiante (completo)
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Estudiante actualizado
+ *   patch:
+ *     summary: Actualizar estudiante (parcial)
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Estudiante actualizado
+ *   delete:
+ *     summary: Eliminar estudiante
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Estudiante eliminado
+ */
+router.get('/:id', auth, restrictToSelfOrRoles(['ADMIN', 'TEACHER'], 'id'), studentsController.getStudentById);
 router.put('/:id', auth, authorize(['ADMIN']), studentsController.updateStudent);
-
-/**
- * @route   PATCH /api/students/:id
- * @desc    Actualizar parcialmente un estudiante
- * @access  Admin only
- */
 router.patch('/:id', auth, authorize(['ADMIN']), studentsController.patchStudent);
-
-/**
- * @route   DELETE /api/students/:id
- * @desc    Eliminar un estudiante
- * @access  Admin only
- */
 router.delete('/:id', auth, authorize(['ADMIN']), studentsController.deleteStudent);
 
 export default router;

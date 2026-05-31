@@ -79,10 +79,34 @@ if (env.NODE_ENV === 'production') {
   app.use(generalLimiter);
 }
 
-// Ruta de health check
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: API operativa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok: { type: boolean, example: true }
+ */
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
-// Ruta principal con info de endpoints
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Información de la API
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Metadatos y enlaces útiles
+ */
 app.get('/', (_req, res) => {
   res.json({
     message: '🎓 API Escolar - Bienvenido',
@@ -102,11 +126,22 @@ app.get('/', (_req, res) => {
   });
 });
 
-// Rutas estáticas para uploads
+// Legacy: ficheros antiguos en disco local (nuevas subidas van a Cloudinary)
 app.use('/uploads', express.static('uploads'));
 
 // Documentación Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'Ziryab API Docs',
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      tryItOutEnabled: true,
+    },
+  }),
+);
 
 // Rutas de la API
 app.use('/api/students', studentsRoutes);
@@ -157,9 +192,6 @@ GET http://localhost:3000/api/student-tasks/1
 GET http://localhost:3000/api/student-tasks/task/1
 GET http://localhost:3000/api/student-tasks/student/1
 */
-// Rutas de auth comentadas para pruebas
-// app.use('/api/auth', authRoutes);
-
 app.use(errorHandler);
 
 export default app;

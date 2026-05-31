@@ -2,18 +2,12 @@ import type { Request, Response } from 'express';
 import { AuthService } from '../auth/auth.service.js';
 import * as usersService from './users.service.js';
 import { firebaseAuth } from '../../config/firebase.config.js';
+import { cookieAuthOptions } from '../../utils/cookie-options.js';
 
 const getRequester = (req: Request) => ({
   id: req.user?.sub,
   role: req.user?.role,
 });
-
-const cookieAuthOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-  maxAge: 24 * 60 * 60 * 1000,
-};
 
 export const getUsers = async (_req: Request, res: Response) => {
   const users = await usersService.findAllUsers();

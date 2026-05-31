@@ -1,5 +1,6 @@
 import prisma from '../../config/prisma.js';
 import { firebaseAdmin } from '../../firebase.js';
+import { logger } from '../../utils/logger.js';
 
 export const findAll = async () => {
     return await prisma.teacher.findMany({
@@ -84,14 +85,13 @@ export const remove = async (id: number) => {
 
   try {
         await firebaseAdmin.auth().deleteUser(exists.firebaseUID);
-        console.log('✅ Usuario Firebase eliminado:', exists.firebaseUID);
+        logger.info('Usuario Firebase eliminado', { firebaseUID: exists.firebaseUID });
         return await prisma.teacher.delete({
         where: { id },
     }
 );
     } catch (err) {
-        // ❌ Si falla Firebase, lanzamos error y NO borramos en la BD
-        console.error('❌ Error borrando usuario Firebase:', err);
+        logger.error('Error borrando usuario Firebase', { err, teacherId: id });
         throw new Error('No se pudo eliminar usuario en Firebase');
     }
 

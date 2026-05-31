@@ -137,8 +137,6 @@ export const createTask = async (req: Request, res: Response) => {
       .filter((field) => req.body[field] === undefined || req.body[field] === null || req.body[field] === '');
 
     if (missing.length > 0) {
-      console.log('400 Bad Request - Faltan campos:', missing);
-      console.log('Body recibido:', req.body);
       return res.status(400).json({
         success: false,
         message: 'Faltan campos obligatorios',
@@ -147,7 +145,6 @@ export const createTask = async (req: Request, res: Response) => {
     }
 
     if (!VALID_TASK_TYPES.includes(type)) {
-      console.log('400 Bad Request - Tipo inválido:', type);
       return res.status(400).json({
         success: false,
         message: `Tipo de tarea inválido. Valores permitidos: ${VALID_TASK_TYPES.join(', ')}`,
@@ -155,7 +152,6 @@ export const createTask = async (req: Request, res: Response) => {
     }
 
     if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(dueDate))) {
-      console.log('400 Bad Request - Fechas inválidas:', { startDate, dueDate });
       return res.status(400).json({
         success: false,
         message: 'Formato de fecha inválido. Use ISO 8601 (YYYY-MM-DDTHH:mm:ssZ)',

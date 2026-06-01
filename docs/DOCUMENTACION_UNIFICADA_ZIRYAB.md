@@ -1,3 +1,225 @@
+# Ziryab — Documentación técnica unificada
+
+**Proyecto:** Plataforma de gestión escolar (TFG)  
+**Repositorios:** ZiryabFront (Angular 19) · ZiryabBack (Node.js / Express 5)  
+**Versión:** 1.0 — Junio 2026
+
+---
+
+## Índice
+
+1. [Instalación y desarrollo](#parte-i--instalación-y-desarrollo)
+2. [Configuración del entorno](#parte-ii--configuración-del-entorno)
+3. [Seguridad y buenas prácticas](#parte-iii--seguridad-y-buenas-prácticas)
+4. [Arquitectura del sistema](#arquitectura-general-del-sistema-ziryab)
+5. [API REST — referencia rápida](#parte-iv--api-rest--referencia-rápida)
+6. [Base de datos](#parte-v--base-de-datos)
+7. [Frontend Angular](#parte-vi--frontend-angular)
+8. [Despliegue en producción](#parte-vii--despliegue-en-producción)
+9. [Referencias cruzadas](#parte-viii--referencias-cruzadas)
+
+---
+
+# Parte I — Instalación y desarrollo
+
+## 1.1 Requisitos previos
+
+| Componente | Versión mínima |
+|------------|----------------|
+| Node.js | 18+ (recomendado 20+) |
+| npm | Incluido con Node.js |
+| Docker + Docker Compose | PostgreSQL local |
+| Git | Control de versiones |
+
+**Frontend adicional:** Angular CLI 19 (vía `@angular/cli` en devDependencies).
+
+## 1.2 Backend (ZiryabBack)
+
+```bash
+cd ZiryabBack
+npm install
+cp .env.example .env   # si existe; configurar variables (ver Parte II)
+docker-compose up -d
+npx prisma migrate dev
+npm run seed           # opcional — datos de prueba
+npm run dev            # http://localhost:3000
+```
+
+**Comprobaciones:**
+
+| URL | Descripción |
+|-----|-------------|
+| `GET http://localhost:3000/health` | Health check → `{"ok":true}` |
+| `http://localhost:3000/api-docs` | Swagger UI |
+| `http://localhost:3000/api` | Prefijo de la API REST |
+
+## 1.3 Frontend (ZiryabFront)
+
+```bash
+cd ZiryabFront
+npm install
+npm start              # http://localhost:4200
+```
+
+Configurar `src/environments/environment.ts`:
+
+- `apiUrl`: `http://localhost:3000/api` en desarrollo
+- `firebase`: credenciales del proyecto Firebase
+- `currentSchoolYear`: año académico activo (ej. `2024-2025`)
+
+## 1.4 Scripts npm habituales
+
+### Backend
+
+| Comando | Uso |
+|---------|-----|
+| `npm run dev` | Desarrollo con recarga (`tsx watch`) |
+| `npm run build` | Compila TypeScript → `dist/` |
+| `npm start` | Ejecuta producción (`dist/index.js`) |
+| `npm test` | Tests Jest + Supertest |
+| `npm run seed` | Población de BD |
+| `npm run render:start` | Migraciones + arranque en Render |
+
+### Frontend
+
+| Comando | Uso |
+|---------|-----|
+| `npm start` | Servidor de desarrollo |
+| `npm run build` | Build de producción → `dist/` |
+| `npm test` | Tests Karma/Jasmine |
+| `npm run docs:build` | Compodoc estático |
+
+## 1.5 Flujo de trabajo recomendado
+
+1. Levantar PostgreSQL (`docker-compose up -d`).
+2. Arrancar backend (`npm run dev`).
+3. Arrancar frontend (`npm start`).
+4. Login con usuario del seed o cuenta Firebase registrada como `STUDENT`.
+5. Consultar Swagger para probar endpoints con JWT.
+
+**Ver también:** [Parte II — Configuración](#parte-ii-configuración-del-entorno) · [Parte III — Arquitectura](#arquitectura-general-del-sistema-ziryab)
+
+---
+
+# Parte II — Configuración del entorno
+
+Variables validadas en `ZiryabBack/src/config/env.ts` con **Zod** al arrancar el servidor.
+
+## 2.1 Backend — variables obligatorias
+
+| Variable | Descripción |
+|----------|-------------|
+| `DATABASE_URL` | URL PostgreSQL (`postgresql://user:pass@host:5432/db`) |
+| `JWT_SECRET` | Clave JWT (mínimo 32 caracteres) |
+| `JWT_EXPIRY` | Expiración del token (default: `7d` dev, `24h` prod) |
+| `NODE_ENV` | `development` \| `production` \| `test` |
+| `PORT` | Puerto HTTP (default `3000`) |
+| `FRONTEND_URL` | Origen del SPA (CORS en producción) |
+| `FIREBASE_PROJECT_ID` | Proyecto Firebase Admin |
+| `FIREBASE_PRIVATE_KEY` | Clave privada del service account |
+| `FIREBASE_CLIENT_EMAIL` | Email del service account |
+| `FIREBASE_WEB_API_KEY` | API key web (Identity Toolkit) |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary — uploads |
+| `CLOUDINARY_API_KEY` | Cloudinary |
+| `CLOUDINARY_API_SECRET` | Cloudinary |
+
+**Opcionales:**
+
+| Variable | Uso |
+|----------|-----|
+| `API_PUBLIC_URL` | URL pública del API (Swagger en producción) |
+| `SKIP_TLS_VERIFY` | Solo dev — redes con proxy SSL (`true`) |
+
+## 2.2 Frontend — `environment.ts`
+
+| Campo | Descripción |
+|-------|-------------|
+| `production` | `false` en dev |
+| `apiUrl` | Base de la API (`…/api`) |
+| `currentSchoolYear` | Filtros admin y horarios |
+| `firebase` | Config web Firebase (Auth) |
+| `timetableSlots` | Franjas horarias del centro |
+| `googleCalendar.embedUrl` | Calendario embebido |
+
+**Producción:** `environment.prod.ts` apunta a `https://ziryabback.onrender.com/api`.
+
+## 2.3 Cookies y sesión
+
+- Cookie `auth_token`: `httpOnly`, `secure` en producción, `SameSite=none` cross-site en prod.
+- Cliente Angular envía además `Authorization: Bearer <JWT>` vía interceptor.
+
+## 2.4 Base de datos
+
+```bash
+npx prisma migrate dev --name descripcion   # desarrollo
+npx prisma migrate deploy                   # producción
+npx prisma generate                         # tras cambiar schema
+npm run seed                                # datos semilla
+```
+
+**Ver también:** [Parte V — Base de datos](#parte-v-base-de-datos) · [Parte VII — Despliegue](#parte-vii-despliegue-en-producción)
+
+---
+
+# Parte III — Seguridad y buenas prácticas
+
+## 3.1 Autenticación
+
+```text
+Usuario → Firebase Auth (cliente) → ID Token
+       → POST /api/auth/login → Firebase Admin verifyIdToken
+       → JWT propio + cookie auth_token
+       → Peticiones API: Bearer + withCredentials
+```
+
+- El **rol** (`STUDENT`, `TEACHER`, `ADMIN`) lo define la BD local, no Firebase.
+- Registro público (`/api/auth/register`): **solo rol `STUDENT`**. Profesores y admins se crean desde el panel admin.
+- `authLimiter`: máximo 5 intentos fallidos de auth por IP / 15 minutos.
+
+## 3.2 Autorización
+
+| Capa | Mecanismo |
+|------|-----------|
+| Backend | `auth` → `authorize([roles])` → `restrictToSelfOrRoles` |
+| Frontend | `AuthGuard` + `RoleGuard` + `data.roles` en rutas |
+
+La autorización en el frontend es UX; la **seguridad real** está en la API.
+
+## 3.3 Protección HTTP
+
+| Medida | Implementación |
+|--------|----------------|
+| Helmet + CSP | Headers seguros en `app.ts` |
+| CORS | `FRONTEND_URL` en producción; credenciales habilitadas |
+| Rate limiting global | 100 req / 15 min (producción) |
+| Body limit | JSON 100 KB |
+| Uploads | Multer + Cloudinary |
+
+## 3.4 Datos sensibles
+
+- Usar **Winston** (`logger`) en backend; evitar `console.log` con bodies o contraseñas.
+- No commitear `.env` ni credenciales Firebase Admin.
+- Contraseñas de alumnos (`StudentPassword`): requisito funcional en texto plano para tutores — valorar cifrado en evoluciones futuras.
+
+## 3.5 Validación de entrada
+
+- **Prisma ORM** — sin SQL raw; protección frente a inyección SQL.
+- **Zod** — validación de env al arrancar; middleware `validate()` en rutas (ampliar progresivamente).
+- IDs numéricos parseados en controllers con respuesta 400 si inválidos.
+
+## 3.6 Dependencias
+
+Ejecutar periódicamente:
+
+```bash
+npm audit
+npm audit fix
+```
+
+**Ver también:** [Parte IV — API](#parte-iv-api-rest--referencia-rápida) · [Arquitectura §10](#10-seguridad-y-despliegue)
+
+---
+
 # Arquitectura general del sistema Ziryab
 
 **Proyecto:** Plataforma de gestión escolar (TFG)  
@@ -294,7 +516,7 @@ Login/registro añaden `token` en la raíz del JSON. Errores: `{ "message": "...
 
 - **Git** + tags versionados en backend (desarrollo incremental).
 - **Jira** (proyecto `CURSO`) — trazabilidad de commits y tareas.
-- **Bruno / Postman** — pruebas manuales de API (comentarios en `app.ts`).
+- **Bruno** — pruebas manuales de API (comentarios en `app.ts`).
 - **Render** (script `render:start`) — despliegue con `prisma migrate deploy`.
 
 ---
@@ -448,30 +670,8 @@ Fuente de verdad: `prisma/schema.prisma`. Motor: **PostgreSQL**.
 
 ### 9.1 Diagrama entidad–relación (núcleo académico)
 
-```mermaid
-erDiagram
-    Course ||--o{ Subject : contains
-    Subject ||--o{ TeacherOnSubjectOnGroup : taught_in
-    Group ||--o{ TeacherOnSubjectOnGroup : schedule_group
-    Teacher ||--o{ TeacherOnSubjectOnGroup : assigns
-    TeacherOnSubjectOnGroup ||--o{ WeekSchedule : has
-    WeekSchedule ||--o{ SessionClass : generates
-    SessionClass ||--o{ Assistance : records
+> *Diagrama Mermaid: ver `docs/ARQUITECTURA_SISTEMA_ZIRYAB.md`.*
 
-    Student ||--o{ StudentOnSubjectOnGroup : enrolls
-    Group ||--o{ StudentOnSubjectOnGroup : enrolls
-    Subject ||--o{ StudentOnSubjectOnGroup : enrolls
-    StudentOnSubjectOnGroup ||--o{ Assistance : attends
-    StudentOnSubjectOnGroup ||--o{ StudentTask : submits
-    StudentOnSubjectOnGroup ||--o{ SubjectEvaluation : graded
-
-    TeacherOnSubjectOnGroup ||--o{ Task : publishes
-    Task ||--o{ StudentTask : has_submissions
-
-    Teacher ||--o| StudentPassword : tutors
-    Student ||--o| StudentPassword : has
-    Admin ||--o{ Issue : publishes
-```
 
 ### 9.2 Modelos principales
 
@@ -549,4 +749,261 @@ Las asignaciones (`TeacherOnSubjectOnGroup`) y matrículas (`StudentOnSubjectOnG
 
 
 
-*Documento generado para evaluación del TFG — Sistema Ziryab. 
+*Documento generado para evaluación del TFG — Sistema Ziryab.
+
+---
+
+# Parte IV — API REST — referencia rápida
+
+**Base (dev):** `http://localhost:3000/api`  
+**Swagger:** `http://localhost:3000/api-docs`  
+**Contrato JSON:** `{ "message": string, "data"?: T }` — login/register incluyen `token` en la raíz.
+
+## 4.1 Autenticación
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| POST | `/auth/register` | No | Registro (solo STUDENT) |
+| POST | `/auth/login` | No | Login con token Firebase |
+| GET | `/auth/me` | JWT | Usuario actual |
+| POST | `/auth/logout` | JWT | Cierra sesión |
+| POST | `/auth/verify-firebase` | No | Verifica ID token |
+
+**Ejemplo login (tras Firebase en cliente):**
+
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"token":"<firebase-id-token>"}'
+```
+
+## 4.2 Módulos principales
+
+| Prefijo | Dominio |
+|---------|---------|
+| `/students`, `/teachers`, `/admins` | Usuarios por rol |
+| `/courses`, `/groups`, `/subjects` | Catálogo académico |
+| `/assignments`, `/assignment-substitutions` | Asignación docente |
+| `/enrollments`, `/studentregistration` | Matrículas |
+| `/horarios-semanales`, `/sessions` | Horarios y sesiones |
+| `/assistances` | Asistencia |
+| `/tasks`, `/student-tasks` | Tareas y entregas |
+| `/subject-evaluations` | Calificaciones |
+| `/issues`, `/notifications` | Comunicados y avisos |
+| `/student-passwords` | Credenciales alumnos (tutor) |
+
+Detalle completo de endpoints: **sección 8** del documento de arquitectura incluido a continuación en este PDF, y Swagger en vivo.
+
+## 4.3 Códigos HTTP habituales
+
+| Código | Significado |
+|--------|-------------|
+| 200 / 201 | Éxito |
+| 400 | Validación / petición incorrecta |
+| 401 | No autenticado |
+| 403 | Rol insuficiente |
+| 404 | Recurso no encontrado |
+| 409 | Conflicto (ej. email duplicado) |
+| 429 | Rate limit excedido |
+| 500 | Error interno |
+
+**Ver también:** `docs/API_EXAMPLES.md` · `docs/BRUNO_GUIDE.md` · [Arquitectura §8](#8-api--endpoints-principales)
+
+---
+
+# Parte V — Base de datos
+
+**Motor:** PostgreSQL · **ORM:** Prisma · **Schema:** `prisma/schema.prisma`
+
+## 5.1 Usuarios (tres tablas)
+
+| Tabla | Rol | Clave externa |
+|-------|-----|---------------|
+| `Student` | STUDENT | `firebaseUID` único |
+| `Teacher` | TEACHER | `firebaseUID` único |
+| `Admin` | ADMIN | `firebaseUID` único |
+
+## 5.2 Núcleo académico
+
+| Entidad | Descripción |
+|---------|-------------|
+| `Course` | Ciclo formativo (DAM, DAW…) |
+| `Subject` | Asignatura + `grade` (1º/2º) |
+| `Group` | Turno (mañana/tarde) |
+| `TeacherOnSubjectOnGroup` | Profesor × asignatura × grupo × `schoolYear` |
+| `StudentOnSubjectOnGroup` | Matrícula alumno |
+| `WeekSchedule` / `SessionClass` | Horario y sesiones |
+| `Assistance` | Asistencia por sesión |
+| `Task` / `StudentTask` | Tareas y entregas |
+| `SubjectEvaluation` | Notas por trimestre |
+| `Issue` | Comunicados |
+| `Notification` | Avisos por `firebaseUID` |
+
+## 5.3 Clase académica (concepto lógico)
+
+No hay tabla `Class`. Una clase (*1º DAM Mañana 2024-2025*) =  
+`course` + `subject.grade` + `group` + `schoolYear`.
+
+## 5.4 Diagrama relacional (resumen)
+
+```text
+Course ──< Subject ──< TeacherOnSubjectOnGroup >── Teacher
+                      TeacherOnSubjectOnGroup >── Group
+Student ──< StudentOnSubjectOnGroup >── Subject, Group
+WeekSchedule ──< SessionClass ──< Assistance >── StudentOnSubjectOnGroup
+TeacherOnSubjectOnGroup ──< Task ──< StudentTask
+StudentOnSubjectOnGroup ──< SubjectEvaluation
+```
+
+Documentación ampliada: `prisma/esquema-relacional.md` · [Arquitectura §9](#9-esquema-de-base-de-datos)
+
+---
+
+# Parte VI — Frontend Angular
+
+**Repositorio:** ZiryabFront · **Angular 19** · **Standalone components**
+
+## 6.1 Estructura
+
+```text
+src/app/
+├── core/          guards, interceptors, services, models, i18n
+├── pages/
+│   ├── admin/     CRUD entidades, dashboard admin
+│   ├── alumno/    clases, tareas, horario, notas
+│   ├── profesor/  clases, asistencia, tareas, evaluaciones
+│   └── shared/    login, perfil, calendario, notificaciones
+├── app.routes.ts
+└── app.config.ts
+```
+
+## 6.2 Rutas y roles
+
+| Ruta ejemplo | Roles |
+|--------------|-------|
+| `/login` | Público |
+| `/dashboard` | STUDENT, TEACHER |
+| `/dashboard-admin` | ADMIN |
+| `/clases`, `/horario-alumno` | STUDENT |
+| `/clases-profesor`, `/evaluaciones` | TEACHER |
+
+Guards: `AuthGuard` (sesión) + `RoleGuard` (`data.roles`).
+
+## 6.3 Servicios HTTP
+
+- Base URL: `environment.apiUrl`
+- Interceptor `auth.interceptor.ts`: añade JWT y `withCredentials`
+- Tipo de respuesta: `ApiResponse<T> = { message, data }`
+
+## 6.4 Internacionalización
+
+- ngx-translate · idiomas: `es` (default), `en`, `de`
+- Ficheros: `src/assets/i18n/*.json`
+
+## 6.5 Build producción
+
+```bash
+npm run build
+# Artefactos en dist/ — servir como SPA estática
+# environment.prod.ts → API Render + Firebase prod
+```
+
+**Ver también:** [Arquitectura §3.1 y §7.2](#31-frontend-ziryabfront) · `ZiryabFront/AGENTS.md`
+
+---
+
+# Parte VII — Despliegue en producción
+
+## 7.1 Backend — Render (configuración actual)
+
+Scripts en `package.json`:
+
+```json
+"render:build": "npm run build",
+"render:start": "prisma migrate deploy && node dist/index.js"
+```
+
+**Pasos:**
+
+1. Configurar variables de entorno en el panel Render (ver Parte II).
+2. `JWT_SECRET` único y seguro (≥ 32 caracteres).
+3. `FRONTEND_URL` = URL del SPA desplegado.
+4. `DATABASE_URL` = PostgreSQL gestionado.
+5. Desplegar; verificar `GET /health`.
+
+**URL producción API:** `https://ziryabback.onrender.com/api`
+
+## 7.2 Backend — Docker (alternativa)
+
+```bash
+docker build -t ziryab-api:1.0.0 .
+docker-compose -f docker-compose.prod.yml up -d
+docker-compose -f docker-compose.prod.yml exec api npx prisma migrate deploy
+```
+
+## 7.3 Frontend
+
+1. `npm run build` con `environment.prod.ts`.
+2. Servir `dist/` en hosting estático (Firebase Hosting, Netlify, etc.).
+3. Configurar dominio en Firebase Console (Auth autorizado).
+4. Asegurar que `FRONTEND_URL` en backend coincide con el origen del SPA.
+
+## 7.4 Checklist pre-producción
+
+- [ ] `JWT_SECRET` y credenciales Firebase/Cloudinary en secrets
+- [ ] Migraciones aplicadas (`prisma migrate deploy`)
+- [ ] CORS apunta al dominio real del frontend
+- [ ] HTTPS en front y API
+- [ ] Health check y logs monitorizados
+- [ ] Backups de PostgreSQL
+- [ ] Rate limits revisados
+- [ ] Swagger: restringir o desactivar si no es necesario en prod
+
+**Ver también:** [README backend — v1.0.0 Producción](#parte-i-instalación-y-desarrollo) · [Arquitectura §10](#10-seguridad-y-despliegue)
+
+---
+
+# Parte VIII — Referencias cruzadas
+
+## 8.1 Documentos fuente en el repositorio
+
+| Documento | Repositorio | Contenido |
+|-----------|-------------|-----------|
+| `docs/DOCUMENTACION_UNIFICADA_ZIRYAB.md` | ZiryabBack | Documentación técnica unificada |
+| `docs/ARQUITECTURA_SISTEMA_ZIRYAB.md` | ZiryabBack | Arquitectura detallada |
+| `docs/API_EXAMPLES.md` | ZiryabBack | Ejemplos curl de la API |
+| `docs/BRUNO_GUIDE.md` | ZiryabBack | Colección Bruno / pruebas HTTP |
+| `prisma/esquema-relacional.md` | ZiryabBack | Modelo relacional comentado |
+| `prisma/schema.prisma` | ZiryabBack | Schema Prisma (fuente de verdad BD) |
+| `README.md` | ZiryabBack | Historial de versiones e instalación extendida |
+| `AGENTS.md` | ZiryabBack / ZiryabFront | Guías para desarrollo |
+| `CHANGELOG.md` | ZiryabBack | Cambios versionados |
+| `README.md` | ZiryabFront | Instalación y Compodoc |
+
+## 8.2 Enlaces en tiempo de ejecución
+
+| Recurso | URL (desarrollo) |
+|---------|------------------|
+| API | http://localhost:3000/api |
+| Health | http://localhost:3000/health |
+| Swagger | http://localhost:3000/api-docs |
+| Frontend | http://localhost:4200 |
+
+## 8.3 Exportar a PDF
+
+Abrir este `.md` en VS Code con extensión *Markdown PDF*, importar en Word/LibreOffice, o usar la vista previa de GitHub → Imprimir → Guardar como PDF
+
+## 8.4 Mapa documentación ↔ código
+
+| Tema | Sección PDF | Código |
+|------|-------------|--------|
+| Auth JWT | Parte III, Arquitectura §4.1 | `modules/auth/`, `middleware/auth.ts` |
+| Roles | Parte III, Arquitectura §8.2 | `middleware/authorize.ts`, `role.guard.ts` |
+| Rutas API | Parte IV, Arquitectura §8 | `src/app.ts` |
+| Modelo BD | Parte V, Arquitectura §9 | `prisma/schema.prisma` |
+| UI por rol | Parte VI | `ZiryabFront/src/app/pages/` |
+| Env / CORS | Parte II, VII | `config/env.ts`, `src/app.ts` |
+
+---
+
+*Documento para evaluación del TFG — Sistema Ziryab.*

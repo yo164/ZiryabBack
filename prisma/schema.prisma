@@ -247,9 +247,9 @@ enum DayOfWeek {
 }
 
 model WeekSchedule {
-  id                  Int                     @id @default(autoincrement())
-  idTeacherAssignment Int
-  teacherAssignment   TeacherOnSubjectOnGroup @relation(fields: [idTeacherAssignment], references: [id], name: "TeacherAssignment", onDelete: Cascade)
+  id                  Int                      @id @default(autoincrement())
+  idTeacherAssignment Int?
+  teacherAssignment   TeacherOnSubjectOnGroup? @relation(fields: [idTeacherAssignment], references: [id], name: "TeacherAssignment", onDelete: Cascade)
   label               String                  @default("")
   weekDay             DayOfWeek
   startTime           String

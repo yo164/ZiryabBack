@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import prisma from '../../config/prisma.js';
 import { emitToUser } from './notifications.sse.js';
 
@@ -6,6 +7,47 @@ export type CreateNotificationData = {
   title: string;
   message: string;
   type?: string;
+};
+
+export type NotificationListFilters = {
+  recipientFirebaseUID?: string;
+  type?: string;
+  isRead?: boolean;
+};
+
+const buildWhere = (filters: NotificationListFilters = {}): Prisma.NotificationWhereInput => ({
+  ...(filters.recipientFirebaseUID ? { recipientFirebaseUID: filters.recipientFirebaseUID } : {}),
+  ...(filters.type ? { type: filters.type } : {}),
+  ...(filters.isRead !== undefined ? { isRead: filters.isRead } : {}),
+});
+
+export const findAll = async (
+  page: number,
+  limit: number,
+  filters: NotificationListFilters = {},
+) => {
+  const skip = (page - 1) * limit;
+  const where = buildWhere(filters);
+
+  const [total, notifications] = await prisma.$transaction([
+    prisma.notification.count({ where }),
+    prisma.notification.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+  ]);
+
+  return {
+    notifications,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 export const findForRecipient = async (

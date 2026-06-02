@@ -10,6 +10,13 @@ const parsePositiveInt = (value: unknown, defaultValue: number): number | null =
   return parsed;
 };
 
+const parseOptionalBoolean = (value: unknown): boolean | undefined | null => {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (value === 'true' || value === true) return true;
+  if (value === 'false' || value === false) return false;
+  return null;
+};
+
 const getRequesterFirebaseUID = (req: Request): string | null => {
   return req.user?.firebaseUID ?? null;
 };
@@ -58,6 +65,52 @@ export const subscribe = (req: Request, res: Response): void => {
   req.on('aborted', cleanup);
 };
 
+export const getAllNotifications = async (req: Request, res: Response) => {
+  const page = parsePositiveInt(req.query.page, 1);
+  const limit = parsePositiveInt(req.query.limit, 20);
+
+  if (page === null || limit === null) {
+    return res.status(400).json({
+      message: 'Parámetros de paginación inválidos. page y limit deben ser enteros positivos',
+    });
+  }
+
+  const isRead = parseOptionalBoolean(req.query.isRead);
+  if (isRead === null) {
+    return res.status(400).json({
+      message: 'Parámetro isRead inválido. Use true o false',
+    });
+  }
+
+  const recipientFirebaseUID =
+    typeof req.query.recipientFirebaseUID === 'string'
+      ? req.query.recipientFirebaseUID.trim() || undefined
+      : undefined;
+
+  const type =
+    typeof req.query.type === 'string' ? req.query.type.trim() || undefined : undefined;
+
+  try {
+    const result = await notificationsService.findAll(page, limit, {
+      recipientFirebaseUID,
+      type,
+      isRead,
+    });
+    return res.status(200).json({
+      message: 'Notificaciones del sistema obtenidas correctamente',
+      data: result.notifications,
+      pagination: result.pagination,
+    });
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    logger.error('Error al obtener todas las notificaciones', {
+      message: err.message,
+      stack: err.stack,
+    });
+    return res.status(500).json({ message: 'Error al obtener notificaciones del sistema' });
+  }
+};
+
 export const getNotifications = async (req: Request, res: Response) => {
   const requesterFirebaseUID = getRequesterFirebaseUID(req);
   if (!requesterFirebaseUID) {
@@ -73,8 +126,20 @@ export const getNotifications = async (req: Request, res: Response) => {
     });
   }
 
+  const recipientParam =
+    typeof req.query.recipientFirebaseUID === 'string'
+      ? req.query.recipientFirebaseUID.trim()
+      : '';
+  const recipientFirebaseUID = recipientParam || requesterFirebaseUID;
+
+  if (recipientFirebaseUID !== requesterFirebaseUID && req.user?.role !== 'ADMIN') {
+    return res.status(403).json({
+      message: 'Solo un ADMIN puede consultar notificaciones de otros usuarios',
+    });
+  }
+
   try {
-    const result = await notificationsService.findForRecipient(requesterFirebaseUID, page, limit);
+    const result = await notificationsService.findForRecipient(recipientFirebaseUID, page, limit);
     return res.status(200).json({
       message: 'Notificaciones obtenidas correctamente',
       data: result.notifications,

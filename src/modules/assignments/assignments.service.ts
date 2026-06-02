@@ -139,8 +139,7 @@ const assignmentInclude = {
 export const createAssignment = async (
   input: CreateAssignmentBody,
 ): Promise<CreateAssignmentResult> => {
-  const [teacher, subject, group] = await Promise.all([
-    prisma.teacher.findUnique({ where: { id: input.idTeacher } }),
+  const [subject, group] = await Promise.all([
     prisma.subject.findUnique({
       where: { id: input.idSubject },
       select: { id: true, idCourse: true, grade: true },
@@ -148,8 +147,11 @@ export const createAssignment = async (
     prisma.group.findUnique({ where: { id: input.idGroup } }),
   ]);
 
-  if (!teacher) {
-    return { kind: 'error', message: 'Profesor no encontrado' };
+  if (input.idTeacher != null) {
+    const teacher = await prisma.teacher.findUnique({ where: { id: input.idTeacher } });
+    if (!teacher) {
+      return { kind: 'error', message: 'Profesor no encontrado' };
+    }
   }
   if (!subject) {
     return { kind: 'error', message: 'Asignatura no encontrada' };
@@ -194,7 +196,7 @@ export const createAssignment = async (
 
   const assignment = await prisma.teacherOnSubjectOnGroup.create({
     data: {
-      idTeacher: input.idTeacher,
+      idTeacher: input.idTeacher ?? null,
       idSubject: input.idSubject,
       idGroup: input.idGroup,
       schoolYear: input.schoolYear,

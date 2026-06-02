@@ -133,8 +133,8 @@ enum AssignmentStatus {
 model TeacherOnSubjectOnGroup {
   id Int @id @default(autoincrement())
 
-  idTeacher Int
-  teacher   Teacher @relation(fields: [idTeacher], references: [id], onDelete: Cascade)
+  idTeacher Int?
+  teacher   Teacher? @relation(fields: [idTeacher], references: [id], onDelete: SetNull)
 
   idSubject Int
   subject   Subject @relation(fields: [idSubject], references: [id], onDelete: Cascade)
@@ -162,7 +162,7 @@ model TeacherOnSubjectOnGroup {
   tasks         Task[]
   substitutions AssignmentSubstitution[]
 
-  @@unique([idTeacher, idSubject, idGroup, schoolYear])
+  @@unique([idSubject, idGroup, schoolYear])
   @@index([schoolYear])
   @@index([idTeacher, schoolYear])
   @@index([idGroup, idSubject, schoolYear, isTutor])
@@ -250,7 +250,7 @@ model WeekSchedule {
   id                  Int                      @id @default(autoincrement())
   idTeacherAssignment Int?
   teacherAssignment   TeacherOnSubjectOnGroup? @relation(fields: [idTeacherAssignment], references: [id], name: "TeacherAssignment", onDelete: Cascade)
-  label               String                  @default("")
+  label               String
   weekDay             DayOfWeek
   startTime           String
   finishTime          String

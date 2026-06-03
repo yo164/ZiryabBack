@@ -4,7 +4,7 @@ import { AssignmentStatus } from '@prisma/client';
 const assignmentStatusSchema = z.nativeEnum(AssignmentStatus);
 
 export const createAssignmentBodySchema = z.object({
-  idTeacher: z.coerce.number().int().positive(),
+  idTeacher: z.coerce.number().int().positive().nullish(),
   idSubject: z.coerce.number().int().positive(),
   idGroup: z.coerce.number().int().positive(),
   schoolYear: z.string().min(1, 'schoolYear obligatorio'),

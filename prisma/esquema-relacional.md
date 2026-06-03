@@ -18,6 +18,19 @@ Mapeo relacional: una tabla por subtipo (los tres comparten los mismos atributos
 | firebaseUID   | VARCHAR   | UNIQUE NOT NULL                     |
 | createdAt     | TIMESTAMP | DEFAULT NOW()                       |
 
+### StudentPassword (contraseña de alumno gestionada por tutor)
+
+| Atributo  | Tipo      | Restricción                              |
+|-----------|-----------|------------------------------------------|
+| **id**    | INT       | PK AUTO_INCREMENT                        |
+| idStudent | INT       | FK → STUDENT (CASCADE), UNIQUE           |
+| password  | VARCHAR   | NOT NULL                                 |
+| idTutor   | INT       | FK → TEACHER (RESTRICT)                  |
+| createdAt | TIMESTAMP | DEFAULT NOW()                            |
+| updatedAt | TIMESTAMP | AUTO UPDATE                              |
+
+> Un alumno tiene como máximo un registro. El tutor (`idTutor`) es el profesor que gestiona esa credencial.
+
 ---
 
 ## 2 · Dominio académico base
@@ -55,6 +68,8 @@ Mapeo relacional: una tabla por subtipo (los tres comparten los mismos atributos
 | capacity  | INT       | NULL                  |
 | createdAt | TIMESTAMP | DEFAULT NOW()         |
 
+> La “clase real” (ej. 1º DAM Mañana 2024-2025) no es entidad propia: se infiere por `TeacherOnSubjectOnGroup` + `Subject.grade` + `schoolYear`.
+
 ---
 
 ## 3 · Relaciones ternarias asociativas
@@ -64,17 +79,21 @@ Ambas tablas tienen **PK propia** (`id`) y aportan FK a las tres entidades.
 
 ### TeacherOnSubjectOnGroup (asignación docente)
 
-| Atributo     | Tipo      | Restricción                                                  |
-|--------------|-----------|--------------------------------------------------------------|
-| **id**       | INT       | PK AUTO_INCREMENT                                            |
-| idTeacher    | INT       | FK → TEACHER (SET NULL) — NULL si plaza vacante              |
-| idSubject    | INT       | FK → SUBJECT (CASCADE)                                      |
-| idGroup      | INT       | FK → GROUP (CASCADE)                                        |
-| schoolYear   | VARCHAR   | NOT NULL — "2024-2025"                                       |
-| status       | ENUM      | `ACTIVE` `SUSPENDED` `ILLNESS` `EXCEDENCE` `WITHDRAWN` `STANDBY` |
-| createdAt    | TIMESTAMP | DEFAULT NOW()                                                |
+| Atributo              | Tipo      | Restricción                                                  |
+|-----------------------|-----------|--------------------------------------------------------------|
+| **id**                | INT       | PK AUTO_INCREMENT                                            |
+| idTeacher             | INT       | FK → TEACHER (SET NULL) — **NULL** (plaza sin profesor)     |
+| idSubject             | INT       | FK → SUBJECT (CASCADE)                                      |
+| idGroup               | INT       | FK → GROUP (CASCADE)                                        |
+| schoolYear            | VARCHAR   | NOT NULL — "2024-2025"                                       |
+| status                | ENUM      | `ACTIVE` `SUSPENDED` `ILLNESS` `EXCEDENCE` `WITHDRAWN` `STANDBY` |
+| isTutor               | BOOLEAN   | DEFAULT FALSE — tutor de la clase (course+grade+group+año)   |
+| currentSubstituteId   | INT       | FK → TEACHER (SET NULL) — sustituto actual en la asignación   |
+| createdAt             | TIMESTAMP | DEFAULT NOW()                                                |
 
-> `UNIQUE(idSubject, idGroup, schoolYear)` — una sola asignación por año
+> `UNIQUE(idSubject, idGroup, schoolYear)` — una oferta (asignatura+grupo+año); el profesor se asigna después (`idTeacher` NULL + `STANDBY`).  
+> Un solo tutor por clase y año se controla en backend (`isTutor`).  
+> API de alta: `idTeacher` opcional al crear la asignación.
 
 ### StudentOnSubjectOnGroup (matrícula)
 
@@ -90,6 +109,18 @@ Ambas tablas tienen **PK propia** (`id`) y aportan FK a las tres entidades.
 
 > `UNIQUE(idStudent, idGroup, idSubject, schoolYear)`
 
+### AssignmentSubstitution (histórico de sustituciones)
+
+| Atributo              | Tipo      | Restricción                              |
+|-----------------------|-----------|------------------------------------------|
+| **id**                | INT       | PK AUTO_INCREMENT                        |
+| idTeacherAssignment   | INT       | FK → TeacherOnSubjectOnGroup (CASCADE)  |
+| idSubstitute          | INT       | FK → TEACHER (RESTRICT)                  |
+| startDate             | TIMESTAMP | NULL                                     |
+| endDate               | TIMESTAMP | NULL                                     |
+| notes                 | TEXT      | NULL                                     |
+| createdAt             | TIMESTAMP | DEFAULT NOW()                            |
+
 ---
 
 ## 4 · Gestión de clases y asistencia
@@ -99,12 +130,14 @@ Ambas tablas tienen **PK propia** (`id`) y aportan FK a las tres entidades.
 | Atributo              | Tipo      | Restricción                                             |
 |-----------------------|-----------|---------------------------------------------------------|
 | **id**                | INT       | PK AUTO_INCREMENT                                       |
-| idTeacherAssignment   | INT       | FK → TeacherOnSubjectOnGroup (CASCADE) — NULL           |
-| label                 | VARCHAR   | NOT NULL — ej. "1º DAM Mañana"                          |
+| idTeacherAssignment   | INT       | FK → TeacherOnSubjectOnGroup (CASCADE) — **NULL** (plantilla sin asignar) |
+| label                 | VARCHAR   | NOT NULL, **sin DEFAULT** en BD — ej. "1º DAM Mañana"    |
 | weekDay               | ENUM      | `MONDAY` … `SUNDAY`                                     |
 | startTime             | VARCHAR   | "09:00"                                                 |
 | finishTime            | VARCHAR   | "10:00"                                                 |
 | createdAt             | TIMESTAMP | DEFAULT NOW()                                           |
+
+> Las franjas se crean primero con `idTeacherAssignment` NULL y `label` obligatorio en la petición; la asignación docente se enlaza después.
 
 ### SessionClass (sesión de clase)
 
@@ -182,7 +215,25 @@ Ambas tablas tienen **PK propia** (`id`) y aportan FK a las tres entidades.
 
 ---
 
-## 6 · Comunicación
+## 6 · Evaluaciones
+
+### SubjectEvaluation (calificación por periodo)
+
+| Atributo              | Tipo      | Restricción                                               |
+|-----------------------|-----------|-----------------------------------------------------------|
+| **id**                | INT       | PK AUTO_INCREMENT                                         |
+| idStudentEnrollment   | INT       | FK → StudentOnSubjectOnGroup (CASCADE)                   |
+| period                | ENUM      | `INITIAL` `FIRST_TRIMESTER` `SECOND_TRIMESTER` `THIRD_TRIMESTER` `FINAL` |
+| value                 | INT       | NULL (1–10)                                               |
+| observations          | TEXT      | NULL                                                      |
+| createdAt             | TIMESTAMP | DEFAULT NOW()                                             |
+| updatedAt             | TIMESTAMP | AUTO UPDATE                                               |
+
+> `UNIQUE(idStudentEnrollment, period)` — la nota pertenece al alumno en la matrícula, no al profesor.
+
+---
+
+## 7 · Comunicación
 
 ### Issue (tablón de anuncios)
 
@@ -228,13 +279,18 @@ Ambas tablas tienen **PK propia** (`id`) y aportan FK a las tres entidades.
 
 | Tabla origen                | FK                    | Tabla destino               | Cardinalidad | onDelete   |
 |-----------------------------|-----------------------|-----------------------------|:------------:|------------|
+| StudentPassword             | idStudent             | STUDENT                     | 1 : 0..1     | CASCADE    |
+| StudentPassword             | idTutor               | TEACHER                     | N : 1        | RESTRICT   |
 | SUBJECT                     | idCourse              | COURSE                      | N : 1        | CASCADE    |
 | TeacherOnSubjectOnGroup     | idTeacher             | TEACHER                     | N : 0..1     | SET NULL   |
 | TeacherOnSubjectOnGroup     | idSubject             | SUBJECT                     | N : 1        | CASCADE    |
 | TeacherOnSubjectOnGroup     | idGroup               | GROUP                       | N : 1        | CASCADE    |
+| TeacherOnSubjectOnGroup     | currentSubstituteId   | TEACHER                     | N : 0..1     | SET NULL   |
 | StudentOnSubjectOnGroup     | idStudent             | STUDENT                     | N : 1        | CASCADE    |
 | StudentOnSubjectOnGroup     | idSubject             | SUBJECT                     | N : 1        | CASCADE    |
 | StudentOnSubjectOnGroup     | idGroup               | GROUP                       | N : 1        | CASCADE    |
+| AssignmentSubstitution      | idTeacherAssignment   | TeacherOnSubjectOnGroup     | N : 1        | CASCADE    |
+| AssignmentSubstitution      | idSubstitute          | TEACHER                     | N : 1        | RESTRICT   |
 | WeekSchedule                | idTeacherAssignment   | TeacherOnSubjectOnGroup     | N : 0..1     | CASCADE    |
 | SessionClass                | idSchedule            | WeekSchedule                | N : 1        | CASCADE    |
 | Assistance                  | idSession             | SessionClass                | N : 1        | CASCADE    |
@@ -243,6 +299,7 @@ Ambas tablas tienen **PK propia** (`id`) y aportan FK a las tres entidades.
 | Task                        | idTaskGroup           | TaskGroup                   | N : 0..1     | SET NULL   |
 | StudentTask                 | idTask                | Task                        | N : 1        | CASCADE    |
 | StudentTask                 | idStudentEnrollment   | StudentOnSubjectOnGroup     | N : 1        | CASCADE    |
+| SubjectEvaluation           | idStudentEnrollment   | StudentOnSubjectOnGroup     | N : 1        | CASCADE    |
 | Issue                       | idAdmin               | ADMIN                       | N : 1        | RESTRICT   |
 | Issue                       | idGroup               | GROUP                       | N : 0..1     | SET NULL   |
 | Issue                       | idCourse              | COURSE                      | N : 0..1     | SET NULL   |
@@ -252,4 +309,14 @@ Ambas tablas tienen **PK propia** (`id`) y aportan FK a las tres entidades.
 
 ---
 
-*Motor: PostgreSQL · ORM: Prisma · PKs: INT SERIAL (autoincrement) · ENUMs: tipos nativos PostgreSQL*
+*Motor: PostgreSQL · ORM: Prisma · PKs: INT SERIAL (autoincrement) · ENUMs: tipos nativos PostgreSQL*  
+*Última revisión: `prisma/schema.prisma` + migraciones `revert_20260525174509_curso71` y `week_schedule_label_drop_default`.*
+
+**Reglas clave (asignación / horario):**
+
+| Campo | Regla |
+|-------|--------|
+| `TeacherOnSubjectOnGroup.idTeacher` | NULL permitido · FK `SET NULL` · unique `(idSubject, idGroup, schoolYear)` |
+| `WeekSchedule.idTeacherAssignment` | NULL permitido (plantilla) |
+| `WeekSchedule.label` | NOT NULL · sin default en BD |
+| `isTutor`, `AssignmentSubstitution`, `SubjectEvaluation`, `StudentPassword` | Sin cambio respecto al bloque tutoría/sustituciones |

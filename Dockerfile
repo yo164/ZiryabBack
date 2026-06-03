@@ -14,7 +14,7 @@ WORKDIR /app
 RUN apk add --no-cache dumb-init openssl libc6-compat
 COPY package*.json ./
 COPY prisma ./prisma/
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --ignore-scripts
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma/client ./node_modules/.prisma/client
 COPY prisma ./prisma/

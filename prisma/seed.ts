@@ -330,19 +330,20 @@ async function main() {
   // Hijos primero (orden por FKs del schema actual)
   await prisma.assistance.deleteMany();
   await prisma.studentTask.deleteMany();
-  await prisma.grade.deleteMany();
+  await prisma.subjectEvaluation.deleteMany();
+  await prisma.assignmentSubstitution.deleteMany();
   await prisma.sessionClass.deleteMany();
   await prisma.task.deleteMany();
   await prisma.weekSchedule.deleteMany();
   await prisma.studentOnSubjectOnGroup.deleteMany();
   await prisma.teacherOnSubjectOnGroup.deleteMany();
   await prisma.notification.deleteMany();
-  await prisma.announcement.deleteMany();
   await prisma.issue.deleteMany();
   await prisma.taskGroup.deleteMany();
   await prisma.group.deleteMany();
   await prisma.subject.deleteMany();
   await prisma.course.deleteMany();
+  await prisma.studentPassword.deleteMany();
   await prisma.student.deleteMany();
   await prisma.teacher.deleteMany();
   await prisma.admin.deleteMany();
@@ -356,9 +357,10 @@ async function main() {
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TeacherOnSubjectOnGroup_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Notification_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Grade_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Announcement_id_seq" RESTART WITH 1;`);
-  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Issue_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "SubjectEvaluation_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "AssignmentSubstitution_id_seq" RESTART WITH 1;`);
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "StudentPassword_id_seq" RESTART WITH 1;`);
+    await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Issue_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "TaskGroup_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Group_id_seq" RESTART WITH 1;`);
   await prisma.$executeRawUnsafe(`ALTER SEQUENCE "Subject_id_seq" RESTART WITH 1;`);
@@ -1119,6 +1121,15 @@ async function main() {
         },
       ]
     });
+
+  console.log('Creando contrasenas de alumnos (tutor id 1)...');
+  const studentPasswords = await prisma.studentPassword.createMany({
+    data: [
+      { idStudent: 1, password: 'Estudiante123456', idTutor: 1 },
+      { idStudent: 2, password: 'Estudiante123456', idTutor: 1 },
+      { idStudent: 3, password: 'Estudiante123456', idTutor: 1 },
+    ],
+  });
 
   // Crear Administradores
 
@@ -9335,7 +9346,7 @@ async function main() {
     select: { idTeacher: true, idGroup: true, idSubject: true },
   });
 
-  const teacherByGroupSubject = new Map<string, number>();
+  const teacherByGroupSubject = new Map<string, number | null>();
   for (const a of assignmentsForGrades) {
     teacherByGroupSubject.set(`${a.idGroup}:${a.idSubject}`, a.idTeacher);
   }
@@ -9352,7 +9363,6 @@ async function main() {
     idStudentEnrollment: number;
     period: (typeof gradePeriods)[number];
     value: number;
-    idTeacher: number;
   }[] = [];
 
   for (const e of enrollmentsForGrades) {
@@ -9363,18 +9373,17 @@ async function main() {
         idStudentEnrollment: e.id,
         period,
         value: 5 + (e.id % 5),
-        idTeacher: teacherId,
       });
     }
   }
 
   const GRADE_CHUNK = 2000;
-  let grades = { count: 0 };
+  let subjectEvaluations = { count: 0 };
   for (let i = 0; i < gradeData.length; i += GRADE_CHUNK) {
-    const chunk = await prisma.grade.createMany({
+    const chunk = await prisma.subjectEvaluation.createMany({
       data: gradeData.slice(i, i + GRADE_CHUNK),
     });
-    grades.count += chunk.count;
+    subjectEvaluations.count += chunk.count;
   }
 
   // ===========================
@@ -9420,65 +9429,6 @@ async function main() {
   }
 
   const notifications = await prisma.notification.createMany({ data: notificationData });
-
-  const announcements = await prisma.announcement.createMany({
-    data: [
-      {
-        title: '[SEED] Inicio de curso 2024-2025',
-        body: 'Anuncio del tablón para septiembre.',
-        createdByUserId: 1,
-        createdAt: new Date('2025-09-01T10:00:00.000Z'),
-      },
-      {
-        title: '[SEED] Evaluación primer trimestre',
-        body: 'Anuncio del tablón para noviembre.',
-        createdByUserId: 1,
-        createdAt: new Date('2025-11-15T10:00:00.000Z'),
-      },
-      {
-        title: '[SEED] Jornada de puertas abiertas',
-        body: 'Anuncio del tablón para enero.',
-        createdByUserId: 1,
-        createdAt: new Date('2026-01-20T10:00:00.000Z'),
-      },
-    ],
-  });
-
-  // ===========================
-  // ANOMALÍAS DEL INFORME (matrícula sin asistencia, asignación sin sesiones)
-  // ===========================
-
-  console.log('Creando datos de anomalías para informe...');
-
-  const orphanAssignment = await prisma.teacherOnSubjectOnGroup.create({
-    data: {
-      idTeacher: 29,
-      idSubject: 97,
-      idGroup: 2,
-      schoolYear: acaYear,
-      status: 'ACTIVE',
-    },
-  });
-
-  await prisma.studentOnSubjectOnGroup.createMany({
-    data: [
-      { idStudent: 45, idGroup: 2, idSubject: 97, schoolYear: acaYear },
-      { idStudent: 46, idGroup: 2, idSubject: 97, schoolYear: acaYear },
-      { idStudent: 47, idGroup: 2, idSubject: 97, schoolYear: acaYear },
-    ],
-    skipDuplicates: true,
-  });
-
-  console.log(
-    `Asignación huérfana (sin sesiones) id=${orphanAssignment.id} para hoja Anomalias`,
-  );
-
-
-
-
-
-
-
 
 
   console.log('Creando anuncios del tablón (issues)...');
@@ -9590,10 +9540,10 @@ async function main() {
   console.log(`✅ ${practiceTasks.count} tareas PRACTICE creadas`);
   console.log(`✅ ${examTasks.count} tareas de examen creadas`);
   console.log(`✅ ${studentTasks.count} StudentTasks creadas`);
-  console.log(`✅ ${grades.count} calificaciones creadas`);
+  console.log(`✅ ${subjectEvaluations.count} calificaciones creadas`);
   console.log(`✅ ${notifications.count} notificaciones creadas`);
-  console.log(`✅ ${announcements.count} anuncios del tablón creados`);
   console.log(`📢 ${issues.count} anuncios (issues) creados`);
+  console.log(`${studentPasswords.count} contrasenas de alumnos creadas`);
 
 }
 

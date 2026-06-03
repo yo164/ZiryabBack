@@ -1,6 +1,25 @@
 import type { Request, Response } from 'express';
 import * as studentPasswordsService from './student-passwords.service.js';
 
+export type StudentPasswordItem = {
+  idStudent: number;
+  studentName: string;
+  password: string;
+  idTutor: number;
+};
+
+const toStudentPasswordItem = (row: {
+  idStudent: number;
+  password: string;
+  idTutor: number;
+  student: { name: string; surname: string };
+}): StudentPasswordItem => ({
+  idStudent: row.idStudent,
+  studentName: `${row.student.name} ${row.student.surname}`.trim(),
+  password: row.password,
+  idTutor: row.idTutor,
+});
+
 const parseId = (value: string | undefined): number => {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) {
@@ -16,24 +35,17 @@ export const getByTutor = async (req: Request, res: Response) => {
     const requesterRole = req.user?.role;
 
     if (requesterRole === 'TEACHER' && requesterId !== idTutor) {
-      return res.status(403).json({ message: 'No autorizado para consultar este tutor' });
+      return res.status(403).json({ success: false, data: [] });
     }
 
     const rows = await studentPasswordsService.findByTutor(idTutor);
-    const data = rows.map((row) => ({
-      idStudent: row.idStudent,
-      studentName: `${row.student.name} ${row.student.surname}`.trim(),
-      password: row.password,
-    }));
+    const data = rows.map(toStudentPasswordItem);
 
-    return res.status(200).json({
-      message: 'Credenciales del tutor recuperadas',
-      data,
-    });
+    return res.status(200).json({ success: true, data });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Error desconocido';
     const status = message === 'ID inválido' ? 400 : 500;
-    return res.status(status).json({ message });
+    return res.status(status).json({ success: false, data: [] });
   }
 };
 
@@ -45,26 +57,21 @@ export const getByStudent = async (req: Request, res: Response) => {
 
     const credential = await studentPasswordsService.findByStudent(idStudent);
     if (!credential) {
-      return res.status(404).json({ message: 'Credencial no encontrada' });
+      return res.status(404).json({ success: false, data: [] });
     }
 
     if (requesterRole === 'TEACHER' && credential.idTutor !== requesterId) {
-      return res.status(403).json({ message: 'No autorizado para consultar este alumno' });
+      return res.status(403).json({ success: false, data: [] });
     }
 
     return res.status(200).json({
-      message: 'Credencial del alumno recuperada',
-      data: {
-        idStudent: credential.idStudent,
-        studentName: `${credential.student.name} ${credential.student.surname}`.trim(),
-        password: credential.password,
-        idTutor: credential.idTutor,
-      },
+      success: true,
+      data: [toStudentPasswordItem(credential)],
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Error desconocido';
     const status = message === 'ID inválido' ? 400 : 500;
-    return res.status(status).json({ message });
+    return res.status(status).json({ success: false, data: [] });
   }
 };
 
@@ -74,28 +81,23 @@ export const updatePassword = async (req: Request, res: Response) => {
     const password = typeof req.body.password === 'string' ? req.body.password.trim() : '';
 
     if (!password) {
-      return res.status(400).json({ message: 'password es obligatorio' });
+      return res.status(400).json({ success: false, data: [] });
     }
 
     const updated = await studentPasswordsService.updatePasswordByStudent(idStudent, password);
 
     return res.status(200).json({
-      message: 'Credencial actualizada',
-      data: {
-        idStudent: updated.idStudent,
-        studentName: `${updated.student.name} ${updated.student.surname}`.trim(),
-        password: updated.password,
-        idTutor: updated.idTutor,
-      },
+      success: true,
+      data: [toStudentPasswordItem(updated)],
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Error desconocido';
     if (message === 'ID inválido') {
-      return res.status(400).json({ message });
+      return res.status(400).json({ success: false, data: [] });
     }
     if (message.includes('No record was found')) {
-      return res.status(404).json({ message: 'Credencial no encontrada' });
+      return res.status(404).json({ success: false, data: [] });
     }
-    return res.status(500).json({ message });
+    return res.status(500).json({ success: false, data: [] });
   }
 };

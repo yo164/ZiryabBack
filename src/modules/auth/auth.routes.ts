@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller.js';
 import { auth } from '../../middleware/auth.js';
+import { authLimiter } from '../../middleware/rateLimiter.js';
 
 const router = Router();
 
@@ -35,7 +36,7 @@ const router = Router();
  *       409:
  *         description: Email ya registrado
  */
-router.post('/register', AuthController.register);
+router.post('/register', authLimiter, AuthController.register);
 
 /**
  * @swagger
@@ -62,7 +63,7 @@ router.post('/register', AuthController.register);
  *       400:
  *         description: Petición inválida
  */
-router.post('/login', AuthController.login);
+router.post('/login', authLimiter, AuthController.login);
 
 /**
  * @swagger
@@ -115,7 +116,7 @@ router.get('/me', auth, AuthController.me);
  *       401:
  *         description: Token inválido
  */
-router.post('/verify-firebase', AuthController.verifyFirebaseToken);
+router.post('/verify-firebase', authLimiter, AuthController.verifyFirebaseToken);
 
 /**
  * @swagger

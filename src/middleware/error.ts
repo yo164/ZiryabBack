@@ -16,4 +16,3 @@ export function errorHandler(err: any, req: Request, res: Response, _next: NextF
   const status = err.status || 500;
   res.status(status).json({ message: err.message || 'Error interno' });
 }
-

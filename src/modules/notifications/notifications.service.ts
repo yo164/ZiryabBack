@@ -9,6 +9,13 @@ export type CreateNotificationData = {
   type?: string;
 };
 
+export type UpdateNotificationData = {
+  title?: string;
+  message?: string;
+  type?: string;
+  isRead?: boolean;
+};
+
 export type NotificationListFilters = {
   recipientFirebaseUID?: string;
   type?: string;
@@ -78,6 +85,53 @@ export const findForRecipient = async (
       totalPages: Math.ceil(total / limit),
     },
   };
+};
+
+const assertCanAccess = async (
+  id: number,
+  requesterFirebaseUID: string,
+  isAdmin: boolean,
+) => {
+  const notification = await prisma.notification.findUnique({ where: { id } });
+  if (!notification) {
+    throw new Error('NOT_FOUND');
+  }
+  if (!isAdmin && notification.recipientFirebaseUID !== requesterFirebaseUID) {
+    throw new Error('NOT_FOUND');
+  }
+  return notification;
+};
+
+export const update = async (
+  id: number,
+  data: UpdateNotificationData,
+  requesterFirebaseUID: string,
+  isAdmin: boolean,
+) => {
+  await assertCanAccess(id, requesterFirebaseUID, isAdmin);
+
+  const updateData: Prisma.NotificationUpdateInput = {};
+  if (data.title !== undefined) updateData.title = data.title;
+  if (data.message !== undefined) updateData.message = data.message;
+  if (data.type !== undefined) updateData.type = data.type;
+  if (data.isRead !== undefined) {
+    updateData.isRead = data.isRead;
+    updateData.readAt = data.isRead ? new Date() : null;
+  }
+
+  return prisma.notification.update({
+    where: { id },
+    data: updateData,
+  });
+};
+
+export const remove = async (
+  id: number,
+  requesterFirebaseUID: string,
+  isAdmin: boolean,
+) => {
+  await assertCanAccess(id, requesterFirebaseUID, isAdmin);
+  return prisma.notification.delete({ where: { id } });
 };
 
 export const markAsRead = async (id: number, recipientFirebaseUID: string) => {

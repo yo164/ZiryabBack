@@ -133,6 +133,68 @@ router.patch('/:id/read', auth, notificationsController.markNotificationAsRead);
 
 /**
  * @swagger
+ * /api/notifications/{id}:
+ *   patch:
+ *     summary: Actualiza una notificación
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               message:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *               isRead:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Notificación actualizada
+ *       400:
+ *         description: ID o cuerpo inválido
+ *       401:
+ *         description: No autorizado
+ *       404:
+ *         description: Notificación no encontrada
+ *   delete:
+ *     summary: Elimina una notificación
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Notificación eliminada
+ *       400:
+ *         description: ID inválido
+ *       401:
+ *         description: No autorizado
+ *       404:
+ *         description: Notificación no encontrada
+ */
+router.patch('/:id', auth, notificationsController.updateNotification);
+router.delete('/:id', auth, notificationsController.deleteNotification);
+
+/**
+ * @swagger
  * /api/notifications:
  *   post:
  *     summary: Crea una notificación

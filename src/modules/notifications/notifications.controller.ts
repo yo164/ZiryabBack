@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import * as notificationsService from './notifications.service.js';
 import { registerClient, removeClient } from './notifications.sse.js';
+import { updateNotificationBodySchema } from './notifications.schema.js';
 import { logger } from '../../utils/logger.js';
 
 const parsePositiveInt = (value: unknown, defaultValue: number): number | null => {
@@ -174,6 +175,72 @@ export const markNotificationAsRead = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Notificación no encontrada' });
     }
     return res.status(500).json({ message: 'Error al marcar notificación como leída' });
+  }
+};
+
+export const updateNotification = async (req: Request, res: Response) => {
+  const requesterFirebaseUID = getRequesterFirebaseUID(req);
+  if (!requesterFirebaseUID) {
+    return res.status(401).json({ message: 'No autorizado' });
+  }
+
+  const id = parsePositiveInt(req.params.id, 0);
+  if (!id) {
+    return res.status(400).json({ message: 'ID de notificación inválido' });
+  }
+
+  const parsed = updateNotificationBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      message: parsed.error.issues[0]?.message ?? 'Cuerpo inválido',
+    });
+  }
+
+  try {
+    const updated = await notificationsService.update(
+      id,
+      parsed.data,
+      requesterFirebaseUID,
+      req.user?.role === 'ADMIN',
+    );
+    return res.status(200).json({
+      message: 'Notificación actualizada correctamente',
+      data: updated,
+    });
+  } catch (error) {
+    if ((error as Error).message === 'NOT_FOUND') {
+      return res.status(404).json({ message: 'Notificación no encontrada' });
+    }
+    return res.status(500).json({ message: 'Error al actualizar notificación' });
+  }
+};
+
+export const deleteNotification = async (req: Request, res: Response) => {
+  const requesterFirebaseUID = getRequesterFirebaseUID(req);
+  if (!requesterFirebaseUID) {
+    return res.status(401).json({ message: 'No autorizado' });
+  }
+
+  const id = parsePositiveInt(req.params.id, 0);
+  if (!id) {
+    return res.status(400).json({ message: 'ID de notificación inválido' });
+  }
+
+  try {
+    const deleted = await notificationsService.remove(
+      id,
+      requesterFirebaseUID,
+      req.user?.role === 'ADMIN',
+    );
+    return res.status(200).json({
+      message: 'Notificación eliminada correctamente',
+      data: deleted,
+    });
+  } catch (error) {
+    if ((error as Error).message === 'NOT_FOUND') {
+      return res.status(404).json({ message: 'Notificación no encontrada' });
+    }
+    return res.status(500).json({ message: 'Error al eliminar notificación' });
   }
 };
 

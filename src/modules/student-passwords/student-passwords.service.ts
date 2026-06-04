@@ -7,6 +7,10 @@ import {
 export type SaveStudentPasswordInput = {
   idStudent: number;
   password: string;
+};
+
+export type UpdateTutorInput = {
+  idStudent: number;
   idTutor: number;
 };
 
@@ -21,12 +25,36 @@ export const save = async (input: SaveStudentPasswordInput) => {
     where: { idStudent: input.idStudent },
     update: {
       password: encrypted,
-      idTutor: input.idTutor,
     },
     create: {
       idStudent: input.idStudent,
       password: encrypted,
-      idTutor: input.idTutor,
+    },
+  });
+  return withDecryptedPassword(row);
+};
+
+export const updateTutorByStudent = async (input: UpdateTutorInput) => {
+  const row = await prisma.studentPassword.update({
+    where: { idStudent: input.idStudent },
+    data: { idTutor: input.idTutor },
+    include: {
+      student: {
+        select: {
+          id: true,
+          name: true,
+          surname: true,
+          email: true,
+        },
+      },
+      tutor: {
+        select: {
+          id: true,
+          name: true,
+          surname: true,
+          email: true,
+        },
+      },
     },
   });
   return withDecryptedPassword(row);

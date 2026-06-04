@@ -51,8 +51,8 @@ model StudentPassword {
 
   password String
 
-  idTutor Int
-  tutor   Teacher @relation(fields: [idTutor], references: [id], onDelete: Restrict)
+  idTutor Int?
+  tutor   Teacher? @relation(fields: [idTutor], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

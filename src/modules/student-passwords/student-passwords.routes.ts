@@ -58,6 +58,17 @@ router.get(
 /**
  * @swagger
  * /api/student-passwords/{idStudent}:
+ *   patch:
+ *     summary: Asignar tutor a credencial de alumno
+ *     tags: [Student Passwords]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.patch('/:idStudent', auth, authorize(['ADMIN']), studentPasswordsController.patchTutor);
+
+/**
+ * @swagger
+ * /api/student-passwords/{idStudent}:
  *   put:
  *     summary: Actualizar password de un alumno
  *     tags: [Student Passwords]

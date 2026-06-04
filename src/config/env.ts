@@ -7,13 +7,18 @@ dotenv.config();
 /**
  * Red con proxy SSL (universidad, WiFi público): Firebase Admin no puede verificar
  * el certificado al llamar a Google (UNABLE_TO_VERIFY_LEAF_SIGNATURE).
- * Solo desarrollo; en .env: SKIP_TLS_VERIFY=true
+ * Solo en desarrollo explícito; en .env local: SKIP_TLS_VERIFY=true
  */
-if (process.env.NODE_ENV !== 'production' && process.env.SKIP_TLS_VERIFY === 'true') {
+if (process.env.NODE_ENV === 'development' && process.env.SKIP_TLS_VERIFY === 'true') {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   console.warn(
     '⚠️  SKIP_TLS_VERIFY=true — verificación TLS desactivada (solo desarrollo local)',
   );
+}
+
+function normalizeCredentialsEncryptionKey(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return value.trim().replace(/^["']|["']$/g, '');
 }
 
 // Define el esquema con Zod
@@ -76,10 +81,11 @@ const envSchema = z.object({
     z.string().min(1, 'CLOUDINARY_API_SECRET es obligatoria'),
   ),
 
-  /** Clave AES-256 (32 bytes en hex, 64 caracteres). En test usa valor fijo si falta. */
+  /** Clave AES-256 (32 bytes en hex, 64 caracteres). Obligatoria en producción (Render). */
   CREDENTIALS_ENCRYPTION_KEY: z.preprocess(
     (v) => {
-      if (typeof v === 'string' && v.length > 0) return v;
+      const normalized = normalizeCredentialsEncryptionKey(v);
+      if (normalized.length > 0) return normalized;
       return process.env.NODE_ENV === 'test'
         ? '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'
         : '';
@@ -91,5 +97,17 @@ const envSchema = z.object({
   ),
 });
 
-// Parsea y exporta
-export const env = envSchema.parse(process.env);
+const parsed = envSchema.safeParse(process.env);
+if (!parsed.success) {
+  const credIssue = parsed.error.issues.find((i) => i.path[0] === 'CREDENTIALS_ENCRYPTION_KEY');
+  if (credIssue) {
+    console.error(
+      '\n❌ Falta CREDENTIALS_ENCRYPTION_KEY en Render (Environment):\n' +
+        '   Genera una clave: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"\n' +
+        '   Añádela en el dashboard → ZiryabBack → Environment → CREDENTIALS_ENCRYPTION_KEY\n',
+    );
+  }
+  throw parsed.error;
+}
+
+export const env = parsed.data;

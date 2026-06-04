@@ -28,6 +28,45 @@ const parseId = (value: string | undefined): number => {
   return parsed;
 };
 
+const parseBodyId = (value: unknown): number => {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error('ID inválido');
+  }
+  return parsed;
+};
+
+export const savePassword = async (req: Request, res: Response) => {
+  try {
+    const idStudent = parseBodyId(req.body.idStudent);
+    const idTutor = parseBodyId(req.body.idTutor);
+    const password =
+      typeof req.body.password === 'string' ? req.body.password.trim() : '';
+
+    if (!password) {
+      return res.status(400).json({ success: false, data: [] });
+    }
+
+    await studentPasswordsService.save({ idStudent, password, idTutor });
+
+    const credential = await studentPasswordsService.findByStudent(idStudent);
+    if (!credential) {
+      return res.status(500).json({ success: false, data: [] });
+    }
+
+    return res.status(201).json({
+      success: true,
+      data: [toStudentPasswordItem(credential)],
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    if (message === 'ID inválido') {
+      return res.status(400).json({ success: false, data: [] });
+    }
+    return res.status(500).json({ success: false, data: [], error: message });
+  }
+};
+
 export const getByTutor = async (req: Request, res: Response) => {
   try {
     const idTutor = parseId(req.params.idTutor);

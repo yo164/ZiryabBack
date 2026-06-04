@@ -86,7 +86,7 @@ const router = Router();
  *               $ref: '#/components/schemas/ApiErrorIssue'
  */
 router.get('/', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), issueController.getIssues);
-router.post('/', auth, authorize(['ADMIN']), issueController.createIssue);
+router.post('/', auth, authorize(['ADMIN', 'TEACHER']), issueController.createIssue);
 
 /**
  * @swagger

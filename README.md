@@ -179,6 +179,7 @@ Todas se validan en `src/config/env.ts` con Zod al arrancar. El fichero `.env` *
 | `CLOUDINARY_CLOUD_NAME` | Sí | Cloud name de Cloudinary |
 | `CLOUDINARY_API_KEY` | Sí | API key de Cloudinary |
 | `CLOUDINARY_API_SECRET` | Sí | API secret de Cloudinary |
+| `CREDENTIALS_ENCRYPTION_KEY` | Sí* | Clave AES-256 para `StudentPassword`: 64 caracteres hex (32 bytes). Generar con `openssl rand -hex 32`. En `NODE_ENV=test` se usa una clave fija si falta |
 | `SKIP_TLS_VERIFY` | No | Solo dev: `true` si la red bloquea TLS hacia Firebase |
 
 Ejemplo mínimo para desarrollo local:
@@ -194,6 +195,7 @@ FRONTEND_URL=http://localhost:4200
 CLOUDINARY_CLOUD_NAME=...
 CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
+CREDENTIALS_ENCRYPTION_KEY=<64_hex_chars>   # openssl rand -hex 32
 ```
 
 ---

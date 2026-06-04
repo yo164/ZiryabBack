@@ -75,6 +75,20 @@ const envSchema = z.object({
     },
     z.string().min(1, 'CLOUDINARY_API_SECRET es obligatoria'),
   ),
+
+  /** Clave AES-256 (32 bytes en hex, 64 caracteres). En test usa valor fijo si falta. */
+  CREDENTIALS_ENCRYPTION_KEY: z.preprocess(
+    (v) => {
+      if (typeof v === 'string' && v.length > 0) return v;
+      return process.env.NODE_ENV === 'test'
+        ? '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'
+        : '';
+    },
+    z
+      .string()
+      .length(64, 'CREDENTIALS_ENCRYPTION_KEY debe tener 64 caracteres hex (32 bytes)')
+      .regex(/^[0-9a-fA-F]{64}$/, 'CREDENTIALS_ENCRYPTION_KEY debe ser hexadecimal'),
+  ),
 });
 
 // Parsea y exporta

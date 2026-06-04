@@ -66,12 +66,7 @@ export const createIssue = async (req: Request, res: Response) => {
 
   try {
     const { requesterId, requesterRole } = getRequester(req);
-    if (requesterRole !== 'ADMIN') {
-      res.status(403).json({ success: false, message: 'Solo administradores pueden crear anuncios' });
-      return;
-    }
-
-    const issue = await issueService.createIssue(parsed.data, requesterId);
+    const issue = await issueService.createIssue(parsed.data, requesterId, requesterRole);
     res.status(201).json({ success: true, data: issue });
   } catch (error: unknown) {
     handleServiceError(res, error, 'Error al crear anuncio');

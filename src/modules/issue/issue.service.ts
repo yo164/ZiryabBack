@@ -1,5 +1,10 @@
 import type { IssueAudience, Prisma } from '@prisma/client';
 import prisma from '../../config/prisma.js';
+import {
+  embedTeacherAuthorMarker,
+  extractTeacherAuthorId,
+  stripTeacherAuthorMarker,
+} from './issue-teacher-author.js';
 
 export interface CreateIssueData {
   audience: IssueAudience;
@@ -51,6 +56,38 @@ const issueInclude = {
   subject: { select: { id: true, name: true, grade: true, idCourse: true } },
 } as const;
 
+type IssueRecord = { idAdmin: number; body: string };
+
+/** Admin de sistema para cumplir FK cuando el emisor real es un profesor. */
+const resolveProxyAdminId = async (): Promise<number> => {
+  const admin = await prisma.admin.findFirst({ orderBy: { id: 'asc' }, select: { id: true } });
+  if (!admin) {
+    throw new Error('No hay administrador en el sistema para registrar anuncios de profesor');
+  }
+  return admin.id;
+};
+
+/** Contrato alineado con el front (`emitterType` / `emitterId`); oculta la marca en `body`. */
+export const mapIssueForApi = <T extends IssueRecord>(issue: T) => {
+  const teacherAuthorId = extractTeacherAuthorId(issue.body);
+  const emitterType = teacherAuthorId != null ? ('TEACHER' as const) : ('ADMIN' as const);
+  const emitterId = teacherAuthorId ?? issue.idAdmin;
+  return {
+    ...issue,
+    body: stripTeacherAuthorMarker(issue.body),
+    emitterType,
+    emitterId,
+  };
+};
+
+const TEACHER_FORBIDDEN_AUDIENCES: IssueAudience[] = ['CENTER', 'ALL_TEACHERS', 'ALL_STUDENTS'];
+
+const assertTeacherAllowedAudience = (audience: IssueAudience) => {
+  if (TEACHER_FORBIDDEN_AUDIENCES.includes(audience)) {
+    throw new Error('Los profesores no pueden crear anuncios para todo el centro');
+  }
+};
+
 const parseOptionalDate = (value?: string | null): Date | null | undefined => {
   if (value === undefined) return undefined;
   if (value === null) return null;
@@ -73,8 +110,20 @@ const activePublicationFilter = (now: Date): Prisma.IssueWhereInput => ({
   ],
 });
 
-const isIssueCreator = (issue: { idAdmin: number }, adminId: number): boolean =>
-  issue.idAdmin === adminId;
+const isIssueCreator = (
+  issue: IssueRecord,
+  requesterId: number,
+  requesterRole: string,
+): boolean => {
+  if (requesterRole === 'ADMIN') {
+    const teacherAuthorId = extractTeacherAuthorId(issue.body);
+    return teacherAuthorId == null && issue.idAdmin === requesterId;
+  }
+  if (requesterRole === 'TEACHER') {
+    return extractTeacherAuthorId(issue.body) === requesterId;
+  }
+  return false;
+};
 
 const parseGrade = (value?: string | null): string | null => {
   if (value === undefined || value === null || value === '') {
@@ -365,11 +414,12 @@ const assertCanViewIssue = async (
     publishAt: Date | null;
     expiresAt: Date | null;
     idAdmin: number;
+    body: string;
   },
   requesterId: number,
   requesterRole: string,
 ) => {
-  if (requesterRole === 'ADMIN' || isIssueCreator(issue, requesterId)) {
+  if (isIssueCreator(issue, requesterId, requesterRole)) {
     return;
   }
 
@@ -391,11 +441,11 @@ const assertCanViewIssue = async (
 };
 
 const assertCanModifyIssue = (
-  issue: { idAdmin: number },
+  issue: IssueRecord,
   requesterId: number,
   requesterRole: string,
 ) => {
-  if (requesterRole === 'ADMIN' && isIssueCreator(issue, requesterId)) {
+  if (isIssueCreator(issue, requesterId, requesterRole)) {
     return;
   }
   throw new Error('No autorizado para modificar este anuncio');
@@ -439,45 +489,80 @@ const assertScopeEntitiesExist = async (scope: NormalizedIssueScope) => {
   }
 };
 
-export const createIssue = async (data: CreateIssueData, idAdmin: number) => {
-  const admin = await prisma.admin.findUnique({ where: { id: idAdmin }, select: { id: true } });
-  if (!admin) {
-    throw new Error('Administrador no encontrado');
-  }
-
+export const createIssue = async (
+  data: CreateIssueData,
+  requesterId: number,
+  requesterRole: string,
+) => {
   const scope = normalizeAudienceFks(data);
   await assertScopeEntitiesExist(scope);
 
-  return prisma.issue.create({
-    data: {
-      idAdmin,
-      audience: data.audience,
-      idGroup: scope.idGroup,
-      idCourse: scope.idCourse,
-      idSubject: scope.idSubject,
-      grade: scope.grade,
-      idTargetTeacher: scope.idTargetTeacher,
-      idTargetStudent: scope.idTargetStudent,
-      title: data.title,
-      body: data.body,
-      attachmentUrl: data.attachmentUrl ?? null,
-      isPublished: data.isPublished ?? false,
-      publishAt: parseOptionalDate(data.publishAt) ?? null,
-      expiresAt: parseOptionalDate(data.expiresAt) ?? null,
-    },
-    include: issueInclude,
-  });
+  const baseData = {
+    audience: data.audience,
+    idGroup: scope.idGroup,
+    idCourse: scope.idCourse,
+    idSubject: scope.idSubject,
+    grade: scope.grade,
+    idTargetTeacher: scope.idTargetTeacher,
+    idTargetStudent: scope.idTargetStudent,
+    title: data.title,
+    attachmentUrl: data.attachmentUrl ?? null,
+    isPublished: data.isPublished ?? false,
+    publishAt: parseOptionalDate(data.publishAt) ?? null,
+    expiresAt: parseOptionalDate(data.expiresAt) ?? null,
+  };
+
+  if (requesterRole === 'ADMIN') {
+    const admin = await prisma.admin.findUnique({
+      where: { id: requesterId },
+      select: { id: true },
+    });
+    if (!admin) {
+      throw new Error('Administrador no encontrado');
+    }
+
+    const issue = await prisma.issue.create({
+      data: { ...baseData, idAdmin: requesterId, body: data.body },
+      include: issueInclude,
+    });
+    return mapIssueForApi(issue);
+  }
+
+  if (requesterRole === 'TEACHER') {
+    const teacher = await prisma.teacher.findUnique({
+      where: { id: requesterId },
+      select: { id: true },
+    });
+    if (!teacher) {
+      throw new Error('Profesor no encontrado');
+    }
+    assertTeacherAllowedAudience(data.audience);
+
+    const proxyAdminId = await resolveProxyAdminId();
+    const issue = await prisma.issue.create({
+      data: {
+        ...baseData,
+        idAdmin: proxyAdminId,
+        body: embedTeacherAuthorMarker(data.body, requesterId),
+      },
+      include: issueInclude,
+    });
+    return mapIssueForApi(issue);
+  }
+
+  throw new Error('Rol no autorizado para crear anuncios');
 };
 
 export const getActiveIssues = async (requesterId: number, requesterRole: string) => {
   const now = new Date();
   const where = await buildActiveVisibilityWhere(requesterId, requesterRole, now);
 
-  return prisma.issue.findMany({
+  const issues = await prisma.issue.findMany({
     where,
     include: issueInclude,
     orderBy: { createdAt: 'desc' },
   });
+  return issues.map(mapIssueForApi);
 };
 
 export const getIssueById = async (id: number, requesterId: number, requesterRole: string) => {
@@ -491,7 +576,7 @@ export const getIssueById = async (id: number, requesterId: number, requesterRol
   }
 
   await assertCanViewIssue(issue, requesterId, requesterRole);
-  return issue;
+  return mapIssueForApi(issue);
 };
 
 export const updateIssue = async (
@@ -508,6 +593,9 @@ export const updateIssue = async (
   assertCanModifyIssue(existing, requesterId, requesterRole);
 
   const audience = data.audience ?? existing.audience;
+  if (requesterRole === 'TEACHER') {
+    assertTeacherAllowedAudience(audience);
+  }
   const scope = normalizeAudienceFks({
     audience,
     idGroup: data.idGroup !== undefined ? data.idGroup : existing.idGroup,
@@ -522,7 +610,16 @@ export const updateIssue = async (
 
   await assertScopeEntitiesExist(scope);
 
-  return prisma.issue.update({
+  let nextBody: string | undefined;
+  if (data.body !== undefined) {
+    const teacherAuthorId = extractTeacherAuthorId(existing.body);
+    nextBody =
+      teacherAuthorId != null
+        ? embedTeacherAuthorMarker(data.body, teacherAuthorId)
+        : data.body;
+  }
+
+  const updated = await prisma.issue.update({
     where: { id },
     data: {
       ...(data.audience !== undefined && { audience: data.audience }),
@@ -533,7 +630,7 @@ export const updateIssue = async (
       idTargetTeacher: scope.idTargetTeacher,
       idTargetStudent: scope.idTargetStudent,
       ...(data.title !== undefined && { title: data.title }),
-      ...(data.body !== undefined && { body: data.body }),
+      ...(nextBody !== undefined && { body: nextBody }),
       ...(data.attachmentUrl !== undefined && { attachmentUrl: data.attachmentUrl }),
       ...(data.isPublished !== undefined && { isPublished: data.isPublished }),
       ...(data.publishAt !== undefined && {
@@ -545,6 +642,7 @@ export const updateIssue = async (
     },
     include: issueInclude,
   });
+  return mapIssueForApi(updated);
 };
 
 export const deleteIssue = async (id: number, requesterId: number, requesterRole: string) => {
@@ -554,5 +652,6 @@ export const deleteIssue = async (id: number, requesterId: number, requesterRole
   }
 
   assertCanModifyIssue(existing, requesterId, requesterRole);
-  return prisma.issue.delete({ where: { id }, include: issueInclude });
+  const deleted = await prisma.issue.delete({ where: { id }, include: issueInclude });
+  return mapIssueForApi(deleted);
 };

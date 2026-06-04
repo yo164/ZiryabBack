@@ -38,8 +38,8 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/ApiErrorIssue'
  *   post:
- *     summary: Crear anuncio (solo ADMIN)
- *     description: Emisor siempre admin (idAdmin del JWT). COURSE = ciclo (idCourse) + curso opcional (grade 1|2). SUBJECT_GROUP = grupo + asignatura (curso 1º/2º en Subject).
+ *     summary: Crear anuncio (ADMIN o TEACHER)
+ *     description: Admin usa su idAdmin; profesor registra con admin proxy y marca de autor en body. Los profesores no pueden usar CENTER, ALL_TEACHERS ni ALL_STUDENTS.
  *     tags: [Issues]
  *     security:
  *       - bearerAuth: []
@@ -207,7 +207,7 @@ router.post('/', auth, authorize(['ADMIN', 'TEACHER']), issueController.createIs
  *               $ref: '#/components/schemas/ApiErrorIssue'
  */
 router.get('/:id', auth, authorize(['ADMIN', 'TEACHER', 'STUDENT']), issueController.getIssueById);
-router.patch('/:id', auth, authorize(['ADMIN']), issueController.updateIssue);
-router.delete('/:id', auth, authorize(['ADMIN']), issueController.deleteIssue);
+router.patch('/:id', auth, authorize(['ADMIN', 'TEACHER']), issueController.updateIssue);
+router.delete('/:id', auth, authorize(['ADMIN', 'TEACHER']), issueController.deleteIssue);
 
 export default router;

@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { auth } from '../../middleware/auth.js';
 import { authorize } from '../../middleware/authorize.js';
+import { resolveCloudinaryUrlsMiddleware } from '../../middleware/resolve-cloudinary-urls.js';
 import { uploadTaskAttachment } from '../../middleware/upload.js';
 import * as taskController from './task.controller.js';
 
 const router = Router();
+router.use(resolveCloudinaryUrlsMiddleware);
 
 // ============================================
 // RUTAS PÚBLICAS (GET - sin autenticación)

@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { auth } from '../../middleware/auth.js';
 import { authorize } from '../../middleware/authorize.js';
+import { resolveCloudinaryUrlsMiddleware } from '../../middleware/resolve-cloudinary-urls.js';
 import { restrictToSelfOrRoles } from '../../middleware/restrictSelf.js';
 import * as assistanceController from './assistance.controller.js';
 
 const router = Router();
+router.use(resolveCloudinaryUrlsMiddleware);
 
 // ============================================
 // RUTAS PROTEGIDAS (TODAS REQUIEREN AUTENTICACIÓN)

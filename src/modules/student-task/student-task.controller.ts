@@ -1,7 +1,11 @@
 import type { Request, Response } from 'express';
 import * as studentTaskService from './student-task.service.js';
 import { submitSchema } from './student-task.schema.js';
-import { uploadFromMulter, CLOUDINARY_FOLDERS } from '../../utils/cloudinary.js';
+import {
+  uploadFromMulter,
+  CLOUDINARY_FOLDERS,
+  toStoredCloudinaryUrl,
+} from '../../utils/cloudinary.js';
 
 export const getAllStudentTasks = async (req: Request, res: Response) => {
   try {
@@ -235,7 +239,8 @@ export const submitStudentTask = async (req: Request, res: Response) => {
     }
 
     const { attachmentUrl } = parsed.data;
-    const submittedTask = await studentTaskService.submit(id, { attachmentUrl: attachmentUrl || undefined });
+    const storedUrl = attachmentUrl ? toStoredCloudinaryUrl(attachmentUrl) : undefined;
+    const submittedTask = await studentTaskService.submit(id, { attachmentUrl: storedUrl });
 
     res.json({ success: true, message: 'Tarea entregada exitosamente', data: submittedTask });
   } catch (error: any) {

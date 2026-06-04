@@ -8,8 +8,21 @@ declare module 'cloudinary' {
     uploader: {
       upload: (
         file: string,
-        options: { folder: string; resource_type: string },
-      ) => Promise<{ secure_url?: string }>;
+        options: {
+          folder: string;
+          resource_type: string;
+          format?: string;
+          use_filename?: boolean;
+          unique_filename?: boolean;
+          access_mode?: string;
+        },
+      ) => Promise<{
+        secure_url?: string;
+        public_id?: string;
+        version?: number;
+        resource_type?: string;
+        format?: string;
+      }>;
     };
   };
 }

@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { auth } from '../../middleware/auth.js';
 import { authorize } from '../../middleware/authorize.js';
+import { resolveCloudinaryUrlsMiddleware } from '../../middleware/resolve-cloudinary-urls.js';
 import * as studentTaskController from './student-task.controller.js';
 import { uploadSubmission } from '../../middleware/upload.js';
 
 const router = Router();
+router.use(resolveCloudinaryUrlsMiddleware);
 
 /**
  * @swagger

@@ -14,6 +14,17 @@ const router = Router();
 
 /**
  * @swagger
+ * /api/student-passwords:
+ *   post:
+ *     summary: Guardar credencial de alumno
+ *     tags: [Student Passwords]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/', auth, authorize(['ADMIN']), studentPasswordsController.savePassword);
+
+/**
+ * @swagger
  * /api/student-passwords/tutor/{idTutor}:
  *   get:
  *     summary: Credenciales de alumnos por tutor
@@ -43,6 +54,17 @@ router.get(
   authorize(['ADMIN', 'TEACHER']),
   studentPasswordsController.getByStudent,
 );
+
+/**
+ * @swagger
+ * /api/student-passwords/{idStudent}:
+ *   patch:
+ *     summary: Asignar tutor a credencial de alumno
+ *     tags: [Student Passwords]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.patch('/:idStudent', auth, authorize(['ADMIN']), studentPasswordsController.patchTutor);
 
 /**
  * @swagger

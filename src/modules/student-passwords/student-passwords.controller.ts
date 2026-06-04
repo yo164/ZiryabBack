@@ -5,13 +5,13 @@ export type StudentPasswordItem = {
   idStudent: number;
   studentName: string;
   password: string;
-  idTutor: number;
+  idTutor: number | null;
 };
 
 const toStudentPasswordItem = (row: {
   idStudent: number;
   password: string;
-  idTutor: number;
+  idTutor: number | null;
   student: { name: string; surname: string };
 }): StudentPasswordItem => ({
   idStudent: row.idStudent,
@@ -26,6 +26,70 @@ const parseId = (value: string | undefined): number => {
     throw new Error('ID inválido');
   }
   return parsed;
+};
+
+const parseBodyId = (value: unknown): number => {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error('ID inválido');
+  }
+  return parsed;
+};
+
+export const savePassword = async (req: Request, res: Response) => {
+  try {
+    const idStudent = parseBodyId(req.body.idStudent);
+    const password =
+      typeof req.body.password === 'string' ? req.body.password.trim() : '';
+
+    if (!password) {
+      return res.status(400).json({ success: false, data: [] });
+    }
+
+    await studentPasswordsService.save({ idStudent, password });
+
+    const credential = await studentPasswordsService.findByStudent(idStudent);
+    if (!credential) {
+      return res.status(500).json({ success: false, data: [] });
+    }
+
+    return res.status(201).json({
+      success: true,
+      data: [toStudentPasswordItem(credential)],
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    if (message === 'ID inválido') {
+      return res.status(400).json({ success: false, data: [] });
+    }
+    return res.status(500).json({ success: false, data: [], error: message });
+  }
+};
+
+export const patchTutor = async (req: Request, res: Response) => {
+  try {
+    const idStudent = parseId(req.params.idStudent);
+    const idTutor = parseBodyId(req.body.idTutor);
+
+    const updated = await studentPasswordsService.updateTutorByStudent({
+      idStudent,
+      idTutor,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: [toStudentPasswordItem(updated)],
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    if (message === 'ID inválido') {
+      return res.status(400).json({ success: false, data: [] });
+    }
+    if (message.includes('No record was found')) {
+      return res.status(404).json({ success: false, data: [] });
+    }
+    return res.status(500).json({ success: false, data: [], error: message });
+  }
 };
 
 export const getByTutor = async (req: Request, res: Response) => {
@@ -60,7 +124,10 @@ export const getByStudent = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, data: [] });
     }
 
-    if (requesterRole === 'TEACHER' && credential.idTutor !== requesterId) {
+    if (
+      requesterRole === 'TEACHER' &&
+      (credential.idTutor === null || credential.idTutor !== requesterId)
+    ) {
       return res.status(403).json({ success: false, data: [] });
     }
 

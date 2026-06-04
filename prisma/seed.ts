@@ -1120,6 +1120,15 @@ async function main() {
           dni: '89012372I',
           firebaseUID: 'SEEDTEACHER31PENDINGFIREBASE00',
         },
+        {
+          email: 'profesor32@ziryab.es',
+          name: 'Elena',
+          surname: 'Nito',
+          ndSurname: 'Delbosque',
+          birthDate: new Date('1989-10-28'),
+          dni: '89012355M',
+          firebaseUID: '09FFJw8SWqQVmIJxU3xV0yuel303',
+        }
       ]
     });
 

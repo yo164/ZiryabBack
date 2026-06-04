@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { buildClassLabelFromAssignment } from "../src/utils/classLabel.js";
+import { encryptCredential } from "../src/utils/credential-crypto.js";
 
 const prisma = new PrismaClient();
 
@@ -1123,11 +1124,12 @@ async function main() {
     });
 
   console.log('Creando contrasenas de alumnos (tutor id 1)...');
+  const demoStudentPassword = encryptCredential('Estudiante123456');
   const studentPasswords = await prisma.studentPassword.createMany({
     data: [
-      { idStudent: 1, password: 'Estudiante123456', idTutor: 1 },
-      { idStudent: 2, password: 'Estudiante123456', idTutor: 1 },
-      { idStudent: 3, password: 'Estudiante123456', idTutor: 1 },
+      { idStudent: 1, password: demoStudentPassword, idTutor: 1 },
+      { idStudent: 2, password: demoStudentPassword, idTutor: 1 },
+      { idStudent: 3, password: demoStudentPassword, idTutor: 1 },
     ],
   });
 

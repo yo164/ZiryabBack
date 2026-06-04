@@ -1,4 +1,8 @@
 import prisma from '../../config/prisma.js';
+import {
+  decryptStoredPassword,
+  encryptCredential,
+} from '../../utils/credential-crypto.js';
 
 export type SaveStudentPasswordInput = {
   idStudent: number;
@@ -6,23 +10,30 @@ export type SaveStudentPasswordInput = {
   idTutor: number;
 };
 
+const withDecryptedPassword = <T extends { password: string }>(row: T): T => ({
+  ...row,
+  password: decryptStoredPassword(row.password),
+});
+
 export const save = async (input: SaveStudentPasswordInput) => {
-  return prisma.studentPassword.upsert({
+  const encrypted = encryptCredential(input.password);
+  const row = await prisma.studentPassword.upsert({
     where: { idStudent: input.idStudent },
     update: {
-      password: input.password,
+      password: encrypted,
       idTutor: input.idTutor,
     },
     create: {
       idStudent: input.idStudent,
-      password: input.password,
+      password: encrypted,
       idTutor: input.idTutor,
     },
   });
+  return withDecryptedPassword(row);
 };
 
 export const findByStudent = async (idStudent: number) => {
-  return prisma.studentPassword.findUnique({
+  const row = await prisma.studentPassword.findUnique({
     where: { idStudent },
     include: {
       student: {
@@ -43,10 +54,11 @@ export const findByStudent = async (idStudent: number) => {
       },
     },
   });
+  return row ? withDecryptedPassword(row) : null;
 };
 
 export const findByTutor = async (idTutor: number) => {
-  return prisma.studentPassword.findMany({
+  const rows = await prisma.studentPassword.findMany({
     where: { idTutor },
     include: {
       student: {
@@ -62,12 +74,14 @@ export const findByTutor = async (idTutor: number) => {
       createdAt: 'desc',
     },
   });
+  return rows.map(withDecryptedPassword);
 };
 
 export const updatePasswordByStudent = async (idStudent: number, password: string) => {
-  return prisma.studentPassword.update({
+  const encrypted = encryptCredential(password);
+  const row = await prisma.studentPassword.update({
     where: { idStudent },
-    data: { password },
+    data: { password: encrypted },
     include: {
       student: {
         select: {
@@ -87,4 +101,5 @@ export const updatePasswordByStudent = async (idStudent: number, password: strin
       },
     },
   });
+  return withDecryptedPassword(row);
 };

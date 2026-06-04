@@ -1,15 +1,19 @@
 import multer from 'multer';
 import { Request } from 'express';
+import {
+    isJustificationMime,
+    isTaskAttachmentMime,
+    JUSTIFICATION_FORMATS_MESSAGE,
+    TASK_ATTACHMENT_FORMATS_MESSAGE,
+} from '../utils/upload-mime.js';
 
 const memoryStorage = multer.memoryStorage();
 
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    const allowedMimeTypes = ['application/pdf', 'image/png', 'image/jpeg'];
-    
-    if (allowedMimeTypes.includes(file.mimetype)) {
+    if (isJustificationMime(file.mimetype, file.originalname)) {
         cb(null, true);
     } else {
-        cb(new Error('Formato de archivo no soportado. Solo se permiten PDF, PNG y JPG.'));
+        cb(new Error(JUSTIFICATION_FORMATS_MESSAGE));
     }
 };
 
@@ -22,19 +26,10 @@ export const uploadJustification = multer({
 });
 
 const taskFileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    const allowedMimeTypes = [
-        'application/pdf', 
-        'image/png', 
-        'image/jpeg', 
-        'application/zip', 
-        'application/x-zip-compressed',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // docx
-    ];
-    
-    if (allowedMimeTypes.includes(file.mimetype)) {
+    if (isTaskAttachmentMime(file.mimetype, file.originalname)) {
         cb(null, true);
     } else {
-        cb(new Error('Formato de archivo no soportado. Solo se permiten archivos ZIP, DOCX, PDF, JPG o PNG.'));
+        cb(new Error(TASK_ATTACHMENT_FORMATS_MESSAGE));
     }
 };
 

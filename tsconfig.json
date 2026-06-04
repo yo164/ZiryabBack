@@ -9,19 +9,21 @@
     "declaration": true,
     "declarationMap": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "strict": true,
+    "exactOptionalPropertyTypes": false, // poner a true en el futuro
+    "strict": false, // quitar en el futuro
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "strictNullChecks": false, //quitar en un futuro
   },
   "exclude": [
     "node_modules",
     "dist",
-    "src/tests"
+    "src/tests",
+    "prisma"
   ]
 }

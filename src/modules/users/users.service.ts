@@ -1,71 +1,67 @@
-import { prisma } from '../../config/db.js';
-import bcrypt from 'bcrypt';
-import { env } from '../../config/env.js';
+import prisma from '../../config/prisma.js';
+import { AuthService } from '../auth/auth.service.js';
 
-export async function createUser(email: string, name: string, passwordHash: string) {
-  return prisma.user.create({ 
-    data: { email, name, passwordHash }, 
-    select: { id: true, email: true, name: true, createdAt: true } 
-  });
-}
+type BasicUser = {
+  id: number;
+  email: string;
+  name: string;
+  surname: string;
+  role: string;
+  firebaseUID: string;
+};
 
-export async function findUserByEmail(email: string) {
-  return prisma.user.findUnique({ where: { email } });
-}
+const basicSelect = {
+  id: true,
+  email: true,
+  name: true,
+  surname: true,
+  role: true,
+  firebaseUID: true,
+} as const;
 
-export async function findUserById(id: number) {
-  return prisma.user.findUnique({ 
-    where: { id },
-    select: { id: true, email: true, name: true, createdAt: true }
-  });
-}
+export const findAllUsers = async (): Promise<BasicUser[]> => {
+  const [students, teachers, admins] = await Promise.all([
+    prisma.student.findMany({ select: basicSelect }),
+    prisma.teacher.findMany({ select: basicSelect }),
+    prisma.admin.findMany({ select: basicSelect }),
+  ]);
 
-export async function listUsers() {
-  return prisma.user.findMany({ 
-    select: { id: true, email: true, name: true, createdAt: true },
-    orderBy: { id: 'asc' }
-  });
-}
+  return [...students, ...teachers, ...admins];
+};
 
-export async function updateUser(id: number, data: { name?: string; email?: string }) {
-  return prisma.user.update({
-    where: { id },
-    data,
-    select: { id: true, email: true, name: true, createdAt: true }
-  });
-}
+export const findUserById = async (id: number): Promise<BasicUser | null> => {
+  const [student, teacher, admin] = await Promise.all([
+    prisma.student.findUnique({ where: { id }, select: basicSelect }),
+    prisma.teacher.findUnique({ where: { id }, select: basicSelect }),
+    prisma.admin.findUnique({ where: { id }, select: basicSelect }),
+  ]);
 
-export async function deleteUser(id: number) {
-  return prisma.user.delete({ where: { id } });
-}
+  return student || teacher || admin;
+};
 
-export async function updateProfile(userId: number, data: { name?: string; email?: string }) {
-  return prisma.user.update({
-    where: { id: userId },
-    data,
-    select: { id: true, email: true, name: true, createdAt: true }
-  });
-}
+export const findCurrentUser = async (id: number, role: string): Promise<BasicUser | null> => {
+  return AuthService.getUserById(id, role);
+};
 
-export async function changePassword(userId: number, currentPassword: string, newPassword: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  
-  if (!user) {
-    throw new Error('Usuario no encontrado');
+export const updateCurrentUser = async (
+  id: number,
+  role: string,
+  data: { name?: string; email?: string }
+): Promise<BasicUser | null> => {
+  const updateData: { name?: string; email?: string } = {};
+
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.email !== undefined) updateData.email = data.email;
+
+  if (role === 'STUDENT') {
+    return prisma.student.update({ where: { id }, data: updateData, select: basicSelect });
   }
-  
-  const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
-  
-  if (!isValid) {
-    throw new Error('Contraseña actual incorrecta');
+  if (role === 'TEACHER') {
+    return prisma.teacher.update({ where: { id }, data: updateData, select: basicSelect });
   }
-  
-  const newHash = await bcrypt.hash(newPassword, env.BCRYPT_SALT_ROUNDS);
-  
-  await prisma.user.update({
-    where: { id: userId },
-    data: { passwordHash: newHash }
-  });
-  
-  return { message: 'Contraseña actualizada correctamente' };
-}
+  if (role === 'ADMIN') {
+    return prisma.admin.update({ where: { id }, data: updateData, select: basicSelect });
+  }
+
+  return null;
+};

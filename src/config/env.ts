@@ -1,15 +1,81 @@
-import 'dotenv/config';
+import { z } from 'zod';
+import dotenv from 'dotenv';
 
-const required = (v: string | undefined, k: string) => {
-  if (!v) throw new Error(`Falta variable de entorno: ${k}`);
-  return v;
-};
+// ✅ IMPORTANTE: Cargar las variables de entorno ANTES de parsear
+dotenv.config();
 
-export const env = {
-  PORT: Number(process.env.PORT ?? 3000),
-  NODE_ENV: process.env.NODE_ENV ?? 'development',
-  JWT_SECRET: required(process.env.JWT_SECRET, 'JWT_SECRET'),
-  DATABASE_URL: required(process.env.DATABASE_URL, 'DATABASE_URL'),
-  BCRYPT_SALT_ROUNDS: Number(process.env.BCRYPT_SALT_ROUNDS ?? 10),
-};
+/**
+ * Red con proxy SSL (universidad, WiFi público): Firebase Admin no puede verificar
+ * el certificado al llamar a Google (UNABLE_TO_VERIFY_LEAF_SIGNATURE).
+ * Solo desarrollo; en .env: SKIP_TLS_VERIFY=true
+ */
+if (process.env.NODE_ENV !== 'production' && process.env.SKIP_TLS_VERIFY === 'true') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  console.warn(
+    '⚠️  SKIP_TLS_VERIFY=true — verificación TLS desactivada (solo desarrollo local)',
+  );
+}
 
+// Define el esquema con Zod
+const envSchema = z.object({
+  // Database
+  DATABASE_URL: z.string().url('DATABASE_URL debe ser una URL válida'),
+  
+  // JWT
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
+  JWT_EXPIRY: z.string().default(
+  process.env.NODE_ENV === 'production' ? '24h' : '7d'
+),
+  
+  // Node
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.coerce.number().default(3000),
+  
+  // Firebase
+  FIREBASE_PROJECT_ID: z.string(),
+  FIREBASE_PRIVATE_KEY: z.string(),
+  FIREBASE_CLIENT_EMAIL: z.string().email(),
+  /** Web API key (Identity Toolkit). En test Jest se usa un placeholder si falta en .env */
+  FIREBASE_WEB_API_KEY: z.preprocess(
+    (v) => {
+      if (typeof v === 'string' && v.length > 0) return v;
+      return process.env.NODE_ENV === 'test' ? 'jest-web-api-key-placeholder' : '';
+    },
+    z
+      .string()
+      .min(1, 'FIREBASE_WEB_API_KEY: añádela al .env (Firebase Console → Project settings → Web API Key)'),
+  ),
+
+  FRONTEND_URL: z.string(),
+
+  /** URL pública del API (sin barra final). Usada en Swagger; por defecto Render en producción. */
+  API_PUBLIC_URL: z
+    .string()
+    .url('API_PUBLIC_URL debe ser una URL válida')
+    .optional(),
+
+  CLOUDINARY_CLOUD_NAME: z.preprocess(
+    (v) => {
+      if (typeof v === 'string' && v.length > 0) return v;
+      return process.env.NODE_ENV === 'test' ? 'test-cloud' : '';
+    },
+    z.string().min(1, 'CLOUDINARY_CLOUD_NAME es obligatoria'),
+  ),
+  CLOUDINARY_API_KEY: z.preprocess(
+    (v) => {
+      if (typeof v === 'string' && v.length > 0) return v;
+      return process.env.NODE_ENV === 'test' ? 'test-key' : '';
+    },
+    z.string().min(1, 'CLOUDINARY_API_KEY es obligatoria'),
+  ),
+  CLOUDINARY_API_SECRET: z.preprocess(
+    (v) => {
+      if (typeof v === 'string' && v.length > 0) return v;
+      return process.env.NODE_ENV === 'test' ? 'test-secret' : '';
+    },
+    z.string().min(1, 'CLOUDINARY_API_SECRET es obligatoria'),
+  ),
+});
+
+// Parsea y exporta
+export const env = envSchema.parse(process.env);
